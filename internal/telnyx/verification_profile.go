@@ -3,13 +3,44 @@ package telnyx
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
-	"io"
 	"net/http"
 )
 
+type VerificationProfile struct {
+	Id                 string `json:"id"`
+	Name               string `json:"name"`
+	WebhookUrl         string `json:"webhook_url"`
+	WebhookFailoverUrl string `json:"webhook_failover_url"`
+	RecordType         string `json:"record_type"`
+	CreatedAt          string `json:"created_at"`
+	UpdatedAt          string `json:"updated_at"`
+	Sms                struct {
+		MessagingTemplateId            string   `json:"messaging_template_id"`
+		AppName                        string   `json:"app_name"`
+		AlphaSender                    string   `json:"alpha_sender"`
+		CodeLength                     string   `json:"code_length"`
+		WhitelistedDestinations        []string `json:"white_listed_destinations"`
+		DefaultTimeoutVerificationSecs int      `json:"default_timeout_verification_secs"`
+	} `json:"sms"`
+	Call struct {
+		MessagingTemplateId            string   `json:"messaging_template_id"`
+		AppName                        string   `json:"app_name"`
+		CodeLength                     string   `json:"code_length"`
+		WhitelistedDestinations        []string `json:"white_listed_destinations"`
+		DefaultTimeoutVerificationSecs int      `json:"default_timeout_verification_secs"`
+	} `json:"call"`
+	FlashCall struct {
+		DefaultTimeoutVerificationSecs int `json:"default_timeout_verification_secs"`
+	} `json:"flash_call"`
+	Language string `json:"string"`
+}
+
+func (vp VerificationProfile) GetRecordType() string {
+	return vp.RecordType
+}
+
 type CreateVerifyProfileParams struct {
-	Name               string `json:""`
+	Name               string `json:"name"`
 	WebhookUrl         string `json:"webhook_url,omitempty"`
 	WebhookFailoverUrl string `json:"webhook_failover_url,omitempty"`
 	Sms                *struct {
@@ -52,21 +83,10 @@ func (c *Client) CreateVerifyProfile(params CreateVerifyProfileParams) (*ApiResp
 		return nil, err
 	}
 
-	if resp.StatusCode >= 500 {
-		return nil, fmt.Errorf("Server Error")
-	} else if resp.StatusCode >= 400 {
-		content, err := io.ReadAll(resp.Body)
-		if err != nil {
-			return nil, err
-		}
-		return nil, fmt.Errorf("Telnyx error: %s", string(content))
-	} // check 300 ?
-
 	var result ApiResponse[VerificationProfile]
-	err = json.NewDecoder(resp.Body).Decode(&result)
+	err = c.processResponse(resp, &result)
 	if err != nil {
 		return nil, err
 	}
-
 	return &result, nil
 }

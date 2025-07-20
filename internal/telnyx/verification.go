@@ -4,15 +4,31 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 )
 
-type TriggerSmsVerificationParams struct {
+type Verification struct {
+	Id              string  `json:"id"`
+	Type            string  `json:"type"`
+	RecordType      string  `json:"record_type"`
 	PhoneNumber     string  `json:"phone_number"`
 	VerifyProfileId string  `json:"verify_profile_id"`
-	CustomCode      *string `json:"custom_code,omitempty"`
-	TimeoutSecs     int     `json:"timeout_secs,omitempty"`
+	CustomCode      *string `json:"custom_code"`
+	TimeoutSecs     int     `json:"timeout_secs"`
+	Status          string  `json:"status"`
+	CreatedAt       string  `json:"created_at"`
+	UpdatedAt       string  `json:"updated_at"`
+}
+
+func (v Verification) GetRecordType() string {
+	return v.RecordType
+}
+
+type TriggerSmsVerificationParams struct {
+	PhoneNumber     string `json:"phone_number"`
+	VerifyProfileId string `json:"verify_profile_id"`
+	CustomCode      string `json:"custom_code,omitempty"`
+	TimeoutSecs     int    `json:"timeout_secs,omitempty"`
 }
 
 func (c *Client) TriggerSmsVerification(params TriggerSmsVerificationParams) (*ApiResponse[Verification], error) {
@@ -33,18 +49,8 @@ func (c *Client) TriggerSmsVerification(params TriggerSmsVerificationParams) (*A
 		return nil, err
 	}
 
-	if resp.StatusCode >= 500 {
-		return nil, fmt.Errorf("Server Error")
-	} else if resp.StatusCode >= 400 {
-		content, err := io.ReadAll(resp.Body)
-		if err != nil {
-			return nil, err
-		}
-		return nil, fmt.Errorf("Telnyx error: %s", string(content))
-	} // check 300 ?
-
 	var result ApiResponse[Verification]
-	err = json.NewDecoder(resp.Body).Decode(&result)
+	err = c.processResponse(resp, &result)
 	if err != nil {
 		return nil, err
 	}
@@ -70,18 +76,8 @@ func (c *Client) VerifyCode(verificationId, code string) (map[string]any, error)
 		return nil, err
 	}
 
-	if resp.StatusCode >= 500 {
-		return nil, fmt.Errorf("Server Error")
-	} else if resp.StatusCode >= 400 {
-		content, err := io.ReadAll(resp.Body)
-		if err != nil {
-			return nil, err
-		}
-		return nil, fmt.Errorf("Telnyx error: %s", string(content))
-	} // check 300 ?
-
 	var result map[string]any
-	err = json.NewDecoder(resp.Body).Decode(&result)
+	err = c.processResponse(resp, &result)
 	if err != nil {
 		return nil, err
 	}
