@@ -11,8 +11,8 @@ import (
 type TriggerSmsVerificationParams struct {
 	PhoneNumber     string  `json:"phone_number"`
 	VerifyProfileId string  `json:"verify_profile_id"`
-	CustomCode      *string `json:"custom_code"`
-	TimeoutSecs     int     `json:"timeout_secs"`
+	CustomCode      *string `json:"custom_code,omitempty"`
+	TimeoutSecs     int     `json:"timeout_secs,omitempty"`
 }
 
 func (c *Client) TriggerSmsVerification(params TriggerSmsVerificationParams) (*ApiResponse[Verification], error) {
