@@ -23,10 +23,25 @@ type Verification struct {
 }
 
 type TriggerSmsVerificationParams struct {
-	PhoneNumber     string `json:"phone_number"`
-	VerifyProfileId string `json:"verify_profile_id"`
-	CustomCode      string `json:"custom_code,omitempty"`
-	TimeoutSecs     int    `json:"timeout_secs,omitempty"`
+	m map[string]any
+}
+
+func (p *TriggerSmsVerificationParams) MarshalJSON() ([]byte, error) {
+	return json.Marshal(p.m)
+}
+
+func (p *TriggerSmsVerificationParams) SetCustomCode(customCode string) {
+	p.m["custom_code"] = customCode
+}
+
+func (p *TriggerSmsVerificationParams) SetTimeoutSecs(timeoutSecs string) {
+	p.m["timeout_secs"] = timeoutSecs
+}
+
+func NewTriggerSmsVerificationParams(phoneNumber, verifyProfileId string) *TriggerSmsVerificationParams {
+	m := map[string]any{"phone_number": phoneNumber, "verify_profile_id": verifyProfileId}
+	p := &TriggerSmsVerificationParams{m: m}
+	return p
 }
 
 func (c *Client) TriggerSmsVerification(params *TriggerSmsVerificationParams) (*Verification, error) {

@@ -37,36 +37,48 @@ type VerificationProfileResponse struct {
 	} `json:"data"`
 }
 
-type CreateVerifyProfileSmsParams struct {
-	MessagingTemplateId            string   `json:"messaging_template_id.omitempty"`
-	AppName                        string   `json:"app_name,omitempty"`
-	AlphaSender                    string   `json:"alpha_sender,omitempty"`
-	CodeLength                     int      `json:"code_length,omitempty"`
-	WhiteListedDestinations        []string `json:"whitelisted_destinations,omitempty"`
-	DefaultVerificationTimeoutSecs int      `json:"default_verification_timeout_secs,omitempty"`
-}
-
-type CreateVerifyProfileCallParams struct {
-	MessagingTemplateId            string   `json:"messaging_template_id.omitempty"`
-	AppName                        string   `json:"app_name,omitempty"`
-	AlphaSender                    string   `json:"alpha_sender,omitempty"`
-	CodeLength                     int      `json:"code_length,omitempty"`
-	WhiteListedDestinations        []string `json:"whitelisted_destinations,omitempty"`
-	DefaultVerificationTimeoutSecs int      `json:"default_verification_timeout_secs,omitempty"`
-}
-
-type CreateVerifyProfileFlashCallParams struct {
-	WhiteListedDestinations        []string `json:"whitelisted_destinations,omitempty"`
-	DefaultVerificationTimeoutSecs int      `json:"default_verification_timeout_secs,omitempty"`
-}
-
 type CreateVerifyProfileParams struct {
-	Name               string                              `json:"name"`
-	WebhookUrl         string                              `json:"webhook_url,omitempty"`
-	WebhookFailoverUrl string                              `json:"webhook_failover_url,omitempty"`
-	Sms                *CreateVerifyProfileSmsParams       `json:"sms,omitempty"`
-	Call               *CreateVerifyProfileCallParams      `json:"call,omitempty"`
-	FlashCall          *CreateVerifyProfileFlashCallParams `json:"flash_call,omitempty"`
+	m map[string]any
+}
+
+func NewCreateVerifyProfileParams(name string) *CreateVerifyProfileParams {
+	m := map[string]any{"name": name}
+	p := &CreateVerifyProfileParams{m: m}
+	return p
+}
+
+func (p *CreateVerifyProfileParams) setSms(k string, v any) {
+	val, exists := p.m["sms"]
+	if !exists {
+		p.m["sms"] = map[string]any{k: v}
+		return
+	}
+	sms, isMap := val.(map[string]any)
+	if !isMap {
+		panic("should never happen")
+	}
+	sms[k] = v
+
+}
+
+func (p *CreateVerifyProfileParams) SetSmsMessagingTemplateId(templateId string) {
+	p.setSms("messaging_template_id", templateId)
+}
+
+func (p *CreateVerifyProfileParams) SetSmsAppName(appName string) {
+	p.setSms("app_name", appName)
+}
+
+func (p *CreateVerifyProfileParams) SetSmsCodeLength(codeLength string) {
+	p.setSms("code_length", codeLength)
+}
+
+func (p *CreateVerifyProfileParams) SetSmsWhitelistedDestinations(destinations []string) {
+	p.setSms("whitelisted_destinations", destinations)
+}
+
+func (p *CreateVerifyProfileParams) SetSmsDefaultVerificationTimeoutSecs(v int) {
+	p.setSms("default_verification_timeout_secs", v)
 }
 
 /*
