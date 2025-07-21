@@ -24,8 +24,7 @@ func (c *Client) CreateService(params CreateServiceParams) (map[string]any, erro
 		return nil, err
 	}
 
-	client := &http.Client{}
-	resp, err := client.Do(req)
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, err
 	}

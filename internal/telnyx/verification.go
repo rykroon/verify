@@ -8,20 +8,18 @@ import (
 )
 
 type Verification struct {
-	Id              string  `json:"id"`
-	Type            string  `json:"type"`
-	RecordType      string  `json:"record_type"`
-	PhoneNumber     string  `json:"phone_number"`
-	VerifyProfileId string  `json:"verify_profile_id"`
-	CustomCode      *string `json:"custom_code"`
-	TimeoutSecs     int     `json:"timeout_secs"`
-	Status          string  `json:"status"`
-	CreatedAt       string  `json:"created_at"`
-	UpdatedAt       string  `json:"updated_at"`
-}
-
-func (v Verification) GetRecordType() string {
-	return v.RecordType
+	Data struct {
+		Id              string  `json:"id"`
+		Type            string  `json:"type"`
+		RecordType      string  `json:"record_type"`
+		PhoneNumber     string  `json:"phone_number"`
+		VerifyProfileId string  `json:"verify_profile_id"`
+		CustomCode      *string `json:"custom_code"`
+		TimeoutSecs     int     `json:"timeout_secs"`
+		Status          string  `json:"status"`
+		CreatedAt       string  `json:"created_at"`
+		UpdatedAt       string  `json:"updated_at"`
+	} `json:"data"`
 }
 
 type TriggerSmsVerificationParams struct {
@@ -31,7 +29,7 @@ type TriggerSmsVerificationParams struct {
 	TimeoutSecs     int    `json:"timeout_secs,omitempty"`
 }
 
-func (c *Client) TriggerSmsVerification(params TriggerSmsVerificationParams) (*ApiResponse[Verification], error) {
+func (c *Client) TriggerSmsVerification(params *TriggerSmsVerificationParams) (*Verification, error) {
 	var buf bytes.Buffer
 	err := json.NewEncoder(&buf).Encode(params)
 	if err != nil {
@@ -43,19 +41,18 @@ func (c *Client) TriggerSmsVerification(params TriggerSmsVerificationParams) (*A
 		return nil, err
 	}
 
-	client := &http.Client{}
-	resp, err := client.Do(req)
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
 
-	var result ApiResponse[Verification]
+	var result *Verification
 	err = c.processResponse(resp, &result)
 	if err != nil {
 		return nil, err
 	}
 
-	return &result, nil
+	return result, nil
 }
 
 func (c *Client) VerifyCode(verificationId, code string) (map[string]any, error) {
@@ -70,8 +67,7 @@ func (c *Client) VerifyCode(verificationId, code string) (map[string]any, error)
 	if err != nil {
 		return nil, err
 	}
-	client := &http.Client{}
-	resp, err := client.Do(req)
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, err
 	}

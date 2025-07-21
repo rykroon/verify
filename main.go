@@ -9,7 +9,7 @@ import (
 func main() {
 	fmt.Println("Hello World!")
 	client := telnyx.NewClient("")
-	params := telnyx.TriggerSmsVerificationParams{
+	params := &telnyx.TriggerSmsVerificationParams{
 		PhoneNumber:     "+17325132147",
 		VerifyProfileId: "4900018e-c5c2-5b29-0fc3-ece4b31251e5",
 	}
