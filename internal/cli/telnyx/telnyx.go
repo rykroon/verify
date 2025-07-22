@@ -11,6 +11,7 @@ var TelnyxCmd = &cobra.Command{
 }
 
 func init() {
+	TelnyxCmd.AddCommand(listProfilesCmd)
 	TelnyxCmd.AddCommand(createProfileCmd)
 	TelnyxCmd.AddCommand(triggerSmsCmd)
 }

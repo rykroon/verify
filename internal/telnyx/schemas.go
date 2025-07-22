@@ -14,7 +14,7 @@ type Verification struct {
 }
 
 type VerificationResponse struct {
-	Data *Verification `json:"data"`
+	Data Verification `json:"data"`
 }
 
 type VerificationProfile struct {
@@ -29,28 +29,52 @@ type VerificationProfile struct {
 		MessagingTemplateId            string   `json:"messaging_template_id"`
 		AppName                        string   `json:"app_name"`
 		AlphaSender                    string   `json:"alpha_sender"`
-		CodeLength                     string   `json:"code_length"`
+		CodeLength                     int      `json:"code_length"`
 		WhitelistedDestinations        []string `json:"white_listed_destinations"`
 		DefaultTimeoutVerificationSecs int      `json:"default_timeout_verification_secs"`
 	} `json:"sms"`
 	Call struct {
 		MessagingTemplateId            string   `json:"messaging_template_id"`
 		AppName                        string   `json:"app_name"`
-		CodeLength                     string   `json:"code_length"`
+		CodeLength                     int      `json:"code_length"`
 		WhitelistedDestinations        []string `json:"white_listed_destinations"`
 		DefaultTimeoutVerificationSecs int      `json:"default_timeout_verification_secs"`
 	} `json:"call"`
 	FlashCall struct {
 		DefaultTimeoutVerificationSecs int `json:"default_timeout_verification_secs"`
 	} `json:"flash_call"`
-	Language string `json:"string"`
+	Language string `json:"language"`
 }
 
 type VerificationProfileResponse struct {
-	Data *VerificationProfile `json:"data"`
+	Data VerificationProfile `json:"data"`
 }
 
 type VerificationProfileListResponse struct {
-	Data []*VerificationProfile `json:"data"`
-	//Meta
+	Data []VerificationProfile `json:"data"`
+	Meta ListMeta
+}
+
+type ListMeta struct {
+	TotalPages   int `json:"total_pages"`
+	TotalResults int `json:"total_results"`
+	PageNumber   int `json:"page_number"`
+	PageSize     int `json:"page_size"`
+}
+
+type TelnyxError struct {
+	Code   int    `json:"code"`
+	Title  string `json:"title"`
+	Detail string `json:"detail"`
+	Source struct {
+		Pointer   string `json:"pointer"`
+		Parameter string `json:"parameter"`
+	}
+	Meta struct {
+		Url string `json:"url"`
+	} `json:"meta"`
+}
+
+type TelnyxErrorResponse struct {
+	Errors []TelnyxError `json:"errors"`
 }
