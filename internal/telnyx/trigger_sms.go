@@ -30,7 +30,7 @@ func (p *TriggerSmsVerificationParams) SetTimeoutSecs(timeoutSecs string) *Trigg
 	return p
 }
 
-func (c *Client) TriggerSmsVerification(params *TriggerSmsVerificationParams) (*Verification, error) {
+func (c *Client) TriggerSmsVerification(params *TriggerSmsVerificationParams) (*VerificationResponse, error) {
 	body, err := params.ToReader()
 	if err != nil {
 		return nil, err
@@ -46,7 +46,7 @@ func (c *Client) TriggerSmsVerification(params *TriggerSmsVerificationParams) (*
 		return nil, err
 	}
 
-	var result *Verification
+	var result *VerificationResponse
 	err = c.processResponse(resp, &result)
 	if err != nil {
 		return nil, err
