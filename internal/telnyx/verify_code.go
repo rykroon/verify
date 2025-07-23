@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+
+	"github.com/rykroon/verify/internal/httpx"
 )
 
 func (c *Client) VerifyCode(verificationId, code string) (map[string]any, error) {
@@ -25,7 +27,7 @@ func (c *Client) VerifyCode(verificationId, code string) (map[string]any, error)
 	}
 
 	var result map[string]any
-	err = c.processResponse(resp, &result)
+	err = httpx.HandleResponse(resp, &result)
 	if err != nil {
 		return nil, err
 	}

@@ -3,16 +3,16 @@ package telnyx
 import (
 	"net/http"
 
-	"github.com/rykroon/verify/internal/params"
+	"github.com/rykroon/verify/internal/httpx"
 )
 
 type TriggerSmsVerificationParams struct {
-	*params.ParamBuilder
+	*httpx.JsonBodyBuilder
 }
 
 func NewTriggerSmsVerificationParams(phoneNumber, verifyProfileId string) *TriggerSmsVerificationParams {
 	return &TriggerSmsVerificationParams{
-		params.NewParamBuilder().Set(
+		httpx.NewJsonBodyBuilder().Set(
 			"phone_number", phoneNumber,
 		).Set(
 			"verify_profile_id", verifyProfileId,
@@ -47,7 +47,7 @@ func (c *Client) TriggerSmsVerification(params *TriggerSmsVerificationParams) (*
 	}
 
 	var result *VerificationResponse
-	err = c.processResponse(resp, &result)
+	err = httpx.HandleResponse(resp, &result)
 	if err != nil {
 		return nil, err
 	}

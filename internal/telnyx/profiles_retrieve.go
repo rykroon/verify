@@ -1,6 +1,10 @@
 package telnyx
 
-import "net/http"
+import (
+	"net/http"
+
+	"github.com/rykroon/verify/internal/httpx"
+)
 
 func (c *Client) RetrieveVerifyProfile(verifyProfileId string) (*VerificationProfileResponse, error) {
 	path := "verify_profiles/" + verifyProfileId
@@ -13,7 +17,7 @@ func (c *Client) RetrieveVerifyProfile(verifyProfileId string) (*VerificationPro
 		return nil, err
 	}
 	var result *VerificationProfileResponse
-	err = c.processResponse(resp, result)
+	err = httpx.HandleResponse(resp, result)
 	if err != nil {
 		return nil, err
 	}

@@ -3,15 +3,15 @@ package telnyx
 import (
 	"net/http"
 
-	"github.com/rykroon/verify/internal/params"
+	"github.com/rykroon/verify/internal/httpx"
 )
 
 type CreateVerifyProfileParams struct {
-	*params.ParamBuilder
+	*httpx.JsonBodyBuilder
 }
 
 func NewCreateVerifyProfileParams(name string) *CreateVerifyProfileParams {
-	p := &CreateVerifyProfileParams{params.NewParamBuilder().Set("name", name)}
+	p := &CreateVerifyProfileParams{httpx.NewJsonBodyBuilder().Set("name", name)}
 	return p
 }
 
@@ -60,7 +60,7 @@ func (c *Client) CreateVerifyProfile(params *CreateVerifyProfileParams) (*Verifi
 	}
 
 	var result *VerificationProfileResponse
-	err = c.processResponse(resp, &result)
+	err = httpx.HandleResponse(resp, &result)
 	if err != nil {
 		return nil, err
 	}

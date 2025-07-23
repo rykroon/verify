@@ -1,6 +1,10 @@
 package telnyx
 
-import "net/http"
+import (
+	"net/http"
+
+	"github.com/rykroon/verify/internal/httpx"
+)
 
 func (c *Client) ListVerifyProfiles() (*VerificationProfileListResponse, error) {
 	req, err := c.newRequest("GET", "verify_profiles", nil)
@@ -12,7 +16,7 @@ func (c *Client) ListVerifyProfiles() (*VerificationProfileListResponse, error) 
 		return nil, err
 	}
 	var result *VerificationProfileListResponse
-	err = c.processResponse(resp, &result)
+	err = httpx.HandleResponse(resp, &result)
 	if err != nil {
 		return nil, err
 	}
