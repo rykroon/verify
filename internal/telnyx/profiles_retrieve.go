@@ -8,12 +8,8 @@ func (c *Client) RetrieveVerifyProfile(verifyProfileId string) (*VerificationPro
 	if err != nil {
 		return nil, err
 	}
-	if !resp.IsSuccess() {
-		if resp.IsServerError() {
-			return nil, fmt.Errorf("server error")
-		} else if resp.IsClientError() {
-			return nil, fmt.Errorf("Telnyx Error: %s", string(resp.BodyBytes))
-		}
+	if !resp.IsJson() {
+		return nil, fmt.Errorf("expected json response")
 	}
 	var result *VerificationProfileResponse
 	err = resp.ToJson(&result)

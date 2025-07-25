@@ -1,7 +1,7 @@
 package telnyx
 
 import (
-	"io"
+	"fmt"
 	"net/http"
 	"net/url"
 
@@ -22,40 +22,37 @@ func (c *Client) sendRequest(method, path string, builder httpx.BodyBuilder) (*h
 		return nil, err
 	}
 
-	var body io.Reader
+	var req *http.Request
 	if builder != nil {
+		contentType := builder.ContentType()
 		reader, err := builder.ToReader()
 		if err != nil {
 			return nil, err
 		}
-		body = reader
+		req, err = httpx.NewRequestWithBody(method, urlStr, contentType, reader)
+	} else {
+		req, err = httpx.NewRequestWithParams(method, urlStr, nil)
 	}
 
-	req, err := httpx.NewRequest(method, urlStr, body)
-
-	if builder != nil {
-		req.SetContentType(builder.ContentType())
-	}
-
-	req.SetBearerToken(c.apiToken)
-
-	resp, err := http.DefaultClient.Do(req.Request)
 	if err != nil {
 		return nil, err
 	}
 
-	bodyBytes, err := io.ReadAll(resp.Body)
+	httpx.SetBearerToken(req, c.apiToken)
+
+	resp, err := httpx.Do(http.DefaultClient, req)
 	if err != nil {
 		return nil, err
 	}
 
-	return &httpx.Response{Response: resp, BodyBytes: bodyBytes}, nil
+	body, err := resp.ReadBody()
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.IsError() {
+		return nil, fmt.Errorf("http server error %d, %s", resp.StatusCode, string(body))
+	}
+
+	return resp, nil
 }
-
-// type Record interface {
-// 	GetRecordType() string
-// }
-
-// type ApiResponse[T Record] struct {
-// 	Data T `json:"data"`
-// }

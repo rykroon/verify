@@ -1,46 +1,31 @@
 package httpx
 
 import (
-	"encoding/base64"
-	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 )
 
-type Request struct {
-	*http.Request
-}
-
-func NewRequest(method, url string, body io.Reader) (*Request, error) {
+func NewRequestWithBody(method, url, contentType string, body io.Reader) (*http.Request, error) {
 	req, err := http.NewRequest(method, url, body)
 	if err != nil {
 		return nil, err
 	}
-	return &Request{req}, nil
+	req.Header.Set("Content-Type", contentType)
+	return req, nil
 }
 
-func (r *Request) SetHeader(k, v string) *Request {
-	r.Header.Set(k, v)
-	return r
+func NewRequestWithParams(method, urlStr string, params url.Values) (*http.Request, error) {
+	req, err := http.NewRequest(method, urlStr, nil)
+	if err != nil {
+		return nil, err
+	}
+	if params != nil {
+		req.URL.RawQuery = params.Encode()
+	}
+	return req, nil
 }
 
-func (r *Request) SetContentType(contentType string) *Request {
-	r.SetHeader("Content-Type", contentType)
-	return r
-}
-
-func (r *Request) SetAuth(scheme, credential string) *Request {
-	r.SetHeader("Authorization", fmt.Sprintf("%s %s", scheme, credential))
-	return r
-}
-
-func (r *Request) SetBasicAuth(username, password string) *Request {
-	auth := username + ":" + password
-	credential := base64.StdEncoding.EncodeToString([]byte(auth))
-	r.SetAuth("Basic", credential)
-	return r
-}
-
-func (r *Request) SetBearerToken(token string) *Request {
-	return r.SetAuth("Bearer", token)
+func SetBearerToken(req *http.Request, token string) {
+	req.Header.Set("Authorization", "Bearer "+token)
 }

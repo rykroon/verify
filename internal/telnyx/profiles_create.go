@@ -49,15 +49,10 @@ func (c *Client) CreateVerifyProfile(params *CreateVerifyProfileParams) (*Verifi
 		return nil, err
 	}
 
-	if !resp.IsSuccess() {
-		if resp.IsServerError() {
-			return nil, fmt.Errorf("server error")
-		} else if resp.IsClientError() {
-			return nil, fmt.Errorf("Telnyx Error: %s", string(resp.BodyBytes))
-		}
-	}
-
 	var result *VerificationProfileResponse
+	if !resp.IsJson() {
+		return nil, fmt.Errorf("expected json response")
+	}
 	err = resp.ToJson(&result)
 	if err != nil {
 		return nil, err
