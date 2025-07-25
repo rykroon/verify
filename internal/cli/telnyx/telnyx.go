@@ -14,4 +14,5 @@ func init() {
 	TelnyxCmd.AddCommand(listProfilesCmd)
 	TelnyxCmd.AddCommand(createProfileCmd)
 	TelnyxCmd.AddCommand(triggerSmsCmd)
+	TelnyxCmd.AddCommand(verifyCodeCmd)
 }

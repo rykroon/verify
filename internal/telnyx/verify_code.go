@@ -1,33 +1,28 @@
 package telnyx
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
-	"net/http"
 
 	"github.com/rykroon/verify/internal/httpx"
 )
 
 func (c *Client) VerifyCode(verificationId, code string) (map[string]any, error) {
-	params := map[string]any{"code": code}
-	var buf bytes.Buffer
-	err := json.NewEncoder(&buf).Encode(params)
-	if err != nil {
-		return nil, err
-	}
+	params := httpx.NewJsonBodyBuilder().Set("code", code)
 	path := fmt.Sprintf("verifications/%s/actions/verify", verificationId)
-	req, err := c.newRequest("POST", path, &buf)
+	resp, err := c.sendRequest("POST", path, params)
 	if err != nil {
 		return nil, err
 	}
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return nil, err
+	if !resp.IsSuccess() {
+		if resp.IsServerError() {
+			return nil, fmt.Errorf("server error")
+		} else if resp.IsClientError() {
+			return nil, fmt.Errorf("Telnyx Error: %s", string(resp.BodyBytes))
+		}
 	}
 
 	var result map[string]any
-	err = httpx.HandleResponse(resp, &result)
+	err = resp.ToJson(&result)
 	if err != nil {
 		return nil, err
 	}

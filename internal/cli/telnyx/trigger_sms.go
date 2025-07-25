@@ -40,7 +40,7 @@ func runTriggerSms(cmd *cobra.Command, args []string) error {
 
 func init() {
 	triggerSmsCmd.Flags().StringVarP(&phoneNumber, "phone-number", "p", "", "+E164 formatted phone number.")
-	triggerSmsCmd.Flags().StringVarP(&verifyProfileId, "verify-profile-id", "v", "", "The identifier of the associated Verify profile.")
+	triggerSmsCmd.Flags().StringVarP(&verifyProfileId, "verify-profile-id", "V", "", "The identifier of the associated Verify profile.")
 
 	triggerSmsCmd.MarkFlagRequired("phone-number")
 	triggerSmsCmd.MarkFlagRequired("verify-profile-id")

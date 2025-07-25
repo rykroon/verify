@@ -4,14 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
-	"net/url"
 	"strings"
 )
-
-type BodyBuilder interface {
-	ToReader() (io.Reader, error)
-	ContentType() string
-}
 
 type JsonBodyBuilder struct {
 	data map[string]any
@@ -22,6 +16,11 @@ func NewJsonBodyBuilder() *JsonBodyBuilder {
 }
 
 func (b *JsonBodyBuilder) Set(k string, v any) *JsonBodyBuilder {
+	b.data[k] = v
+	return b
+}
+
+func (b *JsonBodyBuilder) SetPath(k string, v any) *JsonBodyBuilder {
 	parts := strings.Split(k, ".")
 
 	current := b.data
@@ -60,25 +59,4 @@ func (b *JsonBodyBuilder) ToReader() (io.Reader, error) {
 
 func (b *JsonBodyBuilder) ContentType() string {
 	return "application/json"
-}
-
-type FormBodyBuilder struct {
-	values url.Values
-}
-
-func NewFormBodyBuilder() *FormBodyBuilder {
-	return &FormBodyBuilder{values: url.Values{}}
-}
-
-func (b *FormBodyBuilder) Set(k, v string) *FormBodyBuilder {
-	b.values.Set(k, v)
-	return b
-}
-
-func (b *FormBodyBuilder) ToReader() io.Reader {
-	return strings.NewReader(b.values.Encode())
-}
-
-func (b *FormBodyBuilder) ContentType() string {
-	return "application/x-www-form-urlencoded"
 }

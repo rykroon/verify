@@ -1,10 +1,11 @@
 package telnyx
 
 import (
-	"fmt"
 	"io"
 	"net/http"
-	neturl "net/url"
+	"net/url"
+
+	"github.com/rykroon/verify/internal/httpx"
 )
 
 type Client struct {
@@ -15,17 +16,40 @@ func NewClient(apiToken string) *Client {
 	return &Client{apiToken: apiToken}
 }
 
-func (c *Client) newRequest(method, path string, body io.Reader) (*http.Request, error) {
-	url, err := neturl.JoinPath("https://api.telnyx.com/v2", path)
+func (c *Client) sendRequest(method, path string, builder httpx.BodyBuilder) (*httpx.Response, error) {
+	urlStr, err := url.JoinPath("https://api.telnyx.com/v2", path)
 	if err != nil {
 		return nil, err
 	}
-	req, err := http.NewRequest(method, url, body)
+
+	var body io.Reader
+	if builder != nil {
+		reader, err := builder.ToReader()
+		if err != nil {
+			return nil, err
+		}
+		body = reader
+	}
+
+	req, err := httpx.NewRequest(method, urlStr, body)
+
+	if builder != nil {
+		req.SetContentType(builder.ContentType())
+	}
+
+	req.SetBearerToken(c.apiToken)
+
+	resp, err := http.DefaultClient.Do(req.Request)
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.apiToken))
-	return req, nil
+
+	bodyBytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	return &httpx.Response{Response: resp, BodyBytes: bodyBytes}, nil
 }
 
 // type Record interface {

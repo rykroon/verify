@@ -1,7 +1,7 @@
 package telnyx
 
 import (
-	"net/http"
+	"fmt"
 
 	"github.com/rykroon/verify/internal/httpx"
 )
@@ -31,23 +31,19 @@ func (p *TriggerSmsVerificationParams) SetTimeoutSecs(timeoutSecs string) *Trigg
 }
 
 func (c *Client) TriggerSmsVerification(params *TriggerSmsVerificationParams) (*VerificationResponse, error) {
-	body, err := params.ToReader()
+	resp, err := c.sendRequest("POST", "/verifications/sms", params)
 	if err != nil {
 		return nil, err
 	}
-
-	req, err := c.newRequest("POST", "/verifications/sms", body)
-	if err != nil {
-		return nil, err
+	if !resp.IsSuccess() {
+		if resp.IsServerError() {
+			return nil, fmt.Errorf("server error")
+		} else if resp.IsClientError() {
+			return nil, fmt.Errorf("Telnyx Error: %s", string(resp.BodyBytes))
+		}
 	}
-
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return nil, err
-	}
-
 	var result *VerificationResponse
-	err = httpx.HandleResponse(resp, &result)
+	err = resp.ToJson(&result)
 	if err != nil {
 		return nil, err
 	}

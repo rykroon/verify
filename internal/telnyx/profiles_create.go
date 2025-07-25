@@ -1,7 +1,7 @@
 package telnyx
 
 import (
-	"net/http"
+	"fmt"
 
 	"github.com/rykroon/verify/internal/httpx"
 )
@@ -16,27 +16,27 @@ func NewCreateVerifyProfileParams(name string) *CreateVerifyProfileParams {
 }
 
 func (p *CreateVerifyProfileParams) SetSmsMessagingTemplateId(templateId string) *CreateVerifyProfileParams {
-	p.Set("sms.messaging_template_id", templateId)
+	p.SetPath("sms.messaging_template_id", templateId)
 	return p
 }
 
 func (p *CreateVerifyProfileParams) SetSmsAppName(appName string) *CreateVerifyProfileParams {
-	p.Set("sms.app_name", appName)
+	p.SetPath("sms.app_name", appName)
 	return p
 }
 
 func (p *CreateVerifyProfileParams) SetSmsCodeLength(codeLength string) *CreateVerifyProfileParams {
-	p.Set("sms.code_length", codeLength)
+	p.SetPath("sms.code_length", codeLength)
 	return p
 }
 
 func (p *CreateVerifyProfileParams) SetSmsWhitelistedDestinations(destinations []string) *CreateVerifyProfileParams {
-	p.Set("sms.whitelisted_destinations", destinations)
+	p.SetPath("sms.whitelisted_destinations", destinations)
 	return p
 }
 
 func (p *CreateVerifyProfileParams) SetSmsDefaultVerificationTimeoutSecs(v int) *CreateVerifyProfileParams {
-	p.Set("sms.default_verification_timeout_secs", v)
+	p.SetPath("sms.default_verification_timeout_secs", v)
 	return p
 }
 
@@ -44,23 +44,21 @@ func (p *CreateVerifyProfileParams) SetSmsDefaultVerificationTimeoutSecs(v int) 
 https://developers.telnyx.com/api/verify/create-verify-profile
 */
 func (c *Client) CreateVerifyProfile(params *CreateVerifyProfileParams) (*VerificationProfileResponse, error) {
-	body, err := params.ToReader()
+	resp, err := c.sendRequest("POST", "/verify_profiles", params)
 	if err != nil {
 		return nil, err
 	}
 
-	req, err := c.newRequest("POST", "/verify_profiles", body)
-	if err != nil {
-		return nil, err
-	}
-
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return nil, err
+	if !resp.IsSuccess() {
+		if resp.IsServerError() {
+			return nil, fmt.Errorf("server error")
+		} else if resp.IsClientError() {
+			return nil, fmt.Errorf("Telnyx Error: %s", string(resp.BodyBytes))
+		}
 	}
 
 	var result *VerificationProfileResponse
-	err = httpx.HandleResponse(resp, &result)
+	err = resp.ToJson(&result)
 	if err != nil {
 		return nil, err
 	}

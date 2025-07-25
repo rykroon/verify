@@ -1,22 +1,25 @@
 package telnyx
 
 import (
-	"net/http"
-
-	"github.com/rykroon/verify/internal/httpx"
+	"fmt"
 )
 
 func (c *Client) ListVerifyProfiles() (*VerificationProfileListResponse, error) {
-	req, err := c.newRequest("GET", "verify_profiles", nil)
+	resp, err := c.sendRequest("GET", "verify_profiles", nil)
 	if err != nil {
 		return nil, err
 	}
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return nil, err
+
+	if !resp.IsSuccess() {
+		if resp.IsServerError() {
+			return nil, fmt.Errorf("server error")
+		} else if resp.IsClientError() {
+			return nil, fmt.Errorf("Telnyx Error: %s", string(resp.BodyBytes))
+		}
 	}
+
 	var result *VerificationProfileListResponse
-	err = httpx.HandleResponse(resp, &result)
+	err = resp.ToJson(&result)
 	if err != nil {
 		return nil, err
 	}

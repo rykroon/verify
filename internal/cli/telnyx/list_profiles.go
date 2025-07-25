@@ -22,11 +22,11 @@ func runListProfiles(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	bites, err := json.MarshalIndent(result, "", "  ")
+	bytes_, err := json.MarshalIndent(result, "", "  ")
 	if err != nil {
 		return err
 	}
-	fmt.Println(string(bites))
+	fmt.Println(string(bytes_))
 	return nil
 }
 
