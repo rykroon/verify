@@ -9,6 +9,7 @@ import (
 
 type JsonBodyBuilder struct {
 	data map[string]any
+	buf  *bytes.Buffer
 }
 
 func NewJsonBodyBuilder() *JsonBodyBuilder {
@@ -49,12 +50,19 @@ func (b *JsonBodyBuilder) SetPath(k string, v any) *JsonBodyBuilder {
 	return b
 }
 
-func (b *JsonBodyBuilder) ToReader() (io.Reader, error) {
-	bytes_, err := json.Marshal(b.data)
-	if err != nil {
-		return nil, err
+func (b *JsonBodyBuilder) Encode() error {
+	buf := new(bytes.Buffer)
+	if err := json.NewEncoder(buf).Encode(b.data); err != nil {
+		return err
 	}
-	return bytes.NewReader(bytes_), nil
+	return nil
+}
+
+func (b *JsonBodyBuilder) Reader() io.Reader {
+	if b.buf == nil {
+		panic("JsonBody must be encoded before use")
+	}
+	return b.buf
 }
 
 func (b *JsonBodyBuilder) ContentType() string {

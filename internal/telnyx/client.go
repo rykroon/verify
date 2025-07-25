@@ -16,20 +16,15 @@ func NewClient(apiToken string) *Client {
 	return &Client{apiToken: apiToken}
 }
 
-func (c *Client) sendRequest(method, path string, builder httpx.BodyBuilder) (*httpx.Response, error) {
+func (c *Client) sendRequest(method, path string, body httpx.BodyEncoder) (*httpx.Response, error) {
 	urlStr, err := url.JoinPath("https://api.telnyx.com/v2", path)
 	if err != nil {
 		return nil, err
 	}
 
 	var req *http.Request
-	if builder != nil {
-		contentType := builder.ContentType()
-		reader, err := builder.ToReader()
-		if err != nil {
-			return nil, err
-		}
-		req, err = httpx.NewRequestWithBody(method, urlStr, contentType, reader)
+	if body != nil {
+		req, err = httpx.NewRequestWithBody(method, urlStr, body.ContentType(), body.Reader())
 	} else {
 		req, err = httpx.NewRequestWithParams(method, urlStr, nil)
 	}
@@ -45,13 +40,13 @@ func (c *Client) sendRequest(method, path string, builder httpx.BodyBuilder) (*h
 		return nil, err
 	}
 
-	body, err := resp.ReadBody()
+	respBody, err := resp.ReadBody()
 	if err != nil {
 		return nil, err
 	}
 
 	if resp.IsError() {
-		return nil, fmt.Errorf("http server error %d, %s", resp.StatusCode, string(body))
+		return nil, fmt.Errorf("http server error %d, %s", resp.StatusCode, string(respBody))
 	}
 
 	return resp, nil
