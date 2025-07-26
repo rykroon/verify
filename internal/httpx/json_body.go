@@ -7,28 +7,27 @@ import (
 	"strings"
 )
 
-type JsonBodyBuilder struct {
+type JsonBody struct {
 	data map[string]any
 	buf  *bytes.Buffer
 }
 
-func NewJsonBodyBuilder() *JsonBodyBuilder {
-	return &JsonBodyBuilder{data: make(map[string]any)}
+func NewJsonBody() *JsonBody {
+	return &JsonBody{data: make(map[string]any)}
 }
 
-func (b *JsonBodyBuilder) Set(k string, v any) *JsonBodyBuilder {
+func (b *JsonBody) Set(k string, v any) {
 	b.data[k] = v
-	return b
 }
 
-func (b *JsonBodyBuilder) SetPath(k string, v any) *JsonBodyBuilder {
+func (b *JsonBody) SetPath(k string, v any) {
 	parts := strings.Split(k, ".")
 
 	current := b.data
 	for i, part := range parts {
 		if i == len(parts)-1 {
 			current[part] = v
-			return b
+			return
 		}
 
 		// Traverse or create nested map
@@ -47,24 +46,24 @@ func (b *JsonBodyBuilder) SetPath(k string, v any) *JsonBodyBuilder {
 			current = newMap
 		}
 	}
-	return b
 }
 
-func (b *JsonBodyBuilder) Encode() error {
+func (b *JsonBody) Encode() error {
 	buf := new(bytes.Buffer)
 	if err := json.NewEncoder(buf).Encode(b.data); err != nil {
 		return err
 	}
+	b.buf = buf
 	return nil
 }
 
-func (b *JsonBodyBuilder) Reader() io.Reader {
+func (b *JsonBody) Reader() io.Reader {
 	if b.buf == nil {
 		panic("JsonBody must be encoded before use")
 	}
 	return b.buf
 }
 
-func (b *JsonBodyBuilder) ContentType() string {
+func (b *JsonBody) ContentType() string {
 	return "application/json"
 }

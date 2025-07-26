@@ -5,9 +5,14 @@ import (
 )
 
 func (c *Client) ListVerifyProfiles() (*VerificationProfileListResponse, error) {
-	resp, err := c.sendRequest("GET", "verify_profiles", nil)
+	req, err := c.newRequestWithParams("GET", "verify_profiles", nil)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to create request with params: %w", err)
+	}
+
+	resp, err := c.do(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to send request: %w", err)
 	}
 
 	if !resp.IsJson() {

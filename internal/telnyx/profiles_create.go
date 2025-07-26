@@ -7,11 +7,12 @@ import (
 )
 
 type CreateVerifyProfileParams struct {
-	*httpx.JsonBodyBuilder
+	*httpx.JsonBody
 }
 
 func NewCreateVerifyProfileParams(name string) *CreateVerifyProfileParams {
-	p := &CreateVerifyProfileParams{httpx.NewJsonBodyBuilder().Set("name", name)}
+	p := &CreateVerifyProfileParams{httpx.NewJsonBody()}
+	p.Set("name", name)
 	return p
 }
 
@@ -44,9 +45,18 @@ func (p *CreateVerifyProfileParams) SetSmsDefaultVerificationTimeoutSecs(v int) 
 https://developers.telnyx.com/api/verify/create-verify-profile
 */
 func (c *Client) CreateVerifyProfile(params *CreateVerifyProfileParams) (*VerificationProfileResponse, error) {
-	resp, err := c.sendRequest("POST", "/verify_profiles", params)
+	err := params.Encode()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to encode json, %w", err)
+	}
+	req, err := c.newRequestWithBody("POST", "/verify_profiles", params)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create new request with body %w", err)
+	}
+
+	resp, err := c.do(req)
+	if err != nil {
+		return nil, fmt.Errorf("request failed to send: %w", err)
 	}
 
 	var result *VerificationProfileResponse

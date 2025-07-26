@@ -7,17 +7,14 @@ import (
 )
 
 type TriggerSmsVerificationParams struct {
-	*httpx.JsonBodyBuilder
+	*httpx.JsonBody
 }
 
 func NewTriggerSmsVerificationParams(phoneNumber, verifyProfileId string) *TriggerSmsVerificationParams {
-	return &TriggerSmsVerificationParams{
-		httpx.NewJsonBodyBuilder().Set(
-			"phone_number", phoneNumber,
-		).Set(
-			"verify_profile_id", verifyProfileId,
-		),
-	}
+	p := &TriggerSmsVerificationParams{httpx.NewJsonBody()}
+	p.Set("phone_number", phoneNumber)
+	p.Set("verify_profile_id", verifyProfileId)
+	return p
 }
 
 func (p *TriggerSmsVerificationParams) SetCustomCode(customCode string) *TriggerSmsVerificationParams {
@@ -31,16 +28,23 @@ func (p *TriggerSmsVerificationParams) SetTimeoutSecs(timeoutSecs string) *Trigg
 }
 
 func (c *Client) TriggerSmsVerification(params *TriggerSmsVerificationParams) (*VerificationResponse, error) {
-	resp, err := c.sendRequest("POST", "/verifications/sms", params)
+	err := params.Encode()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to encode json %w", err)
+	}
+	req, err := c.newRequestWithBody("POST", "/verifications/sms", params)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %w", err)
+	}
+	resp, err := c.do(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to send request: %w", err)
 	}
 	if !resp.IsJson() {
 		return nil, fmt.Errorf("expected json response")
 	}
 	var result *VerificationResponse
-	err = resp.ToJson(&result)
-	if err != nil {
+	if err = resp.ToJson(&result); err != nil {
 		return nil, err
 	}
 

@@ -30,7 +30,7 @@ func (r *Response) ContentType() string {
 	return r.Header.Get("Content-Type")
 }
 
-func (r *Response) mediaType() string {
+func (r *Response) MediaType() string {
 	ctype := r.ContentType()
 	if ctype == "" {
 		return ""
@@ -43,7 +43,7 @@ func (r *Response) mediaType() string {
 }
 
 func (r *Response) IsPlainText() bool {
-	return r.mediaType() == "text/plain"
+	return r.MediaType() == "text/plain"
 }
 
 func (r *Response) IsJson() bool {

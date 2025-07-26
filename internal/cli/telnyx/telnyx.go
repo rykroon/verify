@@ -15,4 +15,5 @@ func init() {
 	TelnyxCmd.AddCommand(createProfileCmd)
 	TelnyxCmd.AddCommand(triggerSmsCmd)
 	TelnyxCmd.AddCommand(verifyCodeCmd)
+	TelnyxCmd.AddCommand(listTemplatesCmd)
 }
