@@ -6,33 +6,13 @@ import (
 	"github.com/rykroon/verify/internal/httpx"
 )
 
-type TriggerSmsVerificationParams struct {
-	*httpx.JsonBody
-}
-
-func NewTriggerSmsVerificationParams(phoneNumber, verifyProfileId string) *TriggerSmsVerificationParams {
-	p := &TriggerSmsVerificationParams{httpx.NewJsonBody()}
-	p.Set("phone_number", phoneNumber)
-	p.Set("verify_profile_id", verifyProfileId)
-	return p
-}
-
-func (p *TriggerSmsVerificationParams) SetCustomCode(customCode string) *TriggerSmsVerificationParams {
-	p.Set("custom_code", customCode)
-	return p
-}
-
-func (p *TriggerSmsVerificationParams) SetTimeoutSecs(timeoutSecs string) *TriggerSmsVerificationParams {
-	p.Set("timeout_secs", timeoutSecs)
-	return p
-}
-
-func (c *Client) TriggerSmsVerification(params *TriggerSmsVerificationParams) (*VerificationResponse, error) {
-	err := params.Encode()
+func (c *Client) TriggerSmsVerification(phoneNumber, verifyProfileId string) (*VerificationResponse, error) {
+	m := map[string]any{"phone_number": phoneNumber, "verify_profile_id": verifyProfileId}
+	body, err := httpx.NewJsonBody(m)
 	if err != nil {
-		return nil, fmt.Errorf("failed to encode json %w", err)
+		return nil, fmt.Errorf("failed to serialize json %w", err)
 	}
-	req, err := c.newRequestWithBody("POST", "/verifications/sms", params)
+	req, err := c.newRequestWithBody("POST", "/verifications/sms", body)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}

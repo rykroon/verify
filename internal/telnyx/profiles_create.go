@@ -7,37 +7,61 @@ import (
 )
 
 type CreateVerifyProfileParams struct {
-	*httpx.JsonBody
+	m map[string]any
 }
 
 func NewCreateVerifyProfileParams(name string) *CreateVerifyProfileParams {
-	p := &CreateVerifyProfileParams{httpx.NewJsonBody()}
-	p.Set("name", name)
+	p := &CreateVerifyProfileParams{make(map[string]any)}
+	p.m["name"] = name
 	return p
 }
 
+func (p *CreateVerifyProfileParams) GetSetMap(key string) map[string]any {
+	var result map[string]any
+	maybeMap, exists := p.m[key]
+	if exists {
+		result, isMap := maybeMap.(map[string]any)
+		if !isMap {
+			// if not a map, overwrite
+			result = make(map[string]any)
+			p.m[key] = result
+		}
+	} else {
+		// create a new map
+		result := make(map[string]any)
+		p.m[key] = result
+	}
+
+	return result
+}
+
 func (p *CreateVerifyProfileParams) SetSmsMessagingTemplateId(templateId string) *CreateVerifyProfileParams {
-	p.SetPath("sms.messaging_template_id", templateId)
+	sms := p.GetSetMap("sms")
+	sms["messaging_template_id"] = templateId
 	return p
 }
 
 func (p *CreateVerifyProfileParams) SetSmsAppName(appName string) *CreateVerifyProfileParams {
-	p.SetPath("sms.app_name", appName)
+	sms := p.GetSetMap("sms")
+	sms["app_name"] = appName
 	return p
 }
 
 func (p *CreateVerifyProfileParams) SetSmsCodeLength(codeLength string) *CreateVerifyProfileParams {
-	p.SetPath("sms.code_length", codeLength)
+	sms := p.GetSetMap("sms")
+	sms["code_length"] = codeLength
 	return p
 }
 
 func (p *CreateVerifyProfileParams) SetSmsWhitelistedDestinations(destinations []string) *CreateVerifyProfileParams {
-	p.SetPath("sms.whitelisted_destinations", destinations)
+	sms := p.GetSetMap("sms")
+	sms["whitelisted_destinations"] = destinations
 	return p
 }
 
 func (p *CreateVerifyProfileParams) SetSmsDefaultVerificationTimeoutSecs(v int) *CreateVerifyProfileParams {
-	p.SetPath("sms.default_verification_timeout_secs", v)
+	sms := p.GetSetMap("sms")
+	sms["default_verification_timeout_secs"] = v
 	return p
 }
 
@@ -45,11 +69,11 @@ func (p *CreateVerifyProfileParams) SetSmsDefaultVerificationTimeoutSecs(v int) 
 https://developers.telnyx.com/api/verify/create-verify-profile
 */
 func (c *Client) CreateVerifyProfile(params *CreateVerifyProfileParams) (*VerificationProfileResponse, error) {
-	err := params.Encode()
+	body, err := httpx.NewJsonBody(params)
 	if err != nil {
-		return nil, fmt.Errorf("failed to encode json, %w", err)
+		return nil, fmt.Errorf("failed to serialize json, %w", err)
 	}
-	req, err := c.newRequestWithBody("POST", "/verify_profiles", params)
+	req, err := c.newRequestWithBody("POST", "/verify_profiles", body)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create new request with body %w", err)
 	}

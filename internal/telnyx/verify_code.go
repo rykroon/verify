@@ -7,14 +7,13 @@ import (
 )
 
 func (c *Client) VerifyCode(verificationId, code string) (map[string]any, error) {
-	params := httpx.NewJsonBody()
-	params.Set("code", code)
-	err := params.Encode()
+	m := map[string]any{"code": code}
+	body, err := httpx.NewJsonBody(m)
 	if err != nil {
-		return nil, fmt.Errorf("failed to encode json %w", err)
+		return nil, fmt.Errorf("failed to serialize json %w", err)
 	}
 	path := fmt.Sprintf("verifications/%s/actions/verify", verificationId)
-	req, err := c.newRequestWithBody("POST", path, params)
+	req, err := c.newRequestWithBody("POST", path, body)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}

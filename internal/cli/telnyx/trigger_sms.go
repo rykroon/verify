@@ -21,9 +21,7 @@ var verifyProfileId string
 
 func runTriggerSms(cmd *cobra.Command, args []string) error {
 	client := telnyx.NewClient(os.Getenv("TELNYX_API_KEY"))
-
-	params := telnyx.NewTriggerSmsVerificationParams(phoneNumber, verifyProfileId)
-	result, err := client.TriggerSmsVerification(params)
+	result, err := client.TriggerSmsVerification(phoneNumber, verifyProfileId)
 	if err != nil {
 		return err
 	}

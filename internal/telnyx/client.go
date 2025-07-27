@@ -16,7 +16,7 @@ func NewClient(apiToken string) *Client {
 	return &Client{apiToken: apiToken}
 }
 
-func (c *Client) newRequestWithBody(method, path string, body httpx.BodyEncoder) (*http.Request, error) {
+func (c *Client) newRequestWithBody(method, path string, body httpx.RequestBody) (*http.Request, error) {
 	urlStr, err := url.JoinPath("https://api.telnyx.com/v2", path)
 	if err != nil {
 		return nil, err

@@ -47,11 +47,11 @@ func (r *Response) IsPlainText() bool {
 }
 
 func (r *Response) IsJson() bool {
-	return r.ContentType() == "application/json"
+	return r.MediaType() == "application/json"
 }
 
 func (r *Response) IsForm() bool {
-	return r.ContentType() == "application/x-www-form-urlencoded"
+	return r.MediaType() == "application/x-www-form-urlencoded"
 }
 
 func (r *Response) ReadBody() ([]byte, error) {
