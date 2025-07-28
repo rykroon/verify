@@ -16,7 +16,7 @@ func NewClient(apiToken string) *Client {
 	return &Client{apiToken: apiToken}
 }
 
-func (c *Client) newRequest(method, path string, body httpx.RequestBody) (*http.Request, error) {
+func (c *Client) newRequest(method, path string, body httpx.BodyProvider) (*http.Request, error) {
 	urlStr, err := url.JoinPath("https://api.telnyx.com/v2", path)
 	if err != nil {
 		return nil, err
@@ -34,16 +34,20 @@ func (c *Client) newRequest(method, path string, body httpx.RequestBody) (*http.
 func (c *Client) do(req *http.Request) (*httpx.Response, error) {
 	resp, err := httpx.Do(http.DefaultClient, req)
 	if err != nil {
-		return nil, err
-	}
-
-	respBody, err := resp.ReadBody()
-	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to send request: %w", err)
 	}
 
 	if resp.IsError() {
-		return nil, fmt.Errorf("http server error %d, %s", resp.StatusCode, string(respBody))
+		body, err := resp.ReadBody()
+		if err != nil {
+			return nil, fmt.Errorf("failed to read body: %w", err)
+		}
+		if resp.IsServerError() {
+			return nil, fmt.Errorf("http server error %d, %s", resp.StatusCode, body.ToString())
+		}
+		if resp.IsClientError() {
+			return nil, fmt.Errorf("http client error %d, %s", resp.StatusCode, body.ToString())
+		}
 	}
 
 	return resp, nil

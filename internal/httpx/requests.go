@@ -6,19 +6,20 @@ import (
 	"net/url"
 )
 
-func NewRequest(method, url string, body RequestBody) (*http.Request, error) {
+func NewRequest(method, url string, body BodyProvider) (*http.Request, error) {
 	var reader io.Reader
+	var contentType string
 	if body != nil {
 		reader = body.Reader()
+		contentType = body.ContentType()
 	}
 	req, err := http.NewRequest(method, url, reader)
 	if err != nil {
 		return nil, err
 	}
-	if body != nil {
+	if contentType != "" {
 		req.Header.Set("Content-Type", body.ContentType())
 	}
-
 	return req, nil
 }
 

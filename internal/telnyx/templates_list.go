@@ -11,8 +11,13 @@ func (c *Client) ListMessageTemplates() (map[string]any, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to send request: %w", err)
 	}
+	respBody, err := resp.ReadBody()
+	if err != nil {
+		return nil, fmt.Errorf("failed to read response body: %w", err)
+	}
+
 	var result map[string]any
-	if err := resp.ToJson(&result); err != nil {
+	if err := respBody.ToJson(&result); err != nil {
 		return nil, fmt.Errorf("failed to decode json body: %w", err)
 	}
 	return result, nil

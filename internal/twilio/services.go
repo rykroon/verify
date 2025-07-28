@@ -1,35 +1,38 @@
 package twilio
 
 import (
-	"net/http"
-	"net/url"
-	"strings"
+	"fmt"
+
+	"github.com/rykroon/verify/internal/httpx"
 )
 
 type CreateServiceParams struct {
-	form url.Values
-}
-
-func (csp *CreateServiceParams) FriendlyName() string {
-	return csp.form.Get("FriendlyName")
+	*httpx.FormBody
 }
 
 func (csp *CreateServiceParams) SetFriendlyName(s string) {
-	csp.form.Set("FriendlyName", s)
+	csp.Set("FriendlyName", s)
 }
 
 func (c *Client) CreateService(params CreateServiceParams) (map[string]any, error) {
-	req, err := c.newRequest("POST", "Services", strings.NewReader(params.form.Encode()))
+	req, err := c.newRequest("POST", "Services", params)
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := c.do(req)
 	if err != nil {
 		return nil, err
+	}
+
+	respBody, err := resp.ReadBody()
+	if err != nil {
+		return nil, fmt.Errorf("failed to read response body: %w", err)
 	}
 
 	var result map[string]any
-	err = c.processResponse(resp, result)
+	if err := respBody.ToJson(result); err != nil {
+		return nil, fmt.Errorf("failed to decode json: %w", err)
+	}
 	return result, nil
 }

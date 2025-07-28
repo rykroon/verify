@@ -9,7 +9,10 @@ import (
 	"strings"
 )
 
-type RequestBody interface {
+type Serializer func(any) ([]byte, error)
+type Deserializer func([]byte, any) error
+
+type BodyProvider interface {
 	Reader() io.Reader
 	ContentType() string
 }
@@ -27,11 +30,23 @@ func (b *Body) ContentType() string {
 	return b.contentType
 }
 
+func (b *Body) ToString() string {
+	return string(b.data)
+}
+
+func (b *Body) DeserializeWith(v any, deserializer Deserializer) error {
+	return deserializer(b.data, v)
+}
+
+func (b *Body) ToJson(v any) error {
+	return b.DeserializeWith(v, json.Unmarshal)
+}
+
 func NewBody(data []byte, contentType string) *Body {
 	return &Body{data, contentType}
 }
 
-func NewBodyFromSerializer(v any, serializer func(any) ([]byte, error), contentType string) (*Body, error) {
+func NewBodyFromSerializer(v any, serializer Serializer, contentType string) (*Body, error) {
 	data, err := serializer(v)
 	if err != nil {
 		return nil, fmt.Errorf("failed to serialize value: %w", err)
@@ -53,7 +68,7 @@ func NewFormBody() *FormBody {
 }
 
 func (b *FormBody) Reader() io.Reader {
-	return strings.NewReader(string(b.Encode()))
+	return strings.NewReader(b.Encode())
 }
 
 func (b *FormBody) ContentType() string {

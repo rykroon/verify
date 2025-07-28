@@ -1,17 +1,15 @@
 package httpx
 
 import (
-	"encoding/json"
 	"io"
 	"mime"
 	"net/http"
-	"net/url"
 	"strings"
 )
 
 type Response struct {
 	*http.Response
-	body        []byte
+	body        *Body
 	readBodyErr error
 }
 
@@ -42,47 +40,20 @@ func (r *Response) MediaType() string {
 	return strings.ToLower(mt)
 }
 
-func (r *Response) IsPlainText() bool {
-	return r.MediaType() == "text/plain"
-}
-
 func (r *Response) IsJson() bool {
 	return r.MediaType() == "application/json"
 }
 
-func (r *Response) IsForm() bool {
-	return r.MediaType() == "application/x-www-form-urlencoded"
-}
-
-func (r *Response) ReadBody() ([]byte, error) {
+func (r *Response) ReadBody() (*Body, error) {
 	if r.body != nil || r.readBodyErr != nil {
 		return r.body, r.readBodyErr
 	}
 	defer r.Body.Close()
-	r.body, r.readBodyErr = io.ReadAll(r.Body)
-	return r.body, r.readBodyErr
-}
-
-func (r *Response) ToString() (string, error) {
-	body, err := r.ReadBody()
+	data, err := io.ReadAll(r.Body)
 	if err != nil {
-		return "", err
+		r.readBodyErr = err
+		return nil, r.readBodyErr
 	}
-	return string(body), nil
-}
-
-func (r *Response) ToForm() (url.Values, error) {
-	body, err := r.ReadBody()
-	if err != nil {
-		return nil, err
-	}
-	return url.ParseQuery(string(body))
-}
-
-func (r *Response) ToJson(v any) error {
-	body, err := r.ReadBody()
-	if err != nil {
-		return err
-	}
-	return json.Unmarshal(body, v)
+	r.body = NewBody(data, r.ContentType())
+	return r.body, err
 }

@@ -1,14 +1,14 @@
 package twilio
 
 import (
-	"net/http"
-	"net/url"
-	"strings"
+	"fmt"
+
+	"github.com/rykroon/verify/internal/httpx"
 )
 
 type SendVerificationParams struct {
 	serviceSid string
-	form       url.Values
+	*httpx.FormBody
 }
 
 func (svp *SendVerificationParams) ServiceSid() string {
@@ -19,37 +19,31 @@ func (svp *SendVerificationParams) SetServiceSid(s string) {
 	svp.serviceSid = s
 }
 
-func (svp *SendVerificationParams) To() string {
-	return svp.form.Get("To")
-}
-
 func (svp *SendVerificationParams) SetTo(s string) {
-	svp.form.Set("To", s)
-}
-
-func (svp *SendVerificationParams) Channel() string {
-	return svp.form.Get("Channel")
+	svp.Set("To", s)
 }
 
 func (svp *SendVerificationParams) SetChannel(s string) {
-	svp.form.Set("Channel", s)
+	svp.Set("Channel", s)
 }
 
 func (c *Client) SendVerification(params SendVerificationParams) (map[string]any, error) {
 	path := "Services/" + params.serviceSid + "/Verifications"
-	req, err := c.newRequest("POST", path, strings.NewReader(params.form.Encode()))
+	req, err := c.newRequest("POST", path, params)
 	if err != nil {
 		return nil, err
 	}
-	client := &http.Client{}
-	resp, err := client.Do(req)
+	resp, err := c.do(req)
 	if err != nil {
 		return nil, err
+	}
+	respBody, err := resp.ReadBody()
+	if err != nil {
+		return nil, fmt.Errorf("failed to read response body: %w", err)
 	}
 	var result map[string]any
-	err = c.processResponse(resp, result)
-	if err != nil {
-		return nil, err
+	if err := respBody.ToJson(result); err != nil {
+		return nil, fmt.Errorf("failed to decode json: %w", err)
 	}
 	return result, nil
 }

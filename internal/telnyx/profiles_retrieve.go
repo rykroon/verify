@@ -16,8 +16,14 @@ func (c *Client) RetrieveVerifyProfile(verifyProfileId string) (*VerificationPro
 	if !resp.IsJson() {
 		return nil, fmt.Errorf("expected json response")
 	}
+
+	respBody, err := resp.ReadBody()
+	if err != nil {
+		return nil, fmt.Errorf("failed to read response body: %w", err)
+	}
+
 	var result *VerificationProfileResponse
-	err = resp.ToJson(&result)
+	err = respBody.ToJson(&result)
 	if err != nil {
 		return nil, err
 	}

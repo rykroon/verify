@@ -19,8 +19,13 @@ func (c *Client) ListVerifyProfiles() (*VerificationProfileListResponse, error) 
 		return nil, fmt.Errorf("expected json response")
 	}
 
+	respBody, err := resp.ReadBody()
+	if err != nil {
+		return nil, fmt.Errorf("failed to read response body: %w", err)
+	}
+
 	var result *VerificationProfileListResponse
-	err = resp.ToJson(&result)
+	err = respBody.ToJson(&result)
 	if err != nil {
 		return nil, err
 	}

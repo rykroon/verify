@@ -83,13 +83,19 @@ func (c *Client) CreateVerifyProfile(params *CreateVerifyProfileParams) (*Verifi
 		return nil, fmt.Errorf("request failed to send: %w", err)
 	}
 
-	var result *VerificationProfileResponse
 	if !resp.IsJson() {
 		return nil, fmt.Errorf("expected json response")
 	}
-	err = resp.ToJson(&result)
+
+	respBody, err := resp.ReadBody()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to read response body: %w", err)
+	}
+
+	var result *VerificationProfileResponse
+	err = respBody.ToJson(&result)
+	if err != nil {
+		return nil, fmt.Errorf("failed to deocode json body")
 	}
 	return result, nil
 }
