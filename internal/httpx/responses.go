@@ -11,8 +11,8 @@ import (
 
 type Response struct {
 	*http.Response
-	body []byte
-	err  error
+	body        []byte
+	readBodyErr error
 }
 
 func WrapResponse(resp *http.Response) *Response {
@@ -55,12 +55,12 @@ func (r *Response) IsForm() bool {
 }
 
 func (r *Response) ReadBody() ([]byte, error) {
-	if r.body != nil || r.err != nil {
-		return r.body, r.err
+	if r.body != nil || r.readBodyErr != nil {
+		return r.body, r.readBodyErr
 	}
 	defer r.Body.Close()
-	r.body, r.err = io.ReadAll(r.Body)
-	return r.body, r.err
+	r.body, r.readBodyErr = io.ReadAll(r.Body)
+	return r.body, r.readBodyErr
 }
 
 func (r *Response) ToString() (string, error) {

@@ -6,24 +6,24 @@ import (
 	"net/url"
 )
 
-func NewRequestWithBody(method, url, contentType string, body io.Reader) (*http.Request, error) {
-	req, err := http.NewRequest(method, url, body)
+func NewRequest(method, url string, body RequestBody) (*http.Request, error) {
+	var reader io.Reader
+	if body != nil {
+		reader = body.Reader()
+	}
+	req, err := http.NewRequest(method, url, reader)
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("Content-Type", contentType)
+	if body != nil {
+		req.Header.Set("Content-Type", body.ContentType())
+	}
+
 	return req, nil
 }
 
-func NewRequestWithParams(method, urlStr string, params url.Values) (*http.Request, error) {
-	req, err := http.NewRequest(method, urlStr, nil)
-	if err != nil {
-		return nil, err
-	}
-	if params != nil {
-		req.URL.RawQuery = params.Encode()
-	}
-	return req, nil
+func SetQueryParams(req *http.Request, params url.Values) {
+	req.URL.RawQuery = params.Encode()
 }
 
 func SetBearerToken(req *http.Request, token string) {

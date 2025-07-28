@@ -73,7 +73,7 @@ func (c *Client) CreateVerifyProfile(params *CreateVerifyProfileParams) (*Verifi
 	if err != nil {
 		return nil, fmt.Errorf("failed to serialize json, %w", err)
 	}
-	req, err := c.newRequestWithBody("POST", "/verify_profiles", body)
+	req, err := c.newRequest("POST", "/verify_profiles", body)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create new request with body %w", err)
 	}

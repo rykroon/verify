@@ -5,7 +5,7 @@ import (
 )
 
 func (c *Client) ListVerifyProfiles() (*VerificationProfileListResponse, error) {
-	req, err := c.newRequestWithParams("GET", "verify_profiles", nil)
+	req, err := c.newRequest("GET", "verify_profiles", nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request with params: %w", err)
 	}

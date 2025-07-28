@@ -16,29 +16,13 @@ func NewClient(apiToken string) *Client {
 	return &Client{apiToken: apiToken}
 }
 
-func (c *Client) newRequestWithBody(method, path string, body httpx.RequestBody) (*http.Request, error) {
+func (c *Client) newRequest(method, path string, body httpx.RequestBody) (*http.Request, error) {
 	urlStr, err := url.JoinPath("https://api.telnyx.com/v2", path)
 	if err != nil {
 		return nil, err
 	}
 
-	req, err := httpx.NewRequestWithBody(method, urlStr, body.ContentType(), body.Reader())
-
-	if err != nil {
-		return nil, err
-	}
-
-	httpx.SetBearerToken(req, c.apiToken)
-	return req, nil
-}
-
-func (c *Client) newRequestWithParams(method, path string, params url.Values) (*http.Request, error) {
-	urlStr, err := url.JoinPath("https://api.telnyx.com/v2", path)
-	if err != nil {
-		return nil, err
-	}
-
-	req, err := httpx.NewRequestWithParams(method, urlStr, params)
+	req, err := httpx.NewRequest(method, urlStr, body)
 	if err != nil {
 		return nil, err
 	}

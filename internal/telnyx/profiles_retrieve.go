@@ -4,7 +4,7 @@ import "fmt"
 
 func (c *Client) RetrieveVerifyProfile(verifyProfileId string) (*VerificationProfileResponse, error) {
 	path := "verify_profiles/" + verifyProfileId
-	req, err := c.newRequestWithParams("GET", path, nil)
+	req, err := c.newRequest("GET", path, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}

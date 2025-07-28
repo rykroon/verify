@@ -13,7 +13,7 @@ func (c *Client) VerifyCode(verificationId, code string) (map[string]any, error)
 		return nil, fmt.Errorf("failed to serialize json %w", err)
 	}
 	path := fmt.Sprintf("verifications/%s/actions/verify", verificationId)
-	req, err := c.newRequestWithBody("POST", path, body)
+	req, err := c.newRequest("POST", path, body)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}

@@ -12,7 +12,7 @@ func (c *Client) TriggerSmsVerification(phoneNumber, verifyProfileId string) (*V
 	if err != nil {
 		return nil, fmt.Errorf("failed to serialize json %w", err)
 	}
-	req, err := c.newRequestWithBody("POST", "/verifications/sms", body)
+	req, err := c.newRequest("POST", "/verifications/sms", body)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
