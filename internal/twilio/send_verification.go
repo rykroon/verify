@@ -6,28 +6,19 @@ import (
 	"github.com/rykroon/verify/internal/httpx"
 )
 
-type SendVerificationParams struct {
+type sendVerificationParams struct {
 	serviceSid string
-	*httpx.FormBody
+	httpx.FormBody
 }
 
-func (svp *SendVerificationParams) ServiceSid() string {
-	return svp.serviceSid
+func NewSendVerificationParams(serviceSid, to, channel string) *sendVerificationParams {
+	p := &sendVerificationParams{serviceSid, httpx.FormBody{}}
+	p.Set("to", to)
+	p.Set("channel", channel)
+	return p
 }
 
-func (svp *SendVerificationParams) SetServiceSid(s string) {
-	svp.serviceSid = s
-}
-
-func (svp *SendVerificationParams) SetTo(s string) {
-	svp.Set("To", s)
-}
-
-func (svp *SendVerificationParams) SetChannel(s string) {
-	svp.Set("Channel", s)
-}
-
-func (c *Client) SendVerification(params SendVerificationParams) (map[string]any, error) {
+func (c *Client) SendVerification(params *sendVerificationParams) (map[string]any, error) {
 	path := "Services/" + params.serviceSid + "/Verifications"
 	req, err := c.newRequest("POST", path, params)
 	if err != nil {

@@ -7,14 +7,14 @@ import (
 )
 
 type CreateServiceParams struct {
-	*httpx.FormBody
+	httpx.FormBody
 }
 
 func (csp *CreateServiceParams) SetFriendlyName(s string) {
 	csp.Set("FriendlyName", s)
 }
 
-func (c *Client) CreateService(params CreateServiceParams) (map[string]any, error) {
+func (c *Client) CreateService(params *CreateServiceParams) (map[string]any, error) {
 	req, err := c.newRequest("POST", "Services", params)
 	if err != nil {
 		return nil, err
