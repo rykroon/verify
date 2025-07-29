@@ -42,7 +42,7 @@ func (c *Client) SendVerification(params SendVerificationParams) (map[string]any
 		return nil, fmt.Errorf("failed to read response body: %w", err)
 	}
 	var result map[string]any
-	if err := respBody.ToJson(result); err != nil {
+	if err := respBody.UnmarshalJson(&result); err != nil {
 		return nil, fmt.Errorf("failed to decode json: %w", err)
 	}
 	return result, nil

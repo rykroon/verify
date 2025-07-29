@@ -31,7 +31,7 @@ func (c *Client) CreateService(params CreateServiceParams) (map[string]any, erro
 	}
 
 	var result map[string]any
-	if err := respBody.ToJson(result); err != nil {
+	if err := respBody.UnmarshalJson(&result); err != nil {
 		return nil, fmt.Errorf("failed to decode json: %w", err)
 	}
 	return result, nil

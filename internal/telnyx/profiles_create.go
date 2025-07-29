@@ -93,7 +93,7 @@ func (c *Client) CreateVerifyProfile(params *CreateVerifyProfileParams) (*Verifi
 	}
 
 	var result *VerificationProfileResponse
-	err = respBody.ToJson(&result)
+	err = respBody.UnmarshalJson(&result)
 	if err != nil {
 		return nil, fmt.Errorf("failed to deocode json body")
 	}

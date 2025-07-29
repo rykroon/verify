@@ -2,9 +2,7 @@ package httpx
 
 import (
 	"io"
-	"mime"
 	"net/http"
-	"strings"
 )
 
 type Response struct {
@@ -26,22 +24,6 @@ func (r *Response) IsError() bool         { return r.StatusCode >= 400 }
 
 func (r *Response) ContentType() string {
 	return r.Header.Get("Content-Type")
-}
-
-func (r *Response) MediaType() string {
-	ctype := r.ContentType()
-	if ctype == "" {
-		return ""
-	}
-	mt, _, err := mime.ParseMediaType(ctype)
-	if err != nil {
-		return strings.ToLower(ctype) // fallback
-	}
-	return strings.ToLower(mt)
-}
-
-func (r *Response) IsJson() bool {
-	return r.MediaType() == "application/json"
 }
 
 func (r *Response) ReadBody() (*Body, error) {

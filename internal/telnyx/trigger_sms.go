@@ -28,7 +28,7 @@ func (c *Client) TriggerSmsVerification(phoneNumber, verifyProfileId string) (*V
 		return nil, fmt.Errorf("failed to read response body: %w", err)
 	}
 	var result *VerificationResponse
-	if err = respBody.ToJson(&result); err != nil {
+	if err = respBody.UnmarshalJson(&result); err != nil {
 		return nil, err
 	}
 	return result, nil

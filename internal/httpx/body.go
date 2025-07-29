@@ -5,21 +5,30 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"net/url"
-	"strings"
 )
 
-type Serializer func(any) ([]byte, error)
-type Deserializer func([]byte, any) error
-
-type BodyProvider interface {
-	Reader() io.Reader
-	ContentType() string
-}
+type MarshalFunc func(any) ([]byte, error)
+type UnmarshalFunc func([]byte, any) error
 
 type Body struct {
 	data        []byte
 	contentType string
+}
+
+func NewBody(data []byte, contentType string) *Body {
+	return &Body{data, contentType}
+}
+
+func NewBodyUsingMarshal(v any, fn MarshalFunc, contentType string) (*Body, error) {
+	data, err := fn(v)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal value: %w", err)
+	}
+	return NewBody(data, contentType), nil
+}
+
+func NewJsonBody(v any) (*Body, error) {
+	return NewBodyUsingMarshal(v, json.Marshal, "application/json")
 }
 
 func (b *Body) Reader() io.Reader {
@@ -34,66 +43,14 @@ func (b *Body) ToString() string {
 	return string(b.data)
 }
 
-func (b *Body) DeserializeWith(v any, deserializer Deserializer) error {
-	return deserializer(b.data, v)
+func (b *Body) UnmarshalWith(v any, unmarshalFunc UnmarshalFunc) error {
+	return unmarshalFunc(b.data, v)
 }
 
-func (b *Body) ToJson(v any) error {
-	return b.DeserializeWith(v, json.Unmarshal)
+func (b *Body) UnmarshalJson(v any) error {
+	return b.UnmarshalWith(v, json.Unmarshal)
 }
 
-func NewBody(data []byte, contentType string) *Body {
-	return &Body{data, contentType}
-}
-
-func NewBodyFromSerializer(v any, serializer Serializer, contentType string) (*Body, error) {
-	data, err := serializer(v)
-	if err != nil {
-		return nil, fmt.Errorf("failed to serialize value: %w", err)
-	}
-	return NewBody(data, contentType), nil
-}
-
-func NewJsonBody(v any) (*Body, error) {
-	return NewBodyFromSerializer(v, json.Marshal, "application/json")
-}
-
-// Form body
-type FormBody struct {
-	url.Values
-}
-
-func NewFormBody() *FormBody {
-	return &FormBody{Values: url.Values{}}
-}
-
-func (b *FormBody) Reader() io.Reader {
-	return strings.NewReader(b.Encode())
-}
-
-func (b *FormBody) ContentType() string {
-	return "application/x-www-form-urlencoded"
-}
-
-// binary body
-
-type OctetStream []byte
-
-func (b OctetStream) Reader() io.Reader {
-	return bytes.NewReader(b)
-}
-
-func (b OctetStream) ContentType() string {
-	return "application/octet-stream"
-}
-
-// plain text body
-type PlainText string
-
-func (t PlainText) Reader() io.Reader {
-	return strings.NewReader(string(t))
-}
-
-func (t PlainText) ContentType() string {
-	return "text/plain"
+func (r *Response) IsJson() bool {
+	return r.ContentType() == "application/json"
 }

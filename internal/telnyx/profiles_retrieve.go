@@ -23,7 +23,7 @@ func (c *Client) RetrieveVerifyProfile(verifyProfileId string) (*VerificationPro
 	}
 
 	var result *VerificationProfileResponse
-	err = respBody.ToJson(&result)
+	err = respBody.UnmarshalJson(&result)
 	if err != nil {
 		return nil, err
 	}

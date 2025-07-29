@@ -17,7 +17,7 @@ func (c *Client) ListMessageTemplates() (map[string]any, error) {
 	}
 
 	var result map[string]any
-	if err := respBody.ToJson(&result); err != nil {
+	if err := respBody.UnmarshalJson(&result); err != nil {
 		return nil, fmt.Errorf("failed to decode json body: %w", err)
 	}
 	return result, nil

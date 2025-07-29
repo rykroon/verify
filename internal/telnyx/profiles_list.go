@@ -25,7 +25,7 @@ func (c *Client) ListVerifyProfiles() (*VerificationProfileListResponse, error) 
 	}
 
 	var result *VerificationProfileListResponse
-	err = respBody.ToJson(&result)
+	err = respBody.UnmarshalJson(&result)
 	if err != nil {
 		return nil, err
 	}
