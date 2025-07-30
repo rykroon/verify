@@ -1,9 +1,10 @@
 package telnyx
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
+
+	"gopkg.in/yaml.v3"
 
 	"github.com/rykroon/verify/internal/telnyx"
 	"github.com/spf13/cobra"
@@ -22,7 +23,7 @@ func runListProfiles(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	bytes_, err := json.MarshalIndent(result, "", "  ")
+	bytes_, err := yaml.Marshal(result)
 	if err != nil {
 		return err
 	}
