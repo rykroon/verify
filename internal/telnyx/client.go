@@ -16,7 +16,7 @@ func NewClient(apiToken string) *Client {
 	return &Client{apiToken: apiToken}
 }
 
-func (c *Client) newRequest(method, path string, body httpx.BodyProvider) (*http.Request, error) {
+func (c *Client) newRequest(method, path string, body httpx.RequestBodyProvider) (*http.Request, error) {
 	urlStr, err := url.JoinPath("https://api.telnyx.com/v2", path)
 	if err != nil {
 		return nil, err
@@ -31,24 +31,26 @@ func (c *Client) newRequest(method, path string, body httpx.BodyProvider) (*http
 	return req, nil
 }
 
-func (c *Client) do(req *http.Request) (*httpx.Response, error) {
-	resp, err := httpx.Do(http.DefaultClient, req)
+func (c *Client) do(req *http.Request) (*httpx.Body, error) {
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to send request: %w", err)
 	}
 
-	if resp.IsError() {
-		body, err := resp.ReadBody()
-		if err != nil {
-			return nil, fmt.Errorf("failed to read body: %w", err)
-		}
-		if resp.IsServerError() {
+	body, err := httpx.ReadBodyFromResponse(resp)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read body: %w", err)
+	}
+
+	if httpx.IsError(resp) {
+
+		if httpx.IsServerError(resp) {
 			return nil, fmt.Errorf("http server error %d, %s", resp.StatusCode, body.ToString())
 		}
-		if resp.IsClientError() {
+		if httpx.IsClientError(resp) {
 			return nil, fmt.Errorf("http client error %d, %s", resp.StatusCode, body.ToString())
 		}
 	}
 
-	return resp, nil
+	return body, nil
 }

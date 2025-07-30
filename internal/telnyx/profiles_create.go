@@ -69,16 +69,16 @@ func (p *CreateVerifyProfileParams) SetSmsDefaultVerificationTimeoutSecs(v int) 
 https://developers.telnyx.com/api/verify/create-verify-profile
 */
 func (c *Client) CreateVerifyProfile(params *CreateVerifyProfileParams) (*VerificationProfileResponse, error) {
-	body, err := httpx.NewJsonBody(params)
+	reqBody, err := httpx.NewJsonBody(params)
 	if err != nil {
 		return nil, fmt.Errorf("failed to serialize json, %w", err)
 	}
-	req, err := c.newRequest("POST", "/verify_profiles", body)
+	req, err := c.newRequest("POST", "/verify_profiles", reqBody)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create new request with body %w", err)
 	}
 
-	resp, err := c.do(req)
+	body, err := c.do(req)
 	if err != nil {
 		return nil, fmt.Errorf("request failed to send: %w", err)
 	}

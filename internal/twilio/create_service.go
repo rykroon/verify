@@ -20,14 +20,9 @@ func (c *Client) CreateService(params *CreateServiceParams) (map[string]any, err
 		return nil, err
 	}
 
-	resp, err := c.do(req)
+	respBody, err := c.do(req)
 	if err != nil {
 		return nil, err
-	}
-
-	respBody, err := resp.ReadBody()
-	if err != nil {
-		return nil, fmt.Errorf("failed to read response body: %w", err)
 	}
 
 	var result map[string]any

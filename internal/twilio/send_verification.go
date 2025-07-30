@@ -24,13 +24,9 @@ func (c *Client) SendVerification(params *sendVerificationParams) (map[string]an
 	if err != nil {
 		return nil, err
 	}
-	resp, err := c.do(req)
+	respBody, err := c.do(req)
 	if err != nil {
 		return nil, err
-	}
-	respBody, err := resp.ReadBody()
-	if err != nil {
-		return nil, fmt.Errorf("failed to read response body: %w", err)
 	}
 	var result map[string]any
 	if err := respBody.UnmarshalJson(&result); err != nil {

@@ -17,7 +17,7 @@ func NewClient(apiKeySid, apiKeySecret string) *Client {
 	return &Client{apiKeySid: apiKeySid, apiKeySecret: apiKeySecret}
 }
 
-func (c *Client) newRequest(method, path string, body httpx.BodyProvider) (*http.Request, error) {
+func (c *Client) newRequest(method, path string, body httpx.RequestBodyProvider) (*http.Request, error) {
 	url, err := neturl.JoinPath("https://verify.twilio.com/v2/", path)
 	if err != nil {
 		return nil, err
@@ -30,20 +30,20 @@ func (c *Client) newRequest(method, path string, body httpx.BodyProvider) (*http
 	return req, nil
 }
 
-func (c *Client) do(req *http.Request) (*httpx.Response, error) {
-	resp, err := httpx.Do(http.DefaultClient, req)
+func (c *Client) do(req *http.Request) (*httpx.Body, error) {
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to send request: %w", err)
 	}
 
-	respBody, err := resp.ReadBody()
+	respBody, err := httpx.ReadBodyFromResponse(resp)
 	if err != nil {
 		return nil, err
 	}
 
-	if resp.IsError() {
+	if httpx.IsError(resp) {
 		return nil, fmt.Errorf("http server error %d, %s", resp.StatusCode, respBody.ToString())
 	}
 
-	return resp, nil
+	return respBody, nil
 }

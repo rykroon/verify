@@ -7,13 +7,9 @@ func (c *Client) ListMessageTemplates() (map[string]any, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
-	resp, err := c.do(req)
+	respBody, err := c.do(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to send request: %w", err)
-	}
-	respBody, err := resp.ReadBody()
-	if err != nil {
-		return nil, fmt.Errorf("failed to read response body: %w", err)
 	}
 
 	var result map[string]any

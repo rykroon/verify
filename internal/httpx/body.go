@@ -2,13 +2,9 @@ package httpx
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"io"
 )
-
-type MarshalFunc func(any) ([]byte, error)
-type UnmarshalFunc func([]byte, any) error
 
 type Body struct {
 	data        []byte
@@ -19,38 +15,40 @@ func NewBody(data []byte, contentType string) *Body {
 	return &Body{data, contentType}
 }
 
-func NewBodyUsingMarshal(v any, fn MarshalFunc, contentType string) (*Body, error) {
-	data, err := fn(v)
-	if err != nil {
-		return nil, fmt.Errorf("failed to marshal value: %w", err)
-	}
-	return NewBody(data, contentType), nil
-}
-
-func NewJsonBody(v any) (*Body, error) {
-	return NewBodyUsingMarshal(v, json.Marshal, "application/json")
+func (b *Body) ContentType() string {
+	return b.contentType
 }
 
 func (b *Body) Reader() io.Reader {
 	return bytes.NewReader(b.data)
 }
 
-func (b *Body) ContentType() string {
-	return b.contentType
+func (b *Body) WriteTo(w io.Writer) (int64, error) {
+	n, err := w.Write(b.data)
+	return int64(n), err
 }
 
 func (b *Body) ToString() string {
 	return string(b.data)
 }
 
-func (b *Body) UnmarshalWith(v any, unmarshalFunc UnmarshalFunc) error {
-	return unmarshalFunc(b.data, v)
-}
+func ReadBody(contentType string, reader io.ReadCloser) (*Body, error) {
+	if reader == nil {
+		return nil, fmt.Errorf("body is nil")
+	}
+	defer reader.Close()
 
-func (b *Body) UnmarshalJson(v any) error {
-	return b.UnmarshalWith(v, json.Unmarshal)
-}
+	data, err := io.ReadAll(reader)
+	if err != nil {
+		return nil, err
+	}
 
-func (r *Response) IsJson() bool {
-	return r.ContentType() == "application/json"
+	if contentType == "" {
+		contentType = "application/octet-stream"
+	}
+
+	return &Body{
+		data:        data,
+		contentType: contentType,
+	}, nil
 }

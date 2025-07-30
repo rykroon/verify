@@ -16,16 +16,12 @@ func (c *Client) TriggerSmsVerification(phoneNumber, verifyProfileId string) (*V
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
-	resp, err := c.do(req)
+	respBody, err := c.do(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to send request: %w", err)
 	}
-	if !resp.IsJson() {
+	if !respBody.IsJson() {
 		return nil, fmt.Errorf("expected json response")
-	}
-	respBody, err := resp.ReadBody()
-	if err != nil {
-		return nil, fmt.Errorf("failed to read response body: %w", err)
 	}
 	var result *VerificationResponse
 	if err = respBody.UnmarshalJson(&result); err != nil {
