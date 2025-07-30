@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-func (c *Client) ListVerifyProfiles() (*VerificationProfileListResponse, error) {
+func (c *Client) ListVerifyProfiles() (*ListResponse[VerificationProfile], error) {
 	req, err := c.newRequest("GET", "verify_profiles", nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request with params: %w", err)
@@ -19,7 +19,7 @@ func (c *Client) ListVerifyProfiles() (*VerificationProfileListResponse, error) 
 		return nil, fmt.Errorf("expected json response")
 	}
 
-	var result *VerificationProfileListResponse
+	var result *ListResponse[VerificationProfile]
 	err = respBody.UnmarshalJson(&result)
 	if err != nil {
 		return nil, err

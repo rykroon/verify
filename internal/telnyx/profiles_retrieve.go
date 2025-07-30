@@ -2,7 +2,7 @@ package telnyx
 
 import "fmt"
 
-func (c *Client) RetrieveVerifyProfile(verifyProfileId string) (*VerificationProfileResponse, error) {
+func (c *Client) RetrieveVerifyProfile(verifyProfileId string) (*DetailResponse[VerificationProfile], error) {
 	path := "verify_profiles/" + verifyProfileId
 	req, err := c.newRequest("GET", path, nil)
 	if err != nil {
@@ -17,7 +17,7 @@ func (c *Client) RetrieveVerifyProfile(verifyProfileId string) (*VerificationPro
 		return nil, fmt.Errorf("expected json response")
 	}
 
-	var result *VerificationProfileResponse
+	var result *DetailResponse[VerificationProfile]
 	err = respBody.UnmarshalJson(&result)
 	if err != nil {
 		return nil, err

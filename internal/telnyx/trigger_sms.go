@@ -6,7 +6,7 @@ import (
 	"github.com/rykroon/verify/internal/httpx"
 )
 
-func (c *Client) TriggerSmsVerification(phoneNumber, verifyProfileId string) (*VerificationResponse, error) {
+func (c *Client) TriggerSmsVerification(phoneNumber, verifyProfileId string) (*DetailResponse[Verification], error) {
 	m := map[string]any{"phone_number": phoneNumber, "verify_profile_id": verifyProfileId}
 	body, err := httpx.NewJsonBody(m)
 	if err != nil {
@@ -23,7 +23,7 @@ func (c *Client) TriggerSmsVerification(phoneNumber, verifyProfileId string) (*V
 	if !respBody.IsJson() {
 		return nil, fmt.Errorf("expected json response")
 	}
-	var result *VerificationResponse
+	var result *DetailResponse[Verification]
 	if err = respBody.UnmarshalJson(&result); err != nil {
 		return nil, err
 	}

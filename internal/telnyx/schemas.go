@@ -15,25 +15,21 @@ type Verification struct {
 	UpdatedAt       string  `json:"updated_at"`
 }
 
-type VerificationResponse struct {
-	Data Verification `json:"data"`
-}
-
 type VerificationProfile struct {
 	Id                 string `json:"id"`
 	Name               string `json:"name"`
-	WebhookUrl         string `json:"webhook_url"`
-	WebhookFailoverUrl string `json:"webhook_failover_url"`
-	RecordType         string `json:"record_type"`
-	CreatedAt          string `json:"created_at"`
-	UpdatedAt          string `json:"updated_at"`
+	WebhookUrl         string `json:"webhook_url" yaml:"webhook_url"`
+	WebhookFailoverUrl string `json:"webhook_failover_url" yaml:"webhook_failover_url"`
+	RecordType         string `json:"record_type" yaml:"record_type"`
+	CreatedAt          string `json:"created_at" yaml:"created_at"`
+	UpdatedAt          string `json:"updated_at" yaml:"updated_at"`
 	Sms                struct {
-		MessagingTemplateId            string   `json:"messaging_template_id"`
-		AppName                        string   `json:"app_name"`
-		AlphaSender                    string   `json:"alpha_sender"`
-		CodeLength                     int      `json:"code_length"`
-		WhitelistedDestinations        []string `json:"white_listed_destinations"`
-		DefaultTimeoutVerificationSecs int      `json:"default_timeout_verification_secs"`
+		MessagingTemplateId            string   `json:"messaging_template_id" yaml:"messaging_template_id"`
+		AppName                        string   `json:"app_name" yaml:"app_name"`
+		AlphaSender                    string   `json:"alpha_sender" yaml:"alpha_sender"`
+		CodeLength                     int      `json:"code_length" yaml:"code_length"`
+		WhitelistedDestinations        []string `json:"white_listed_destinations" yaml:"white_listed_destinations"`
+		DefaultTimeoutVerificationSecs int      `json:"default_timeout_verification_secs" yaml:"default_timeout_verification_secs"`
 	} `json:"sms"`
 	Call struct {
 		MessagingTemplateId            string   `json:"messaging_template_id"`
@@ -48,24 +44,24 @@ type VerificationProfile struct {
 	Language string `json:"language"`
 }
 
-type VerificationProfileResponse struct {
-	Data VerificationProfile `json:"data"`
+type DetailResponse[T any] struct {
+	Data T `json:"data"`
 }
 
-type VerificationProfileListResponse struct {
-	Data []VerificationProfile `json:"data"`
+type ListResponse[T any] struct {
+	Data []T `json:"data"`
 	Meta ListMeta
 }
 
 type ListMeta struct {
-	TotalPages   int `json:"total_pages"`
-	TotalResults int `json:"total_results"`
-	PageNumber   int `json:"page_number"`
-	PageSize     int `json:"page_size"`
+	TotalPages   int `json:"total_pages" yaml:"total_pages"`
+	TotalResults int `json:"total_results" yaml:"total_results"`
+	PageNumber   int `json:"page_number" yaml:"page_number"`
+	PageSize     int `json:"page_size" yaml:"page_size"`
 }
 
 type TelnyxError struct {
-	Code   int    `json:"code"`
+	Code   string `json:"code"`
 	Title  string `json:"title"`
 	Detail string `json:"detail"`
 	Source struct {
@@ -78,7 +74,7 @@ type TelnyxError struct {
 }
 
 func (e *TelnyxError) Error() string {
-	return fmt.Sprintf("Telnyx Error: %d '%s' '%s'", e.Code, e.Title, e.Detail)
+	return fmt.Sprintf("Telnyx Error: %s - %s - %s", e.Code, e.Title, e.Detail)
 }
 
 type TelnyxErrorResponse struct {

@@ -68,7 +68,7 @@ func (p *CreateVerifyProfileParams) SetSmsDefaultVerificationTimeoutSecs(v int) 
 /*
 https://developers.telnyx.com/api/verify/create-verify-profile
 */
-func (c *Client) CreateVerifyProfile(params *CreateVerifyProfileParams) (*VerificationProfileResponse, error) {
+func (c *Client) CreateVerifyProfile(params *CreateVerifyProfileParams) (*DetailResponse[VerificationProfile], error) {
 	reqBody, err := httpx.NewJsonBody(params)
 	if err != nil {
 		return nil, fmt.Errorf("failed to serialize json, %w", err)
@@ -87,7 +87,7 @@ func (c *Client) CreateVerifyProfile(params *CreateVerifyProfileParams) (*Verifi
 		return nil, fmt.Errorf("expected json response")
 	}
 
-	var result *VerificationProfileResponse
+	var result *DetailResponse[VerificationProfile]
 	err = respBody.UnmarshalJson(&result)
 	if err != nil {
 		return nil, fmt.Errorf("failed to deocode json body")

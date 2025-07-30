@@ -47,8 +47,8 @@ func (c *Client) do(req *http.Request) (*httpx.Body, error) {
 	}
 	if httpx.IsClientError(resp) {
 		var telnyxErrorResp TelnyxErrorResponse
-		if err := body.UnmarshalJson(telnyxErrorResp); err != nil {
-			return nil, fmt.Errorf("http error: %d, %s", resp.StatusCode, body.ToString())
+		if err := body.UnmarshalJson(&telnyxErrorResp); err != nil {
+			return nil, fmt.Errorf("failed to decode http error as json: %w", err)
 		}
 		return nil, &telnyxErrorResp.Errors[0]
 	}
