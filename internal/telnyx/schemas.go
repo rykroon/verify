@@ -1,5 +1,7 @@
 package telnyx
 
+import "fmt"
+
 type Verification struct {
 	Id              string  `json:"id"`
 	Type            string  `json:"type"`
@@ -73,6 +75,10 @@ type TelnyxError struct {
 	Meta struct {
 		Url string `json:"url"`
 	} `json:"meta"`
+}
+
+func (e *TelnyxError) Error() string {
+	return fmt.Sprintf("Telnyx Error: %d '%s' '%s'", e.Code, e.Title, e.Detail)
 }
 
 type TelnyxErrorResponse struct {

@@ -78,18 +78,13 @@ func (c *Client) CreateVerifyProfile(params *CreateVerifyProfileParams) (*Verifi
 		return nil, fmt.Errorf("failed to create new request with body %w", err)
 	}
 
-	body, err := c.do(req)
+	respBody, err := c.do(req)
 	if err != nil {
 		return nil, fmt.Errorf("request failed to send: %w", err)
 	}
 
-	if !resp.IsJson() {
+	if !respBody.IsJson() {
 		return nil, fmt.Errorf("expected json response")
-	}
-
-	respBody, err := resp.ReadBody()
-	if err != nil {
-		return nil, fmt.Errorf("failed to read response body: %w", err)
 	}
 
 	var result *VerificationProfileResponse

@@ -42,14 +42,15 @@ func (c *Client) do(req *http.Request) (*httpx.Body, error) {
 		return nil, fmt.Errorf("failed to read body: %w", err)
 	}
 
-	if httpx.IsError(resp) {
-
-		if httpx.IsServerError(resp) {
-			return nil, fmt.Errorf("http server error %d, %s", resp.StatusCode, body.ToString())
+	if httpx.IsServerError(resp) {
+		return nil, fmt.Errorf("http error: %d, %s", resp.StatusCode, body.ToString())
+	}
+	if httpx.IsClientError(resp) {
+		var telnyxErrorResp TelnyxErrorResponse
+		if err := body.UnmarshalJson(telnyxErrorResp); err != nil {
+			return nil, fmt.Errorf("http error: %d, %s", resp.StatusCode, body.ToString())
 		}
-		if httpx.IsClientError(resp) {
-			return nil, fmt.Errorf("http client error %d, %s", resp.StatusCode, body.ToString())
-		}
+		return nil, &telnyxErrorResp.Errors[0]
 	}
 
 	return body, nil
