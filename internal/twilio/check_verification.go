@@ -6,29 +6,28 @@ import (
 	"github.com/rykroon/verify/internal/httpx"
 )
 
-type CheckVerificationParams struct {
-	serviceSid string
+type checkVerificationParams struct {
 	httpx.FormBody
 }
 
-func (p *CheckVerificationParams) SetTo(to string) {
-	p.Set("to", to)
+func (p *checkVerificationParams) SetTo(to string) {
+	p.Set("To", to)
 }
 
-func (p *CheckVerificationParams) SetVerificationSid(verificationSid string) {
-	p.Set("verificationSid", verificationSid)
+func (p *checkVerificationParams) SetVerificationSid(verificationSid string) {
+	p.Set("VerificationSid", verificationSid)
 }
 
-func (p *CheckVerificationParams) SetCode(code string) {
-	p.Set("code", code)
+func (p *checkVerificationParams) SetCode(code string) {
+	p.Set("Code", code)
 }
 
-func NewCheckVerificationParams(serviceSid string) *CheckVerificationParams {
-	return &CheckVerificationParams{serviceSid, httpx.NewFormBody()}
+func NewCheckVerificationParams() *checkVerificationParams {
+	return &checkVerificationParams{httpx.NewFormBody()}
 }
 
-func (c *Client) CheckVerification(params *CheckVerificationParams) (map[string]any, error) {
-	path := fmt.Sprintf("Services/%s/VerificationCheck", params.serviceSid)
+func (c *Client) CheckVerification(serviceSid string, params *checkVerificationParams) (map[string]any, error) {
+	path := fmt.Sprintf("Services/%s/VerificationCheck", serviceSid)
 	req, err := c.newRequest("POST", path, params)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)

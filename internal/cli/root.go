@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/rykroon/verify/internal/cli/telnyx"
+	"github.com/rykroon/verify/internal/cli/twilio"
 	"github.com/spf13/cobra"
 )
 
@@ -16,6 +17,7 @@ var rootCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(telnyx.TelnyxCmd)
+	rootCmd.AddCommand(twilio.TwilioCmd)
 }
 
 func Execute() {

@@ -13,4 +13,6 @@ var TwilioCmd = &cobra.Command{
 func init() {
 	TwilioCmd.AddCommand(sendVerificationCmd)
 	TwilioCmd.AddCommand(checkVerificationCmd)
+	TwilioCmd.AddCommand(listServicesCmd)
+	TwilioCmd.AddCommand(createServiceCmd)
 }

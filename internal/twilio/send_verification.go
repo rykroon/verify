@@ -7,19 +7,18 @@ import (
 )
 
 type sendVerificationParams struct {
-	serviceSid string
 	httpx.FormBody
 }
 
-func NewSendVerificationParams(serviceSid, to, channel string) *sendVerificationParams {
-	p := &sendVerificationParams{serviceSid, httpx.FormBody{}}
-	p.Set("to", to)
-	p.Set("channel", channel)
+func NewSendVerificationParams(to, channel string) *sendVerificationParams {
+	p := &sendVerificationParams{httpx.NewFormBody()}
+	p.Set("To", to)
+	p.Set("Channel", channel)
 	return p
 }
 
-func (c *Client) SendVerification(params *sendVerificationParams) (map[string]any, error) {
-	path := "Services/" + params.serviceSid + "/Verifications"
+func (c *Client) SendVerification(serviceSid string, params *sendVerificationParams) (map[string]any, error) {
+	path := "Services/" + serviceSid + "/Verifications"
 	req, err := c.newRequest("POST", path, params)
 	if err != nil {
 		return nil, err

@@ -6,15 +6,19 @@ import (
 	"github.com/rykroon/verify/internal/httpx"
 )
 
-type CreateServiceParams struct {
+type createServiceParams struct {
 	httpx.FormBody
 }
 
-func (csp *CreateServiceParams) SetFriendlyName(s string) {
+func NewCreateServiceParams() *createServiceParams {
+	return &createServiceParams{httpx.NewFormBody()}
+}
+
+func (csp *createServiceParams) SetFriendlyName(s string) {
 	csp.Set("FriendlyName", s)
 }
 
-func (c *Client) CreateService(params *CreateServiceParams) (map[string]any, error) {
+func (c *Client) CreateService(params *createServiceParams) (map[string]any, error) {
 	req, err := c.newRequest("POST", "Services", params)
 	if err != nil {
 		return nil, err
