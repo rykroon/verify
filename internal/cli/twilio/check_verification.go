@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/rykroon/verify/internal/twilio"
+	"github.com/rykroon/verify/pkg/twilio"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
 )

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/rykroon/verify/internal/telnyx"
+	"github.com/rykroon/verify/pkg/telnyx"
 	"github.com/spf13/cobra"
 )
 
