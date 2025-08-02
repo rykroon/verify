@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/rykroon/verify/internal/cli/sinch"
 	"github.com/rykroon/verify/internal/cli/telnyx"
 	"github.com/rykroon/verify/internal/cli/twilio"
 	"github.com/spf13/cobra"
@@ -16,6 +17,7 @@ var rootCmd = &cobra.Command{
 }
 
 func init() {
+	rootCmd.AddCommand(sinch.SinchCmd)
 	rootCmd.AddCommand(telnyx.TelnyxCmd)
 	rootCmd.AddCommand(twilio.TwilioCmd)
 }
