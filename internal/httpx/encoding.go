@@ -2,7 +2,6 @@ package httpx
 
 import (
 	"encoding/json"
-	"encoding/xml"
 )
 
 type MarshalFunc func(any) ([]byte, error)
@@ -17,8 +16,4 @@ func NewBodyUsingMarshalFunc(fn MarshalFunc, v any, contentType string) (*Body, 
 
 func NewJsonBody(v any) (*Body, error) {
 	return NewBodyUsingMarshalFunc(json.Marshal, v, "application/json")
-}
-
-func NewXmlBody(v any) (*Body, error) {
-	return NewBodyUsingMarshalFunc(xml.Marshal, v, "application/xml")
 }
