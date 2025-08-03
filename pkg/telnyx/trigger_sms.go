@@ -3,12 +3,28 @@ package telnyx
 import (
 	"fmt"
 
+	ds "github.com/rykroon/verify/internal/data_structures"
 	"github.com/rykroon/verify/internal/httpx"
 )
 
-func (c *Client) TriggerSmsVerification(phoneNumber, verifyProfileId string) (*DetailResponse[Verification], error) {
-	m := map[string]any{"phone_number": phoneNumber, "verify_profile_id": verifyProfileId}
-	body, err := httpx.NewJsonBody(m)
+type triggerSmsVerificationParams struct {
+	ds.WriteOnlyMap
+}
+
+func NewTriggerSmsVerificationParams() triggerSmsVerificationParams {
+	return triggerSmsVerificationParams{ds.NewWriteOnlyMap()}
+}
+
+func (p *triggerSmsVerificationParams) SetPhoneNumber(phoneNumber string) {
+	p.SetString("phone_number", phoneNumber)
+}
+
+func (p *triggerSmsVerificationParams) SetVerifyProfileId(verifyProfileId string) {
+	p.SetString("verify_profile_id", verifyProfileId)
+}
+
+func (c *Client) TriggerSmsVerification(params triggerSmsVerificationParams) (*DetailResponse[Verification], error) {
+	body, err := httpx.NewJsonBody(params)
 	if err != nil {
 		return nil, fmt.Errorf("failed to serialize json %w", err)
 	}
