@@ -16,15 +16,15 @@ func NewStartVerificationParams() *startVerificationParams {
 }
 
 func (p startVerificationParams) SetIdentityType(identityType string) {
-	p.SetStringToPath("identity.type", identityType)
+	p.SetPath("identity.type", identityType)
 }
 
 func (p startVerificationParams) SetIdentityEndpoint(identityEndpoint string) {
-	p.SetStringToPath("identity.endpoint", identityEndpoint)
+	p.SetPath("identity.endpoint", identityEndpoint)
 }
 
 func (p startVerificationParams) SetMethod(method string) {
-	p.SetString("method", method)
+	p.Set("method", method)
 }
 
 func (c *client) StartVerification(params *startVerificationParams) (map[string]any, error) {

@@ -16,7 +16,7 @@ func NewReportVerificationParams() *reportVerificationParams {
 }
 
 func (p *reportVerificationParams) SetMethod(method string) {
-	p.SetString("method", method)
+	p.Set("method", method)
 }
 
 func (c *client) ReportVerificationById(id string, params *reportVerificationParams) (map[string]any, error) {
