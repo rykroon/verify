@@ -8,11 +8,11 @@ import (
 )
 
 type reportVerificationParams struct {
-	ds.WriteOnlyMap
+	*ds.ParamBuilder
 }
 
 func NewReportVerificationParams() *reportVerificationParams {
-	return &reportVerificationParams{ds.NewWriteOnlyMap()}
+	return &reportVerificationParams{ds.NewParamBuilder()}
 }
 
 func (p *reportVerificationParams) SetMethod(method string) {

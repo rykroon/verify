@@ -8,11 +8,11 @@ import (
 )
 
 type triggerSmsVerificationParams struct {
-	ds.WriteOnlyMap
+	*ds.ParamBuilder
 }
 
 func NewTriggerSmsVerificationParams() triggerSmsVerificationParams {
-	return triggerSmsVerificationParams{ds.NewWriteOnlyMap()}
+	return triggerSmsVerificationParams{ds.NewParamBuilder()}
 }
 
 func (p *triggerSmsVerificationParams) SetPhoneNumber(phoneNumber string) {

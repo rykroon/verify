@@ -8,11 +8,11 @@ import (
 )
 
 type startVerificationParams struct {
-	ds.WriteOnlyMap
+	*ds.ParamBuilder
 }
 
 func NewStartVerificationParams() *startVerificationParams {
-	return &startVerificationParams{ds.NewWriteOnlyMap()}
+	return &startVerificationParams{ds.NewParamBuilder()}
 }
 
 func (p startVerificationParams) SetIdentityType(identityType string) {
