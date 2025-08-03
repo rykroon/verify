@@ -1,26 +1,27 @@
 package datastructures
 
 import (
+	"encoding/json"
 	"strings"
 )
 
-type WriteOnlyMap struct {
-	EmbeddedMap
+type ParamBuilder struct {
+	data map[string]any
 }
 
-func NewWriteOnlyMap() WriteOnlyMap {
-	return WriteOnlyMap{NewEmbeddedMap()}
+func NewParamBuilder() *ParamBuilder {
+	return &ParamBuilder{make(map[string]any)}
 }
 
-func (m WriteOnlyMap) Set(key string, val any) {
-	m.data[key] = val
+func (p *ParamBuilder) MarshalJSON() ([]byte, error) {
+	return json.Marshal(p.data)
 }
 
-func (m WriteOnlyMap) Del(key string) {
-	delete(m.data, key)
+func (p *ParamBuilder) Set(key string, val any) {
+	p.data[key] = val
 }
 
-func (m WriteOnlyMap) SetPath(path string, val any) {
+func (m *ParamBuilder) SetPath(path string, val any) {
 	keys := strings.Split(path, ".")
 
 	current := m.data
@@ -45,25 +46,5 @@ func (m WriteOnlyMap) SetPath(path string, val any) {
 			current[key] = newMap
 			current = newMap
 		}
-	}
-}
-
-func (m WriteOnlyMap) DelPath(path string) {
-	keys := strings.Split(path, ".")
-
-	current := m.data
-	for idx, key := range keys {
-		if idx == len(keys)-1 {
-			delete(current, key)
-			return
-		}
-
-		if next, exists := current[key]; exists {
-			if nextMap, isMap := next.(map[string]any); isMap {
-				current = nextMap
-				continue
-			}
-		}
-		break
 	}
 }
