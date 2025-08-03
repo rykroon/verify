@@ -1,55 +1,26 @@
 package datastructures
 
 import (
-	"encoding/json"
 	"strings"
 )
 
 type WriteOnlyMap struct {
-	data map[string]any
+	EmbeddedMap
 }
 
 func NewWriteOnlyMap() WriteOnlyMap {
-	return WriteOnlyMap{make(map[string]any)}
+	return WriteOnlyMap{NewEmbeddedMap()}
 }
 
-func (m WriteOnlyMap) MarshalJSON() ([]byte, error) {
-	return json.Marshal(m.data)
-}
-
-func (m WriteOnlyMap) SetString(key, val string) {
+func (m WriteOnlyMap) Set(key string, val any) {
 	m.data[key] = val
 }
 
-func (m WriteOnlyMap) SetBool(key string, val bool) {
-	m.data[key] = val
+func (m WriteOnlyMap) Del(key string) {
+	delete(m.data, key)
 }
 
-func (m WriteOnlyMap) SetInt(key string, val int) {
-	m.data[key] = val
-}
-
-func (m WriteOnlyMap) SetFloat(key string, val float64) {
-	m.data[key] = val
-}
-
-func (m WriteOnlyMap) SetStringToPath(path, val string) {
-	m.setAnyToPath(path, val)
-}
-
-func (m WriteOnlyMap) SetBoolToPath(path string, val bool) {
-	m.setAnyToPath(path, val)
-}
-
-func (m WriteOnlyMap) SetIntToPath(path string, val int) {
-	m.setAnyToPath(path, val)
-}
-
-func (m WriteOnlyMap) SetFloatToPath(path string, val float64) {
-	m.setAnyToPath(path, val)
-}
-
-func (m WriteOnlyMap) setAnyToPath(path string, val any) {
+func (m WriteOnlyMap) SetPath(path string, val any) {
 	keys := strings.Split(path, ".")
 
 	current := m.data
@@ -74,5 +45,25 @@ func (m WriteOnlyMap) setAnyToPath(path string, val any) {
 			current[key] = newMap
 			current = newMap
 		}
+	}
+}
+
+func (m WriteOnlyMap) DelPath(path string) {
+	keys := strings.Split(path, ".")
+
+	current := m.data
+	for idx, key := range keys {
+		if idx == len(keys)-1 {
+			delete(current, key)
+			return
+		}
+
+		if next, exists := current[key]; exists {
+			if nextMap, isMap := next.(map[string]any); isMap {
+				current = nextMap
+				continue
+			}
+		}
+		break
 	}
 }
