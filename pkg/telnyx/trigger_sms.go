@@ -16,11 +16,11 @@ func NewTriggerSmsVerificationParams() triggerSmsVerificationParams {
 }
 
 func (p *triggerSmsVerificationParams) SetPhoneNumber(phoneNumber string) {
-	p.SetString("phone_number", phoneNumber)
+	p.Set("phone_number", phoneNumber)
 }
 
 func (p *triggerSmsVerificationParams) SetVerifyProfileId(verifyProfileId string) {
-	p.SetString("verify_profile_id", verifyProfileId)
+	p.Set("verify_profile_id", verifyProfileId)
 }
 
 func (c *Client) TriggerSmsVerification(params triggerSmsVerificationParams) (*DetailResponse[Verification], error) {
