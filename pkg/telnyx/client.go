@@ -9,11 +9,16 @@ import (
 )
 
 type Client struct {
-	apiToken string
+	apiToken   string
+	httpClient *http.Client
 }
 
 func NewClient(apiToken string) *Client {
-	return &Client{apiToken: apiToken}
+	return &Client{apiToken, http.DefaultClient}
+}
+
+func (c *Client) SetHttpClient(client *http.Client) {
+	c.httpClient = client
 }
 
 func (c *Client) newRequest(method, path string, body httpx.RequestBodyProvider) (*http.Request, error) {
@@ -32,7 +37,7 @@ func (c *Client) newRequest(method, path string, body httpx.RequestBodyProvider)
 }
 
 func (c *Client) do(req *http.Request) (*httpx.Body, error) {
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to send request: %w", err)
 	}
