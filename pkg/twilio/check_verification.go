@@ -1,7 +1,9 @@
 package twilio
 
 import (
+	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/rykroon/verify/internal/httpx"
 )
@@ -26,22 +28,22 @@ func NewCheckVerificationParams() *checkVerificationParams {
 	return &checkVerificationParams{httpx.NewFormBody()}
 }
 
-func (c *Client) CheckVerification(serviceSid string, params *checkVerificationParams) (map[string]any, error) {
+func (c *Client) CheckVerification(serviceSid string, params *checkVerificationParams) (json.RawMessage, error) {
 	path := fmt.Sprintf("Services/%s/VerificationCheck", serviceSid)
-	req, err := c.newRequest("POST", path, params)
+	req, err := c.newRequest("POST", path, strings.NewReader(params.Encode()))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
 
-	respBody, err := c.do(req)
+	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to send request: %w", err)
 	}
 
-	var result map[string]any
-	if err := respBody.UnmarshalJson(&result); err != nil {
-		return nil, fmt.Errorf("failed to unmarhsal json body: %w", err)
+	rawJson, err := c.handleResponse(resp)
+	if err != nil {
+		return nil, err
 	}
 
-	return result, nil
+	return rawJson, nil
 }

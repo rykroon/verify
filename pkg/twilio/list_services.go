@@ -1,39 +1,44 @@
 package twilio
 
-import "fmt"
+import (
+	"encoding/json"
+	"fmt"
+)
 
-func (c *Client) ListServices() (map[string]any, error) {
+func (c *Client) ListServices() (json.RawMessage, error) {
 	req, err := c.newRequest("GET", "/Services", nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
 
-	respBody, err := c.do(req)
+	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("failed to send request: %w", err)
+		return nil, fmt.Errorf("http request failed: %w", err)
 	}
 
-	var result map[string]any
-	if err := respBody.UnmarshalJson(&result); err != nil {
-		return nil, fmt.Errorf("failed to parse response as json: %w", err)
+	rawJson, err := c.handleResponse(resp)
+	if err != nil {
+		return nil, err
 	}
-	return result, nil
+
+	return rawJson, nil
 }
 
-func (c *Client) FetchService(sid string) (map[string]any, error) {
+func (c *Client) FetchService(sid string) (json.RawMessage, error) {
 	req, err := c.newRequest("GET", "/Services/"+sid, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
 
-	respBody, err := c.do(req)
+	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("failed to send request: %w", err)
+		return nil, fmt.Errorf("http request failed: %w", err)
 	}
 
-	var result map[string]any
-	if err := respBody.UnmarshalJson(&result); err != nil {
-		return nil, fmt.Errorf("failed to parse response as json: %w", err)
+	rawJson, err := c.handleResponse(resp)
+	if err != nil {
+		return nil, err
 	}
-	return result, nil
+
+	return rawJson, nil
 }

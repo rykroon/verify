@@ -1,6 +1,7 @@
 package twilio
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 
@@ -27,17 +28,22 @@ var svp sendVerificationParams
 func runSendVerificationCmd(cmd *cobra.Command, args []string) error {
 	client := twilio.NewClient(os.Getenv("TWILIO_API_KEY_SID"), os.Getenv("TWILIO_API_KEY_SECRET"))
 	params := twilio.NewSendVerificationParams(svp.to, svp.channel)
-	result, err := client.SendVerification(svp.serviceSid, params)
+	rawJson, err := client.SendVerification(svp.serviceSid, params)
 	if err != nil {
 		return err
 	}
 
-	bites, err := yaml.Marshal(result)
+	var m map[string]any
+	if err := json.Unmarshal(rawJson, &m); err != nil {
+		return err
+	}
+
+	rawYaml, err := yaml.Marshal(m)
 	if err != nil {
 		return nil
 	}
 
-	fmt.Println(string(bites))
+	fmt.Println(string(rawYaml))
 
 	return nil
 }

@@ -1,6 +1,7 @@
 package twilio
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 
@@ -34,17 +35,22 @@ func runCheckVerificationCmd(cmd *cobra.Command, args []string) error {
 		params.SetVerificationSid(cvp.verificationSid)
 	}
 	params.SetCode(cvp.code)
-	result, err := client.CheckVerification(cvp.serviceSid, params)
+	rawJson, err := client.CheckVerification(cvp.serviceSid, params)
 	if err != nil {
 		return err
 	}
 
-	bites, err := yaml.Marshal(result)
+	var m map[string]any
+	if err := json.Unmarshal(rawJson, &m); err != nil {
+		return err
+	}
+
+	rawYaml, err := yaml.Marshal(m)
 	if err != nil {
 		return nil
 	}
 
-	fmt.Println(string(bites))
+	fmt.Println(string(rawYaml))
 
 	return nil
 }

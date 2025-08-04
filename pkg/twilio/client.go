@@ -1,11 +1,11 @@
 package twilio
 
 import (
+	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
-	neturl "net/url"
-
-	"github.com/rykroon/verify/internal/httpx"
+	"net/url"
 )
 
 type Client struct {
@@ -22,33 +22,37 @@ func (c *Client) SetHttpClient(client *http.Client) {
 	c.httpClient = client
 }
 
-func (c *Client) newRequest(method, path string, body httpx.RequestBodyProvider) (*http.Request, error) {
-	url, err := neturl.JoinPath("https://verify.twilio.com/v2/", path)
+func (c *Client) newRequest(method, path string, body io.Reader) (*http.Request, error) {
+	urlStr, err := url.JoinPath("https://verify.twilio.com/v2/", path)
 	if err != nil {
 		return nil, err
 	}
-	req, err := httpx.NewRequest(method, url, body)
+	req, err := http.NewRequest(method, urlStr, body)
 	if err != nil {
 		return nil, err
+	}
+	if body != nil {
+		req.Header.Set("Content-Type", "application/json")
 	}
 	req.SetBasicAuth(c.apiKeySid, c.apiKeySecret)
 	return req, nil
 }
 
-func (c *Client) do(req *http.Request) (*httpx.Body, error) {
-	resp, err := c.httpClient.Do(req)
+func (c *Client) handleResponse(resp *http.Response) (json.RawMessage, error) {
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("failed to send request: %w", err)
+		return nil, fmt.Errorf("failed to read response body: %w", err)
 	}
 
-	respBody, err := httpx.ReadBodyFromResponse(resp)
-	if err != nil {
-		return nil, err
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return nil, fmt.Errorf("unexpected status code: %d, body: %s", resp.StatusCode, string(body))
 	}
 
-	if httpx.IsError(resp) {
-		return nil, fmt.Errorf("http server error %d, %s", resp.StatusCode, respBody.ToString())
+	var result json.RawMessage
+
+	if err := json.Unmarshal(body, &result); err != nil {
+		return nil, fmt.Errorf("failed to decode json body as json: %w", err)
 	}
 
-	return respBody, nil
+	return result, nil
 }

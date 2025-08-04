@@ -1,6 +1,7 @@
 package twilio
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 
@@ -27,17 +28,22 @@ func runCreateServiceCmd(cmd *cobra.Command, args []string) error {
 
 	params := twilio.NewCreateServiceParams()
 	params.SetFriendlyName(csp.friendlyName)
-	result, err := client.CreateService(params)
+	rawJson, err := client.CreateService(params)
 	if err != nil {
 		return err
 	}
 
-	data, err := yaml.Marshal(result)
+	var m map[string]any
+	if err := json.Unmarshal(rawJson, &m); err != nil {
+		return err
+	}
+
+	rawYaml, err := yaml.Marshal(m)
 	if err != nil {
 		return nil
 	}
 
-	fmt.Println(string(data))
+	fmt.Println(string(rawYaml))
 	return nil
 }
 
