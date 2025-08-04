@@ -2,17 +2,16 @@ package twilio
 
 import (
 	"encoding/json"
+	"net/url"
 	"strings"
-
-	"github.com/rykroon/verify/internal/httpx"
 )
 
 type createServiceParams struct {
-	httpx.FormBody
+	url.Values
 }
 
 func NewCreateServiceParams() *createServiceParams {
-	return &createServiceParams{httpx.NewFormBody()}
+	return &createServiceParams{url.Values{}}
 }
 
 func (csp *createServiceParams) SetFriendlyName(s string) {
@@ -25,7 +24,7 @@ func (c *Client) CreateService(params *createServiceParams) (json.RawMessage, er
 		return nil, err
 	}
 
-	resp, err := c.httpClient.Do(req)
+	resp, err := c.doRequest(req)
 	if err != nil {
 		return nil, err
 	}

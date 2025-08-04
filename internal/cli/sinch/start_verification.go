@@ -1,6 +1,7 @@
 package sinch
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 
@@ -32,17 +33,22 @@ func runStartVerification(cmd *cobra.Command, args []string) error {
 	params.SetIdentityEndpoint(svp.identityEndpoint)
 	params.SetMethod(svp.method)
 
-	result, err := client.StartVerification(params)
+	jsonBytes, err := client.StartVerification(params)
 	if err != nil {
 		return err
 	}
 
-	data, err := yaml.Marshal(result)
+	var m map[string]any
+	if err := json.Unmarshal(jsonBytes, &m); err != nil {
+		return err
+	}
+
+	yamlBytes, err := yaml.Marshal(m)
 	if err != nil {
 		return nil
 	}
 
-	fmt.Println(string(data))
+	fmt.Println(string(yamlBytes))
 	return nil
 }
 

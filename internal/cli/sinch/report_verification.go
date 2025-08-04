@@ -1,6 +1,7 @@
 package sinch
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 
@@ -26,20 +27,24 @@ var rvp reportVerificationParams
 
 func runReportVerification(cmd *cobra.Command, args []string) error {
 	client := sinch.NewClient(os.Getenv("SINCH_APP_KEY"), os.Getenv("SINCH_APP_SECRET"))
-
 	params := sinch.NewReportVerificationParams()
 
-	result, err := client.ReportVerificationById(rvp.id, params)
+	jsonBytes, err := client.ReportVerificationById(rvp.id, params)
 	if err != nil {
 		return err
 	}
 
-	data, err := yaml.Marshal(result)
+	var m map[string]any
+	if err := json.Unmarshal(jsonBytes, &m); err != nil {
+		return err
+	}
+
+	yamlBytes, err := yaml.Marshal(m)
 	if err != nil {
 		return nil
 	}
 
-	fmt.Println(string(data))
+	fmt.Println(string(yamlBytes))
 	return nil
 }
 

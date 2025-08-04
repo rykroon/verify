@@ -6,13 +6,12 @@ import (
 	"crypto/sha256"
 
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"net/url"
 	"time"
-
-	"github.com/rykroon/verify/internal/httpx"
 )
 
 type client struct {
@@ -29,13 +28,13 @@ func (c *client) SetHttpClient(client *http.Client) {
 	c.httpClient = client
 }
 
-func (c *client) newRequest(method, path string, body httpx.RequestBodyProvider) (*http.Request, error) {
+func (c *client) newRequest(method, path string, body io.Reader) (*http.Request, error) {
 	u, err := url.JoinPath("https://verification.api.sinch.com/verification/v1", path)
 	if err != nil {
 		return nil, fmt.Errorf("failed to join path: %w", err)
 	}
 
-	req, err := httpx.NewRequest(method, u, body)
+	req, err := http.NewRequest(method, u, body)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
@@ -45,35 +44,51 @@ func (c *client) newRequest(method, path string, body httpx.RequestBodyProvider)
 
 }
 
-func (c *client) sendRequest(req *http.Request) (*httpx.Body, error) {
+type Response struct {
+	StatusCode  int
+	ContentType string
+	Body        []byte
+}
+
+func (c *client) doRequest(req *http.Request) (*Response, error) {
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to send request: %w", err)
 	}
 
-	respBody, err := httpx.ReadBodyFromResponse(resp)
+	body, err := io.ReadAll(resp.Body)
+	defer resp.Body.Close()
 	if err != nil {
 		return nil, fmt.Errorf("failed to read response body: %w", err)
 	}
 
-	if httpx.IsError(resp) {
-		return nil, fmt.Errorf("http error: code: %d, body: %s", resp.StatusCode, respBody.ToString())
-	}
-
-	return respBody, nil
+	return &Response{resp.StatusCode, resp.Header.Get("Content-Type"), body}, nil
 }
 
-func (c *client) signRequest(req *http.Request, body httpx.RequestBodyProvider) error {
+func (c *client) handleResponse(resp *Response) (json.RawMessage, error) {
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return nil, fmt.Errorf("http error: code: %d, body: %s", resp.StatusCode, string(resp.Body))
+	}
+
+	var result json.RawMessage
+	if err := json.Unmarshal(resp.Body, &result); err != nil {
+		return nil, fmt.Errorf("failed to decode resposne body as json: %w", err)
+	}
+
+	return result, nil
+}
+
+func (c *client) signRequest(req *http.Request, body io.Reader) error {
 	contentMD5 := ""
 	contentType := ""
 	if body != nil {
-		data, err := io.ReadAll(body.Reader())
+		data, err := io.ReadAll(body)
 		if err != nil {
 			return fmt.Errorf("failed to read body: %w", err)
 		}
 		sum := md5.Sum(data)
 		contentMD5 = base64.StdEncoding.EncodeToString(sum[:])
-		contentType = body.ContentType()
+		contentType = "application/json"
 	}
 
 	t := time.Now().UTC()

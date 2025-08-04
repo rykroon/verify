@@ -1,10 +1,11 @@
 package sinch
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 
 	ds "github.com/rykroon/verify/internal/data_structures"
-	"github.com/rykroon/verify/internal/httpx"
 )
 
 type startVerificationParams struct {
@@ -27,25 +28,25 @@ func (p startVerificationParams) SetMethod(method string) {
 	p.Set("method", method)
 }
 
-func (c *client) StartVerification(params *startVerificationParams) (map[string]any, error) {
-	body, err := httpx.NewJsonBody(params)
+func (c *client) StartVerification(params *startVerificationParams) (json.RawMessage, error) {
+	data, err := json.Marshal(params)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create new json body: %w", err)
+		return nil, fmt.Errorf("failed to encode params to json: %w", err)
 	}
-	req, err := c.newRequest("POST", "/verifications", body)
+	req, err := c.newRequest("POST", "/verifications", bytes.NewReader(data))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create new request: %w", err)
 	}
 
-	respBody, err := c.sendRequest(req)
+	resp, err := c.doRequest(req)
 	if err != nil {
-		return nil, fmt.Errorf("failed to send request: %w", err)
+		return nil, err
 	}
 
-	var result map[string]any
-	if err := respBody.UnmarshalJson(&result); err != nil {
-		return nil, fmt.Errorf("failed to decode response body as json: %w", err)
+	rawJson, err := c.handleResponse(resp)
+	if err != nil {
+		return nil, err
 	}
 
-	return result, nil
+	return rawJson, nil
 }

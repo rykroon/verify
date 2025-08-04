@@ -3,13 +3,12 @@ package twilio
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"strings"
-
-	"github.com/rykroon/verify/internal/httpx"
 )
 
 type checkVerificationParams struct {
-	httpx.FormBody
+	url.Values
 }
 
 func (p *checkVerificationParams) SetTo(to string) {
@@ -25,7 +24,7 @@ func (p *checkVerificationParams) SetCode(code string) {
 }
 
 func NewCheckVerificationParams() *checkVerificationParams {
-	return &checkVerificationParams{httpx.NewFormBody()}
+	return &checkVerificationParams{url.Values{}}
 }
 
 func (c *Client) CheckVerification(serviceSid string, params *checkVerificationParams) (json.RawMessage, error) {
@@ -35,7 +34,7 @@ func (c *Client) CheckVerification(serviceSid string, params *checkVerificationP
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
 
-	resp, err := c.httpClient.Do(req)
+	resp, err := c.doRequest(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to send request: %w", err)
 	}

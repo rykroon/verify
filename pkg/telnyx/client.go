@@ -6,8 +6,6 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-
-	"github.com/rykroon/verify/internal/httpx"
 )
 
 type Client struct {
@@ -38,12 +36,13 @@ func (c *Client) newRequest(method, path string, body io.Reader) (*http.Request,
 		req.Header.Set("Content-Type", "application/json")
 	}
 
-	httpx.SetBearerToken(req, c.apiToken)
+	req.Header.Set("Authorization", "Bearer "+c.apiToken)
 	return req, nil
 }
 
 func (c *Client) handleResponse(resp *http.Response) (json.RawMessage, error) {
 	body, err := io.ReadAll(resp.Body)
+	defer resp.Body.Close()
 	if err != nil {
 		return nil, fmt.Errorf("failed to read response body: %w", err)
 	}

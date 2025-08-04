@@ -2,17 +2,16 @@ package twilio
 
 import (
 	"encoding/json"
+	"net/url"
 	"strings"
-
-	"github.com/rykroon/verify/internal/httpx"
 )
 
 type sendVerificationParams struct {
-	httpx.FormBody
+	url.Values
 }
 
 func NewSendVerificationParams(to, channel string) *sendVerificationParams {
-	p := &sendVerificationParams{httpx.NewFormBody()}
+	p := &sendVerificationParams{url.Values{}}
 	p.Set("To", to)
 	p.Set("Channel", channel)
 	return p
@@ -24,7 +23,7 @@ func (c *Client) SendVerification(serviceSid string, params *sendVerificationPar
 	if err != nil {
 		return nil, err
 	}
-	resp, err := c.httpClient.Do(req)
+	resp, err := c.doRequest(req)
 	if err != nil {
 		return nil, err
 	}
