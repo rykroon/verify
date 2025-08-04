@@ -1,20 +1,24 @@
 package telnyx
 
-import "fmt"
+import (
+	"encoding/json"
+	"fmt"
+)
 
-func (c *Client) ListMessageTemplates() (map[string]any, error) {
+func (c *Client) ListMessageTemplates() (json.RawMessage, error) {
 	req, err := c.newRequest("GET", "/verify_profiles/templates", nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
-	respBody, err := c.do(req)
+	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("failed to send request: %w", err)
+		return nil, err
 	}
 
-	var result map[string]any
-	if err := respBody.UnmarshalJson(&result); err != nil {
-		return nil, fmt.Errorf("failed to decode json body: %w", err)
+	rawJson, err := c.handleResponse(resp)
+	if err != nil {
+		return nil, err
 	}
-	return result, nil
+
+	return rawJson, nil
 }

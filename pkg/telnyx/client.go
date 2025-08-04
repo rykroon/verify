@@ -1,7 +1,9 @@
 package telnyx
 
 import (
+	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 
@@ -21,42 +23,39 @@ func (c *Client) SetHttpClient(client *http.Client) {
 	c.httpClient = client
 }
 
-func (c *Client) newRequest(method, path string, body httpx.RequestBodyProvider) (*http.Request, error) {
+func (c *Client) newRequest(method, path string, body io.Reader) (*http.Request, error) {
 	urlStr, err := url.JoinPath("https://api.telnyx.com/v2", path)
 	if err != nil {
 		return nil, err
 	}
 
-	req, err := httpx.NewRequest(method, urlStr, body)
+	req, err := http.NewRequest(method, urlStr, body)
 	if err != nil {
 		return nil, err
+	}
+
+	if body != nil {
+		req.Header.Set("Content-Type", "application/json")
 	}
 
 	httpx.SetBearerToken(req, c.apiToken)
 	return req, nil
 }
 
-func (c *Client) do(req *http.Request) (*httpx.Body, error) {
-	resp, err := c.httpClient.Do(req)
+func (c *Client) handleResponse(resp *http.Response) (json.RawMessage, error) {
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("failed to send request: %w", err)
+		return nil, fmt.Errorf("failed to read response body: %w", err)
 	}
 
-	body, err := httpx.ReadBodyFromResponse(resp)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read body: %w", err)
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return nil, fmt.Errorf("unexpected status code: %d, body: %s", resp.StatusCode, string(body))
 	}
 
-	if httpx.IsServerError(resp) {
-		return nil, fmt.Errorf("http error: %d, %s", resp.StatusCode, body.ToString())
-	}
-	if httpx.IsClientError(resp) {
-		var telnyxErrorResp TelnyxErrorResponse
-		if err := body.UnmarshalJson(&telnyxErrorResp); err != nil {
-			return nil, fmt.Errorf("failed to decode http error as json: %w", err)
-		}
-		return nil, &telnyxErrorResp.Errors[0]
+	var result json.RawMessage
+	if err := json.Unmarshal(body, &result); err != nil {
+		return nil, fmt.Errorf("failed to decode json body as json: %w", err)
 	}
 
-	return body, nil
+	return result, nil
 }

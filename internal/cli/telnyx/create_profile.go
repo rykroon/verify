@@ -7,6 +7,7 @@ import (
 
 	"github.com/rykroon/verify/pkg/telnyx"
 	"github.com/spf13/cobra"
+	"gopkg.in/yaml.v3"
 )
 
 var createProfileCmd = &cobra.Command{
@@ -33,14 +34,19 @@ func runCreateProfiles(cmd *cobra.Command, args []string) error {
 	}
 
 	client := telnyx.NewClient(os.Getenv("TELNYX_API_KEY"))
-	result, err := client.CreateVerifyProfile(params)
+	rawJson, err := client.CreateVerifyProfile(params)
 	if err != nil {
 		return err
 	}
-	bytes_, err := json.MarshalIndent(result, "", "  ")
+
+	var m map[string]any
+	if err := json.Unmarshal(rawJson, &m); err != nil {
+		return err
+	}
+	rawYaml, err := yaml.Marshal(m)
 	if err != nil {
 		return err
 	}
-	fmt.Println(string(bytes_))
+	fmt.Println(string(rawYaml))
 	return nil
 }

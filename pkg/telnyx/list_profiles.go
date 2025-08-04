@@ -1,6 +1,7 @@
 package telnyx
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/url"
 	"strconv"
@@ -22,7 +23,7 @@ func (p *listVerifyProfilesParams) SetPageNumber(pageNumber int) {
 	p.Set("page[number]", strconv.Itoa(pageNumber))
 }
 
-func (c *Client) ListVerifyProfiles(params *listVerifyProfilesParams) (*ListResponse[VerificationProfile], error) {
+func (c *Client) ListVerifyProfiles(params *listVerifyProfilesParams) (json.RawMessage, error) {
 	req, err := c.newRequest("GET", "verify_profiles", nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request with params: %w", err)
@@ -31,19 +32,15 @@ func (c *Client) ListVerifyProfiles(params *listVerifyProfilesParams) (*ListResp
 		req.URL.RawQuery = params.Encode()
 	}
 
-	respBody, err := c.do(req)
-	if err != nil {
-		return nil, fmt.Errorf("failed to send request: %w", err)
-	}
-
-	if !respBody.IsJson() {
-		return nil, fmt.Errorf("expected json response")
-	}
-
-	var result *ListResponse[VerificationProfile]
-	err = respBody.UnmarshalJson(&result)
+	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
-	return result, nil
+
+	rawJson, err := c.handleResponse(resp)
+	if err != nil {
+		return nil, err
+	}
+
+	return rawJson, nil
 }

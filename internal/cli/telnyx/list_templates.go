@@ -7,6 +7,7 @@ import (
 
 	"github.com/rykroon/verify/pkg/telnyx"
 	"github.com/spf13/cobra"
+	"gopkg.in/yaml.v3"
 )
 
 var listTemplatesCmd = &cobra.Command{
@@ -18,15 +19,19 @@ var listTemplatesCmd = &cobra.Command{
 
 func runListTemplates(cmd *cobra.Command, args []string) error {
 	client := telnyx.NewClient(os.Getenv("TELNYX_API_KEY"))
-	result, err := client.ListMessageTemplates()
+	jsonBytes, err := client.ListMessageTemplates()
 	if err != nil {
 		return err
 	}
-	bytes_, err := json.MarshalIndent(result, "", "  ")
+	var m map[string]any
+	if err := json.Unmarshal(jsonBytes, &m); err != nil {
+		return err
+	}
+	yamlBytes, err := yaml.Marshal(m)
 	if err != nil {
 		return err
 	}
-	fmt.Println(string(bytes_))
+	fmt.Println(string(yamlBytes))
 	return nil
 }
 

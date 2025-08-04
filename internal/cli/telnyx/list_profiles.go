@@ -1,6 +1,7 @@
 package telnyx
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 
@@ -33,15 +34,19 @@ func runListProfiles(cmd *cobra.Command, args []string) error {
 	if lpp.pageSize != 0 {
 		params.SetPageSize(lpp.pageSize)
 	}
-	result, err := client.ListVerifyProfiles(params)
+	jsonBytes, err := client.ListVerifyProfiles(params)
 	if err != nil {
 		return err
 	}
-	bytes_, err := yaml.Marshal(result)
+	var m map[string]any
+	if err := json.Unmarshal(jsonBytes, &m); err != nil {
+		return err
+	}
+	yamlBytes, err := yaml.Marshal(m)
 	if err != nil {
 		return err
 	}
-	fmt.Println(string(bytes_))
+	fmt.Println(string(yamlBytes))
 	return nil
 }
 

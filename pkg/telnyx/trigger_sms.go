@@ -1,10 +1,11 @@
 package telnyx
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 
 	ds "github.com/rykroon/verify/internal/data_structures"
-	"github.com/rykroon/verify/internal/httpx"
 )
 
 type triggerSmsVerificationParams struct {
@@ -23,25 +24,22 @@ func (p *triggerSmsVerificationParams) SetVerifyProfileId(verifyProfileId string
 	p.Set("verify_profile_id", verifyProfileId)
 }
 
-func (c *Client) TriggerSmsVerification(params triggerSmsVerificationParams) (*DetailResponse[Verification], error) {
-	body, err := httpx.NewJsonBody(params)
+func (c *Client) TriggerSmsVerification(params triggerSmsVerificationParams) (json.RawMessage, error) {
+	jsonData, err := json.Marshal(params)
 	if err != nil {
-		return nil, fmt.Errorf("failed to serialize json %w", err)
+		return nil, err
 	}
-	req, err := c.newRequest("POST", "/verifications/sms", body)
+	req, err := c.newRequest("POST", "/verifications/sms", bytes.NewReader(jsonData))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
-	respBody, err := c.do(req)
+	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("failed to send request: %w", err)
-	}
-	if !respBody.IsJson() {
-		return nil, fmt.Errorf("expected json response")
-	}
-	var result *DetailResponse[Verification]
-	if err = respBody.UnmarshalJson(&result); err != nil {
 		return nil, err
 	}
-	return result, nil
+	rawJson, err := c.handleResponse(resp)
+	if err != nil {
+		return nil, err
+	}
+	return rawJson, nil
 }

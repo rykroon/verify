@@ -1,33 +1,31 @@
 package telnyx
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
-
-	"github.com/rykroon/verify/internal/httpx"
 )
 
-func (c *Client) VerifyCode(verificationId, code string) (map[string]any, error) {
+func (c *Client) VerifyCode(verificationId, code string) (json.RawMessage, error) {
 	m := map[string]any{"code": code}
-	body, err := httpx.NewJsonBody(m)
+	jsonData, err := json.Marshal(m)
 	if err != nil {
 		return nil, fmt.Errorf("failed to serialize json %w", err)
 	}
 	path := fmt.Sprintf("verifications/%s/actions/verify", verificationId)
-	req, err := c.newRequest("POST", path, body)
+	req, err := c.newRequest("POST", path, bytes.NewReader(jsonData))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
-	respBody, err := c.do(req)
+	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("failed to send request: %w", err)
-	}
-	if !respBody.IsJson() {
-		return nil, fmt.Errorf("expected json response")
-	}
-	var result map[string]any
-	if err = respBody.UnmarshalJson(&result); err != nil {
 		return nil, err
 	}
 
-	return result, nil
+	rawJson, err := c.handleResponse(resp)
+	if err != nil {
+		return nil, err
+	}
+
+	return rawJson, nil
 }

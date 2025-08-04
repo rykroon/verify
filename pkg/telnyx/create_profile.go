@@ -1,9 +1,9 @@
 package telnyx
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
-
-	"github.com/rykroon/verify/internal/httpx"
 )
 
 type CreateVerifyProfileParams struct {
@@ -68,29 +68,25 @@ func (p *CreateVerifyProfileParams) SetSmsDefaultVerificationTimeoutSecs(v int) 
 /*
 https://developers.telnyx.com/api/verify/create-verify-profile
 */
-func (c *Client) CreateVerifyProfile(params *CreateVerifyProfileParams) (*DetailResponse[VerificationProfile], error) {
-	reqBody, err := httpx.NewJsonBody(params)
+func (c *Client) CreateVerifyProfile(params *CreateVerifyProfileParams) (json.RawMessage, error) {
+	jsonData, err := json.Marshal(params)
 	if err != nil {
-		return nil, fmt.Errorf("failed to serialize json, %w", err)
+		return nil, fmt.Errorf("failed to encode params as json: %w", err)
 	}
-	req, err := c.newRequest("POST", "/verify_profiles", reqBody)
+	req, err := c.newRequest("POST", "/verify_profiles", bytes.NewReader(jsonData))
 	if err != nil {
-		return nil, fmt.Errorf("failed to create new request with body %w", err)
+		return nil, fmt.Errorf("failed to create http request %w", err)
 	}
 
-	respBody, err := c.do(req)
+	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("request failed to send: %w", err)
+		return nil, fmt.Errorf("http request failed: %w", err)
 	}
 
-	if !respBody.IsJson() {
-		return nil, fmt.Errorf("expected json response")
+	rawJson, err := c.handleResponse(resp)
+	if err != nil {
+		return nil, err
 	}
 
-	var result *DetailResponse[VerificationProfile]
-	err = respBody.UnmarshalJson(&result)
-	if err != nil {
-		return nil, fmt.Errorf("failed to deocode json body")
-	}
-	return result, nil
+	return rawJson, nil
 }

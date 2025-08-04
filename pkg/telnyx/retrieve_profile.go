@@ -1,26 +1,26 @@
 package telnyx
 
-import "fmt"
+import (
+	"encoding/json"
+	"fmt"
+)
 
-func (c *Client) RetrieveVerifyProfile(verifyProfileId string) (*DetailResponse[VerificationProfile], error) {
+func (c *Client) RetrieveVerifyProfile(verifyProfileId string) (json.RawMessage, error) {
 	path := "verify_profiles/" + verifyProfileId
 	req, err := c.newRequest("GET", path, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
 
-	respBody, err := c.do(req)
+	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to send request: %w", err)
 	}
-	if !respBody.IsJson() {
-		return nil, fmt.Errorf("expected json response")
-	}
 
-	var result *DetailResponse[VerificationProfile]
-	err = respBody.UnmarshalJson(&result)
+	rawJson, err := c.handleResponse(resp)
 	if err != nil {
 		return nil, err
 	}
-	return result, nil
+
+	return rawJson, nil
 }
