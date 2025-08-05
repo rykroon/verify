@@ -2,8 +2,11 @@ package twilio
 
 import (
 	"encoding/json"
+	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/rykroon/verify/internal/utils"
 )
 
 type createServiceParams struct {
@@ -18,13 +21,21 @@ func (csp *createServiceParams) SetFriendlyName(s string) {
 	csp.Set("FriendlyName", s)
 }
 
+func (c *Client) NewCreateServiceRequest(params *createServiceParams) (*http.Request, error) {
+	req, err := c.NewRequest("POST", "Services", strings.NewReader(params.Encode()))
+	if err != nil {
+		return nil, err
+	}
+	return req, err
+}
+
 func (c *Client) CreateService(params *createServiceParams) (json.RawMessage, error) {
-	req, err := c.newRequest("POST", "Services", strings.NewReader(params.Encode()))
+	req, err := c.NewCreateServiceRequest(params)
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := c.doRequest(req)
+	resp, err := utils.DoAndReadAll(http.DefaultClient, req)
 	if err != nil {
 		return nil, err
 	}

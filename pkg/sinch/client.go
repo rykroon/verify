@@ -13,23 +13,20 @@ import (
 	"net/http"
 	"net/url"
 	"time"
+
+	"github.com/rykroon/verify/internal/utils"
 )
 
 type client struct {
 	applicationKey    string
 	applicationSecret string
-	httpClient        *http.Client
 }
 
 func NewClient(applicationKey, applicationSecret string) *client {
-	return &client{applicationKey, applicationSecret, http.DefaultClient}
+	return &client{applicationKey, applicationSecret}
 }
 
-func (c *client) SetHttpClient(client *http.Client) {
-	c.httpClient = client
-}
-
-func (c *client) newRequest(method, path string, body io.Reader) (*http.Request, error) {
+func (c *client) NewRequest(method, path string, body io.Reader) (*http.Request, error) {
 	u, err := url.JoinPath("https://verification.api.sinch.com/verification/v1", path)
 	if err != nil {
 		return nil, fmt.Errorf("failed to join path: %w", err)
@@ -63,28 +60,7 @@ func (c *client) newRequest(method, path string, body io.Reader) (*http.Request,
 
 }
 
-type Response struct {
-	StatusCode  int
-	ContentType string
-	Body        []byte
-}
-
-func (c *client) doRequest(req *http.Request) (*Response, error) {
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("failed to send request: %w", err)
-	}
-
-	body, err := io.ReadAll(resp.Body)
-	defer resp.Body.Close()
-	if err != nil {
-		return nil, fmt.Errorf("failed to read response body: %w", err)
-	}
-
-	return &Response{resp.StatusCode, resp.Header.Get("Content-Type"), body}, nil
-}
-
-func (c *client) handleResponse(resp *Response) (json.RawMessage, error) {
+func (c *client) handleResponse(resp *utils.CachedResponse) (json.RawMessage, error) {
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		return nil, fmt.Errorf("http error: code: %d, body: %s", resp.StatusCode, string(resp.Body))
 	}

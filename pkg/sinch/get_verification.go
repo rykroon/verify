@@ -1,14 +1,19 @@
 package sinch
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"net/http"
+
+	"github.com/rykroon/verify/internal/utils"
+)
 
 func (c *client) GetVerificationById(id string) (json.RawMessage, error) {
-	req, err := c.newRequest("GET", "verifications/id/"+id, nil)
+	req, err := c.NewRequest("GET", "verifications/id/"+id, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := c.doRequest(req)
+	resp, err := utils.DoAndReadAll(http.DefaultClient, req)
 	if err != nil {
 		return nil, err
 	}

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"net/http"
 
 	"github.com/rykroon/verify/internal/utils"
 )
@@ -30,12 +31,12 @@ func (c *client) ReportVerificationById(id string, params *reportVerificationPar
 		return nil, fmt.Errorf("failed to encode params as json: %w", err)
 	}
 
-	req, err := c.newRequest("PUT", fmt.Sprintf("/verifications/id/%s", id), bytes.NewReader(data))
+	req, err := c.NewRequest("PUT", fmt.Sprintf("/verifications/id/%s", id), bytes.NewReader(data))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create new request: %w", err)
 	}
 
-	resp, err := c.doRequest(req)
+	resp, err := utils.DoAndReadAll(http.DefaultClient, req)
 	if err != nil {
 		return nil, err
 	}

@@ -10,16 +10,11 @@ import (
 )
 
 type Client struct {
-	apiToken   string
-	httpClient *http.Client
+	apiToken string
 }
 
 func NewClient(apiToken string) *Client {
-	return &Client{apiToken, http.DefaultClient}
-}
-
-func (c *Client) SetHttpClient(client *http.Client) {
-	c.httpClient = client
+	return &Client{apiToken}
 }
 
 func (c *Client) NewRequest(method, path string, body io.Reader) (*http.Request, error) {
@@ -42,9 +37,9 @@ func (c *Client) NewRequest(method, path string, body io.Reader) (*http.Request,
 }
 
 func checkResponse(cr *utils.CachedResponse) error {
-	if utils.IsError(cr.Response) {
+	if utils.IsError(cr.StatusCode) {
 		return fmt.Errorf("Telnyx error: %d, %s", cr.StatusCode, string(cr.Body))
-	} else if !utils.IsSuccess(cr.Response) {
+	} else if !utils.IsSuccess(cr.StatusCode) {
 		return fmt.Errorf("unexpected status code: %d", cr.StatusCode)
 	}
 	return nil

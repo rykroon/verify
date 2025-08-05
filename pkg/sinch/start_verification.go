@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"net/http"
 
 	"github.com/rykroon/verify/internal/utils"
 )
@@ -33,12 +34,12 @@ func (c *client) StartVerification(params *startVerificationParams) (json.RawMes
 	if err != nil {
 		return nil, fmt.Errorf("failed to encode params to json: %w", err)
 	}
-	req, err := c.newRequest("POST", "/verifications", bytes.NewReader(data))
+	req, err := c.NewRequest("POST", "/verifications", bytes.NewReader(data))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create new request: %w", err)
 	}
 
-	resp, err := c.doRequest(req)
+	resp, err := utils.DoAndReadAll(http.DefaultClient, req)
 	if err != nil {
 		return nil, err
 	}
