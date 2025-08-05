@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+
+	"github.com/rykroon/verify/internal/utils"
 )
 
 type listVerifyProfilesParams struct {
@@ -25,7 +27,7 @@ func (p *listVerifyProfilesParams) SetPageNumber(pageNumber int) {
 }
 
 func (c *Client) NewListVerifyProfilesRequest(params *listVerifyProfilesParams) (*http.Request, error) {
-	req, err := c.newRequest("GET", "verify_profiles", nil)
+	req, err := c.NewRequest("GET", "verify_profiles", nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request with params: %w", err)
 	}
@@ -40,15 +42,20 @@ func (c *Client) ListVerifyProfiles(params *listVerifyProfilesParams) (json.RawM
 	if err != nil {
 		return nil, err
 	}
-	resp, err := c.httpClient.Do(req)
+	resp, err := utils.DoAndReadAll(http.DefaultClient, req)
 	if err != nil {
 		return nil, err
 	}
 
-	rawJson, err := c.handleResponse(resp)
+	err = checkResponse(resp)
 	if err != nil {
 		return nil, err
 	}
 
-	return rawJson, nil
+	var result json.RawMessage
+	if err := json.Unmarshal(resp.Body, &result); err != nil {
+		return nil, fmt.Errorf("failed to decode json body as json: %w", err)
+	}
+
+	return result, nil
 }

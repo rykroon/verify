@@ -5,15 +5,15 @@ import (
 	"encoding/json"
 	"fmt"
 
-	ds "github.com/rykroon/verify/internal/data_structures"
+	"github.com/rykroon/verify/internal/utils"
 )
 
 type startVerificationParams struct {
-	*ds.ParamBuilder
+	*utils.ParamBuilder
 }
 
 func NewStartVerificationParams() *startVerificationParams {
-	return &startVerificationParams{ds.NewParamBuilder()}
+	return &startVerificationParams{utils.NewParamBuilder()}
 }
 
 func (p startVerificationParams) SetIdentityType(identityType string) {

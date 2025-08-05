@@ -1,11 +1,12 @@
 package telnyx
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"net/url"
+
+	"github.com/rykroon/verify/internal/utils"
 )
 
 type Client struct {
@@ -22,10 +23,6 @@ func (c *Client) SetHttpClient(client *http.Client) {
 }
 
 func (c *Client) NewRequest(method, path string, body io.Reader) (*http.Request, error) {
-	return c.newRequest(method, path, body)
-}
-
-func (c *Client) newRequest(method, path string, body io.Reader) (*http.Request, error) {
 	urlStr, err := url.JoinPath("https://api.telnyx.com/v2", path)
 	if err != nil {
 		return nil, err
@@ -44,21 +41,11 @@ func (c *Client) newRequest(method, path string, body io.Reader) (*http.Request,
 	return req, nil
 }
 
-func (c *Client) handleResponse(resp *http.Response) (json.RawMessage, error) {
-	body, err := io.ReadAll(resp.Body)
-	defer resp.Body.Close()
-	if err != nil {
-		return nil, fmt.Errorf("failed to read response body: %w", err)
+func checkResponse(cr *utils.CachedResponse) error {
+	if utils.IsError(cr.Response) {
+		return fmt.Errorf("Telnyx error: %d, %s", cr.StatusCode, string(cr.Body))
+	} else if !utils.IsSuccess(cr.Response) {
+		return fmt.Errorf("unexpected status code: %d", cr.StatusCode)
 	}
-
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return nil, fmt.Errorf("unexpected status code: %d, body: %s", resp.StatusCode, string(body))
-	}
-
-	var result json.RawMessage
-	if err := json.Unmarshal(body, &result); err != nil {
-		return nil, fmt.Errorf("failed to decode json body as json: %w", err)
-	}
-
-	return result, nil
+	return nil
 }

@@ -5,15 +5,15 @@ import (
 	"encoding/json"
 	"fmt"
 
-	ds "github.com/rykroon/verify/internal/data_structures"
+	"github.com/rykroon/verify/internal/utils"
 )
 
 type reportVerificationParams struct {
-	*ds.ParamBuilder
+	*utils.ParamBuilder
 }
 
 func NewReportVerificationParams() *reportVerificationParams {
-	return &reportVerificationParams{ds.NewParamBuilder()}
+	return &reportVerificationParams{utils.NewParamBuilder()}
 }
 
 func (p *reportVerificationParams) SetCode(code string) {

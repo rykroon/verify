@@ -6,15 +6,15 @@ import (
 	"fmt"
 	"net/http"
 
-	ds "github.com/rykroon/verify/internal/data_structures"
+	"github.com/rykroon/verify/internal/utils"
 )
 
 type triggerSmsVerificationParams struct {
-	*ds.ParamBuilder
+	*utils.ParamBuilder
 }
 
 func NewTriggerSmsVerificationParams() *triggerSmsVerificationParams {
-	return &triggerSmsVerificationParams{ds.NewParamBuilder()}
+	return &triggerSmsVerificationParams{utils.NewParamBuilder()}
 }
 
 func (p *triggerSmsVerificationParams) SetPhoneNumber(phoneNumber string) {
@@ -30,9 +30,9 @@ func (c *Client) NewTriggerSmsVerificationRequest(params *triggerSmsVerification
 	if err != nil {
 		return nil, err
 	}
-	req, err := c.newRequest("POST", "/verifications/sms", bytes.NewReader(jsonData))
+	req, err := c.NewRequest("POST", "/verifications/sms", bytes.NewReader(jsonData))
 	if err != nil {
-		return nil, fmt.Errorf("failed to create request: %w", err)
+		return nil, err
 	}
 	return req, nil
 }
@@ -40,15 +40,20 @@ func (c *Client) NewTriggerSmsVerificationRequest(params *triggerSmsVerification
 func (c *Client) TriggerSmsVerification(params *triggerSmsVerificationParams) (json.RawMessage, error) {
 	req, err := c.NewTriggerSmsVerificationRequest(params)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create request: %w", err)
+		return nil, err
 	}
-	resp, err := c.httpClient.Do(req)
+	resp, err := utils.DoAndReadAll(http.DefaultClient, req)
 	if err != nil {
 		return nil, err
 	}
-	rawJson, err := c.handleResponse(resp)
+	err = checkResponse(resp)
 	if err != nil {
 		return nil, err
 	}
-	return rawJson, nil
+
+	var result json.RawMessage
+	if err := json.Unmarshal(resp.Body, &result); err != nil {
+		return nil, fmt.Errorf("failed to decode json body as json: %w", err)
+	}
+	return result, nil
 }

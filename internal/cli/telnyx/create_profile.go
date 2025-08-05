@@ -17,20 +17,18 @@ var createProfileCmd = &cobra.Command{
 	RunE:  runCreateProfiles,
 }
 
-var name string
-var appName string
-
-func init() {
-	createProfileCmd.Flags().StringVarP(&name, "name", "n", "", "Name of profile")
-	createProfileCmd.Flags().StringVarP(&appName, "app-name", "a", "", "Name of Application")
-
-	createProfileCmd.MarkFlagRequired("name")
+type createProfileParams struct {
+	name    string
+	appName string
 }
 
+var cpp createProfileParams
+
 func runCreateProfiles(cmd *cobra.Command, args []string) error {
-	params := telnyx.NewCreateVerifyProfileParams(name)
-	if appName != "" {
-		params.SetSmsAppName(appName)
+	params := telnyx.NewCreateVerifyProfileParams()
+	params.SetName(cpp.name)
+	if cpp.appName != "" {
+		params.SetSmsAppName(cpp.appName)
 	}
 
 	client := telnyx.NewClient(os.Getenv("TELNYX_API_KEY"))
@@ -49,4 +47,11 @@ func runCreateProfiles(cmd *cobra.Command, args []string) error {
 	}
 	fmt.Println(string(rawYaml))
 	return nil
+}
+
+func init() {
+	createProfileCmd.Flags().StringVarP(&cpp.name, "name", "n", "", "The name of the profile")
+	createProfileCmd.Flags().StringVarP(&cpp.appName, "app-name", "a", "", "The Nname of the application")
+
+	createProfileCmd.MarkFlagRequired("name")
 }

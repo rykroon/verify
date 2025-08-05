@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+
+	"github.com/rykroon/verify/internal/utils"
 )
 
 func (c *Client) NewVerifyCodeRequest(verificationId, code string) (*http.Request, error) {
@@ -14,7 +16,7 @@ func (c *Client) NewVerifyCodeRequest(verificationId, code string) (*http.Reques
 		return nil, fmt.Errorf("failed to serialize json %w", err)
 	}
 	path := fmt.Sprintf("verifications/%s/actions/verify", verificationId)
-	req, err := c.newRequest("POST", path, bytes.NewReader(jsonData))
+	req, err := c.NewRequest("POST", path, bytes.NewReader(jsonData))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
@@ -26,15 +28,20 @@ func (c *Client) VerifyCode(verificationId, code string) (json.RawMessage, error
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
-	resp, err := c.httpClient.Do(req)
+	resp, err := utils.DoAndReadAll(http.DefaultClient, req)
 	if err != nil {
 		return nil, err
 	}
 
-	rawJson, err := c.handleResponse(resp)
+	err = checkResponse(resp)
 	if err != nil {
 		return nil, err
 	}
 
-	return rawJson, nil
+	var result json.RawMessage
+	if err := json.Unmarshal(resp.Body, &result); err != nil {
+		return nil, fmt.Errorf("failed to decode json body as json: %w", err)
+	}
+
+	return result, nil
 }

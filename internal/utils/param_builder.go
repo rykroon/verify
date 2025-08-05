@@ -1,4 +1,4 @@
-package datastructures
+package utils
 
 import (
 	"encoding/json"

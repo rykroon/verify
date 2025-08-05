@@ -5,73 +5,48 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+
+	"github.com/rykroon/verify/internal/utils"
 )
 
-type CreateVerifyProfileParams struct {
-	m map[string]any
+type createVerifyProfileParams struct {
+	utils.ParamBuilder
 }
 
-func NewCreateVerifyProfileParams(name string) *CreateVerifyProfileParams {
-	p := &CreateVerifyProfileParams{make(map[string]any)}
-	p.m["name"] = name
-	return p
+func NewCreateVerifyProfileParams() *createVerifyProfileParams {
+	return &createVerifyProfileParams{*utils.NewParamBuilder()}
 }
 
-func (p *CreateVerifyProfileParams) GetSetMap(key string) map[string]any {
-	var result map[string]any
-	maybeMap, exists := p.m[key]
-	if exists {
-		result, isMap := maybeMap.(map[string]any)
-		if !isMap {
-			// if not a map, overwrite
-			result = make(map[string]any)
-			p.m[key] = result
-		}
-	} else {
-		// create a new map
-		result := make(map[string]any)
-		p.m[key] = result
-	}
-
-	return result
+func (p *createVerifyProfileParams) SetName(name string) {
+	p.Set("name", name)
 }
 
-func (p *CreateVerifyProfileParams) SetSmsMessagingTemplateId(templateId string) *CreateVerifyProfileParams {
-	sms := p.GetSetMap("sms")
-	sms["messaging_template_id"] = templateId
-	return p
+func (p *createVerifyProfileParams) SetSmsMessagingTemplateId(templateId string) {
+	p.SetPath("sms.messaging_template_id", templateId)
 }
 
-func (p *CreateVerifyProfileParams) SetSmsAppName(appName string) *CreateVerifyProfileParams {
-	sms := p.GetSetMap("sms")
-	sms["app_name"] = appName
-	return p
+func (p *createVerifyProfileParams) SetSmsAppName(appName string) {
+	p.SetPath("sms.app_name", appName)
 }
 
-func (p *CreateVerifyProfileParams) SetSmsCodeLength(codeLength string) *CreateVerifyProfileParams {
-	sms := p.GetSetMap("sms")
-	sms["code_length"] = codeLength
-	return p
+func (p *createVerifyProfileParams) SetSmsCodeLength(codeLength string) {
+	p.SetPath("sms.code_length", codeLength)
 }
 
-func (p *CreateVerifyProfileParams) SetSmsWhitelistedDestinations(destinations []string) *CreateVerifyProfileParams {
-	sms := p.GetSetMap("sms")
-	sms["whitelisted_destinations"] = destinations
-	return p
+func (p *createVerifyProfileParams) SetSmsWhitelistedDestinations(destinations []string) {
+	p.SetPath("sms.whitelisted_destinations", destinations)
 }
 
-func (p *CreateVerifyProfileParams) SetSmsDefaultVerificationTimeoutSecs(v int) *CreateVerifyProfileParams {
-	sms := p.GetSetMap("sms")
-	sms["default_verification_timeout_secs"] = v
-	return p
+func (p *createVerifyProfileParams) SetSmsDefaultVerificationTimeoutSecs(timeoutSecs int) {
+	p.SetPath("sms.default_verification_timeout_secs", timeoutSecs)
 }
 
-func (c *Client) NewCreateVerifyProfileRequest(params *CreateVerifyProfileParams) (*http.Request, error) {
+func (c *Client) NewCreateVerifyProfileRequest(params *createVerifyProfileParams) (*http.Request, error) {
 	jsonData, err := json.Marshal(params)
 	if err != nil {
 		return nil, fmt.Errorf("failed to encode params as json: %w", err)
 	}
-	req, err := c.newRequest("POST", "/verify_profiles", bytes.NewReader(jsonData))
+	req, err := c.NewRequest("POST", "/verify_profiles", bytes.NewReader(jsonData))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create http request %w", err)
 	}
@@ -81,20 +56,26 @@ func (c *Client) NewCreateVerifyProfileRequest(params *CreateVerifyProfileParams
 /*
 https://developers.telnyx.com/api/verify/create-verify-profile
 */
-func (c *Client) CreateVerifyProfile(params *CreateVerifyProfileParams) (json.RawMessage, error) {
+func (c *Client) CreateVerifyProfile(params *createVerifyProfileParams) (json.RawMessage, error) {
 	req, err := c.NewCreateVerifyProfileRequest(params)
 	if err != nil {
 		return nil, err
 	}
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("http request failed: %w", err)
-	}
 
-	rawJson, err := c.handleResponse(resp)
+	resp, err := utils.DoAndReadAll(http.DefaultClient, req)
 	if err != nil {
 		return nil, err
 	}
 
-	return rawJson, nil
+	err = checkResponse(resp)
+	if err != nil {
+		return nil, err
+	}
+
+	var result json.RawMessage
+	if err := json.Unmarshal(resp.Body, &result); err != nil {
+		return nil, fmt.Errorf("failed to decode json body as json: %w", err)
+	}
+
+	return result, nil
 }

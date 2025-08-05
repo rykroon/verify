@@ -4,10 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+
+	"github.com/rykroon/verify/internal/utils"
 )
 
 func (c *Client) NewListMessageTemplatesRequest() (*http.Request, error) {
-	req, err := c.newRequest("GET", "/verify_profiles/templates", nil)
+	req, err := c.NewRequest("GET", "/verify_profiles/templates", nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
@@ -19,15 +21,20 @@ func (c *Client) ListMessageTemplates() (json.RawMessage, error) {
 	if err != nil {
 		return nil, err
 	}
-	resp, err := c.httpClient.Do(req)
+	resp, err := utils.DoAndReadAll(http.DefaultClient, req)
 	if err != nil {
 		return nil, err
 	}
 
-	rawJson, err := c.handleResponse(resp)
+	err = checkResponse(resp)
 	if err != nil {
 		return nil, err
 	}
 
-	return rawJson, nil
+	var result json.RawMessage
+	if err := json.Unmarshal(resp.Body, &result); err != nil {
+		return nil, fmt.Errorf("failed to decode json body as json: %w", err)
+	}
+
+	return result, nil
 }
