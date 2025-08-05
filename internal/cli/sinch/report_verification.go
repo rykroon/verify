@@ -29,6 +29,9 @@ func runReportVerification(cmd *cobra.Command, args []string) error {
 	client := sinch.NewClient(os.Getenv("SINCH_APP_KEY"), os.Getenv("SINCH_APP_SECRET"))
 	params := sinch.NewReportVerificationParams()
 
+	params.SetCode(rvp.code)
+	params.SetMethod(rvp.method)
+
 	jsonBytes, err := client.ReportVerificationById(rvp.id, params)
 	if err != nil {
 		return err

@@ -1,6 +1,7 @@
 package sinch
 
 import (
+	"bytes"
 	"crypto/hmac"
 	"crypto/md5"
 	"crypto/sha256"
@@ -34,12 +35,30 @@ func (c *client) newRequest(method, path string, body io.Reader) (*http.Request,
 		return nil, fmt.Errorf("failed to join path: %w", err)
 	}
 
-	req, err := http.NewRequest(method, u, body)
+	var copy1 io.Reader
+	var copy2 io.Reader
+
+	if body != nil {
+		var buf bytes.Buffer
+		_, err = io.Copy(&buf, body)
+		if err != nil {
+			return nil, err
+		}
+
+		copy1 = bytes.NewReader(buf.Bytes())
+		copy2 = bytes.NewReader(buf.Bytes())
+	}
+
+	req, err := http.NewRequest(method, u, copy1)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
 
-	c.signRequest(req, body)
+	if body != nil {
+		req.Header.Set("Content-Type", "application/json")
+	}
+
+	c.signRequest(req, copy2)
 	return req, nil
 
 }
@@ -80,7 +99,7 @@ func (c *client) handleResponse(resp *Response) (json.RawMessage, error) {
 
 func (c *client) signRequest(req *http.Request, body io.Reader) error {
 	contentMD5 := ""
-	contentType := ""
+	contentType := req.Header.Get("Content-Type")
 	if body != nil {
 		data, err := io.ReadAll(body)
 		if err != nil {
@@ -88,7 +107,6 @@ func (c *client) signRequest(req *http.Request, body io.Reader) error {
 		}
 		sum := md5.Sum(data)
 		contentMD5 = base64.StdEncoding.EncodeToString(sum[:])
-		contentType = "application/json"
 	}
 
 	t := time.Now().UTC()

@@ -16,6 +16,10 @@ func NewReportVerificationParams() *reportVerificationParams {
 	return &reportVerificationParams{ds.NewParamBuilder()}
 }
 
+func (p *reportVerificationParams) SetCode(code string) {
+	p.Set("code", code)
+}
+
 func (p *reportVerificationParams) SetMethod(method string) {
 	p.Set("method", method)
 }

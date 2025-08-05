@@ -13,5 +13,6 @@ var SinchCmd = &cobra.Command{
 func init() {
 	SinchCmd.AddCommand(startVerificationCmd)
 	SinchCmd.AddCommand(reportVerificationCmd)
+	SinchCmd.AddCommand(getVerificationCmd)
 
 }
