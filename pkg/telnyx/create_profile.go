@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"net/http"
 )
 
 type CreateVerifyProfileParams struct {
@@ -65,10 +66,7 @@ func (p *CreateVerifyProfileParams) SetSmsDefaultVerificationTimeoutSecs(v int) 
 	return p
 }
 
-/*
-https://developers.telnyx.com/api/verify/create-verify-profile
-*/
-func (c *Client) CreateVerifyProfile(params *CreateVerifyProfileParams) (json.RawMessage, error) {
+func (c *Client) NewCreateVerifyProfileRequest(params *CreateVerifyProfileParams) (*http.Request, error) {
 	jsonData, err := json.Marshal(params)
 	if err != nil {
 		return nil, fmt.Errorf("failed to encode params as json: %w", err)
@@ -77,7 +75,17 @@ func (c *Client) CreateVerifyProfile(params *CreateVerifyProfileParams) (json.Ra
 	if err != nil {
 		return nil, fmt.Errorf("failed to create http request %w", err)
 	}
+	return req, nil
+}
 
+/*
+https://developers.telnyx.com/api/verify/create-verify-profile
+*/
+func (c *Client) CreateVerifyProfile(params *CreateVerifyProfileParams) (json.RawMessage, error) {
+	req, err := c.NewCreateVerifyProfileRequest(params)
+	if err != nil {
+		return nil, err
+	}
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("http request failed: %w", err)

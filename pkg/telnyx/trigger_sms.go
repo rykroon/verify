@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"net/http"
 
 	ds "github.com/rykroon/verify/internal/data_structures"
 )
@@ -12,8 +13,8 @@ type triggerSmsVerificationParams struct {
 	*ds.ParamBuilder
 }
 
-func NewTriggerSmsVerificationParams() triggerSmsVerificationParams {
-	return triggerSmsVerificationParams{ds.NewParamBuilder()}
+func NewTriggerSmsVerificationParams() *triggerSmsVerificationParams {
+	return &triggerSmsVerificationParams{ds.NewParamBuilder()}
 }
 
 func (p *triggerSmsVerificationParams) SetPhoneNumber(phoneNumber string) {
@@ -24,12 +25,20 @@ func (p *triggerSmsVerificationParams) SetVerifyProfileId(verifyProfileId string
 	p.Set("verify_profile_id", verifyProfileId)
 }
 
-func (c *Client) TriggerSmsVerification(params triggerSmsVerificationParams) (json.RawMessage, error) {
+func (c *Client) NewTriggerSmsVerificationRequest(params *triggerSmsVerificationParams) (*http.Request, error) {
 	jsonData, err := json.Marshal(params)
 	if err != nil {
 		return nil, err
 	}
 	req, err := c.newRequest("POST", "/verifications/sms", bytes.NewReader(jsonData))
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %w", err)
+	}
+	return req, nil
+}
+
+func (c *Client) TriggerSmsVerification(params *triggerSmsVerificationParams) (json.RawMessage, error) {
+	req, err := c.NewTriggerSmsVerificationRequest(params)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}

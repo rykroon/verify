@@ -21,6 +21,10 @@ func (c *Client) SetHttpClient(client *http.Client) {
 	c.httpClient = client
 }
 
+func (c *Client) NewRequest(method, path string, body io.Reader) (*http.Request, error) {
+	return c.newRequest(method, path, body)
+}
+
 func (c *Client) newRequest(method, path string, body io.Reader) (*http.Request, error) {
 	urlStr, err := url.JoinPath("https://api.telnyx.com/v2", path)
 	if err != nil {
