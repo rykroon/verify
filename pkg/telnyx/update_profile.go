@@ -9,15 +9,6 @@ import (
 )
 
 type UpdateVerifyProfileParams struct {
-	VerifyProfileId string `json:"verify_profile_id"`
-	*UpdateVerifyProfileBodyParams
-}
-
-func (p *UpdateVerifyProfileParams) MarshalJSON() ([]byte, error) {
-	return json.Marshal(p.UpdateVerifyProfileBodyParams)
-}
-
-type UpdateVerifyProfileBodyParams struct {
 	Name string `json:"name,omitempty"`
 	Sms  *struct {
 		MessagingTemplateId            string   `json:"messaging_template_id,omitempty"`
@@ -28,20 +19,16 @@ type UpdateVerifyProfileBodyParams struct {
 	} `json:"sms,omitempty"`
 }
 
-func NewUpdateVerifyProfileParams() *UpdateVerifyProfileParams {
-	return &UpdateVerifyProfileParams{"", &UpdateVerifyProfileBodyParams{}}
-}
-
 /*
 https://developers.telnyx.com/api/verify/update-verify-profile
 */
-func (c *Client) UpdateVerifyProfile(params *UpdateVerifyProfileParams) (*utils.CachedResponse, error) {
+func (c *Client) UpdateVerifyProfile(verifyProfileId string, params *UpdateVerifyProfileParams) (*utils.CachedResponse, error) {
 	jsonData, err := json.Marshal(params)
 	if err != nil {
 		return nil, fmt.Errorf("failed to encode params as json: %w", err)
 	}
 	fmt.Println(string(jsonData))
-	req, err := c.NewRequest("PATCH", "/verify_profiles/"+params.VerifyProfileId, bytes.NewReader(jsonData))
+	req, err := c.NewRequest("PATCH", "/verify_profiles/"+verifyProfileId, bytes.NewReader(jsonData))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create http request %w", err)
 	}

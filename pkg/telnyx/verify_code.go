@@ -8,13 +8,16 @@ import (
 	"github.com/rykroon/verify/internal/utils"
 )
 
-func (c *Client) VerifyCode(id, code string) (*utils.CachedResponse, error) {
-	m := map[string]any{"code": code}
-	jsonData, err := json.Marshal(m)
+type VerifyCodeParams struct {
+	Code string `json:"code"`
+}
+
+func (c *Client) VerifyCode(verificationId string, params *VerifyCodeParams) (*utils.CachedResponse, error) {
+	jsonData, err := json.Marshal(params)
 	if err != nil {
 		return nil, fmt.Errorf("failed to serialize json %w", err)
 	}
-	path := fmt.Sprintf("verifications/%s/actions/verify", id)
+	path := fmt.Sprintf("verifications/%s/actions/verify", verificationId)
 	req, err := c.NewRequest("POST", path, bytes.NewReader(jsonData))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)

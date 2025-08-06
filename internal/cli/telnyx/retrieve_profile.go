@@ -18,12 +18,10 @@ var retrieveProfileCmd = &cobra.Command{
 	RunE:  runRetrieveProfile,
 }
 
-var rpp *telnyx.RetrieveProfileParams
-
 func runRetrieveProfile(cmd *cobra.Command, args []string) error {
 	client := telnyx.NewClient(nil, os.Getenv("TELNYX_API_KEY"))
 
-	resp, err := client.RetrieveVerifyProfile(rpp)
+	resp, err := client.RetrieveVerifyProfile(verifyProfileId)
 	if err != nil {
 		return err
 	}
@@ -43,7 +41,6 @@ func runRetrieveProfile(cmd *cobra.Command, args []string) error {
 }
 
 func init() {
-	rpp = &telnyx.RetrieveProfileParams{}
-	retrieveProfileCmd.Flags().StringVar(&rpp.VerifyProfileId, "id", "", "The verification profile id")
+	retrieveProfileCmd.Flags().StringVar(&verifyProfileId, "id", "", "The verification profile id")
 	retrieveProfileCmd.MarkFlagRequired("id")
 }

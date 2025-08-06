@@ -10,6 +10,8 @@ var TelnyxCmd = &cobra.Command{
 	Long:  ``,
 }
 
+var verifyProfileId string
+
 func init() {
 	TelnyxCmd.AddCommand(listProfilesCmd)
 	TelnyxCmd.AddCommand(retrieveProfileCmd)
