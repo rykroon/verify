@@ -3,8 +3,10 @@ package twilio
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"os"
 
+	"github.com/rykroon/verify/internal/utils"
 	"github.com/rykroon/verify/pkg/twilio"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
@@ -29,19 +31,28 @@ var cvp checkVerificationParams
 func runCheckVerificationCmd(cmd *cobra.Command, args []string) error {
 	client := twilio.NewClient(os.Getenv("TWILIO_API_KEY_SID"), os.Getenv("TWILIO_API_KEY_SECRET"))
 	params := twilio.NewCheckVerificationParams()
+
 	if cvp.to != "" {
 		params.SetTo(cvp.to)
 	} else if cvp.verificationSid != "" {
 		params.SetVerificationSid(cvp.verificationSid)
 	}
 	params.SetCode(cvp.code)
-	rawJson, err := client.CheckVerification(cvp.serviceSid, params)
+
+	req, err := client.NewCheckVerificationRequest(cvp.serviceSid, params)
 	if err != nil {
 		return err
 	}
 
+	resp, err := utils.DoAndReadAll(http.DefaultClient, req)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(resp.Status)
+
 	var m map[string]any
-	if err := json.Unmarshal(rawJson, &m); err != nil {
+	if err := json.Unmarshal(resp.Body, &m); err != nil {
 		return err
 	}
 

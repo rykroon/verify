@@ -1,13 +1,10 @@
 package twilio
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
-
-	"github.com/rykroon/verify/internal/utils"
 )
 
 type checkVerificationParams struct {
@@ -37,23 +34,4 @@ func (c *Client) NewCheckVerificationRequest(serviceSid string, params *checkVer
 		return nil, err
 	}
 	return req, nil
-}
-
-func (c *Client) CheckVerification(serviceSid string, params *checkVerificationParams) (json.RawMessage, error) {
-	req, err := c.NewCheckVerificationRequest(serviceSid, params)
-	if err != nil {
-		return nil, err
-	}
-
-	resp, err := utils.DoAndReadAll(http.DefaultClient, req)
-	if err != nil {
-		return nil, err
-	}
-
-	rawJson, err := c.handleResponse(resp)
-	if err != nil {
-		return nil, err
-	}
-
-	return rawJson, nil
 }
