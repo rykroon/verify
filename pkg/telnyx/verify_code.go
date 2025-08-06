@@ -4,19 +4,24 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"net/http"
+
+	"github.com/rykroon/verify/internal/utils"
 )
 
-func (c *Client) NewVerifyCodeRequest(verificationId, code string) (*http.Request, error) {
+func (c *Client) VerifyCode(id, code string) (*utils.CachedResponse, error) {
 	m := map[string]any{"code": code}
 	jsonData, err := json.Marshal(m)
 	if err != nil {
 		return nil, fmt.Errorf("failed to serialize json %w", err)
 	}
-	path := fmt.Sprintf("verifications/%s/actions/verify", verificationId)
+	path := fmt.Sprintf("verifications/%s/actions/verify", id)
 	req, err := c.NewRequest("POST", path, bytes.NewReader(jsonData))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
-	return req, nil
+	resp, err := utils.DoAndReadAll(c.httpClient, req)
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
 }

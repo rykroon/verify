@@ -12,7 +12,9 @@ var TelnyxCmd = &cobra.Command{
 
 func init() {
 	TelnyxCmd.AddCommand(listProfilesCmd)
+	TelnyxCmd.AddCommand(retrieveProfileCmd)
 	TelnyxCmd.AddCommand(createProfileCmd)
+	TelnyxCmd.AddCommand(updateProfileCmd)
 	TelnyxCmd.AddCommand(triggerSmsCmd)
 	TelnyxCmd.AddCommand(verifyCodeCmd)
 	TelnyxCmd.AddCommand(listTemplatesCmd)

@@ -3,10 +3,8 @@ package telnyx
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"os"
 
-	"github.com/rykroon/verify/internal/utils"
 	"github.com/rykroon/verify/pkg/telnyx"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
@@ -19,27 +17,11 @@ var createProfileCmd = &cobra.Command{
 	RunE:  runCreateProfiles,
 }
 
-type createProfileParams struct {
-	name    string
-	appName string
-}
-
-var cpp createProfileParams
+var cvpp *telnyx.CreateVerifyProfileParams
 
 func runCreateProfiles(cmd *cobra.Command, args []string) error {
-	params := telnyx.NewCreateVerifyProfileParams()
-	params.SetName(cpp.name)
-	if cpp.appName != "" {
-		params.SetSmsAppName(cpp.appName)
-	}
-
-	client := telnyx.NewClient(os.Getenv("TELNYX_API_KEY"))
-	req, err := client.NewCreateVerifyProfileRequest(params)
-	if err != nil {
-		return err
-	}
-
-	resp, err := utils.DoAndReadAll(http.DefaultClient, req)
+	client := telnyx.NewClient(nil, os.Getenv("TELNYX_API_KEY"))
+	resp, err := client.CreateVerifyProfile(cvpp)
 	if err != nil {
 		return err
 	}
@@ -60,8 +42,8 @@ func runCreateProfiles(cmd *cobra.Command, args []string) error {
 }
 
 func init() {
-	createProfileCmd.Flags().StringVarP(&cpp.name, "name", "n", "", "The name of the profile")
-	createProfileCmd.Flags().StringVarP(&cpp.appName, "app-name", "a", "", "The Nname of the application")
-
+	cvpp = telnyx.NewCreateVerifyProfileParams()
+	createProfileCmd.Flags().StringVarP(&cvpp.Name, "name", "n", "", "The name of the profile")
+	// createProfileCmd.Flags().StringVarP(&cvpp.Sms.AppName, "app-name", "a", "", "The Nname of the application")
 	createProfileCmd.MarkFlagRequired("name")
 }

@@ -3,10 +3,8 @@ package telnyx
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"os"
 
-	"github.com/rykroon/verify/internal/utils"
 	"github.com/rykroon/verify/pkg/telnyx"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
@@ -19,25 +17,12 @@ var triggerSmsCmd = &cobra.Command{
 	RunE:  runTriggerSms,
 }
 
-type triggerSmsParams struct {
-	phoneNumber     string
-	verifyProfileId string
-}
-
-var tsp triggerSmsParams
+var tsp *telnyx.TriggerSmsParams
 
 func runTriggerSms(cmd *cobra.Command, args []string) error {
-	client := telnyx.NewClient(os.Getenv("TELNYX_API_KEY"))
-	params := telnyx.NewTriggerSmsVerificationParams()
-	params.SetPhoneNumber(tsp.phoneNumber)
-	params.SetVerifyProfileId(tsp.verifyProfileId)
+	client := telnyx.NewClient(nil, os.Getenv("TELNYX_API_KEY"))
 
-	req, err := client.NewTriggerSmsVerificationRequest(params)
-	if err != nil {
-		return err
-	}
-
-	resp, err := utils.DoAndReadAll(http.DefaultClient, req)
+	resp, err := client.TriggerSmsVerification(tsp)
 	if err != nil {
 		return err
 	}
@@ -59,8 +44,9 @@ func runTriggerSms(cmd *cobra.Command, args []string) error {
 }
 
 func init() {
-	triggerSmsCmd.Flags().StringVarP(&tsp.phoneNumber, "phone-number", "p", "", "+E164 formatted phone number.")
-	triggerSmsCmd.Flags().StringVarP(&tsp.verifyProfileId, "verify-profile-id", "V", "", "The identifier of the associated Verify profile.")
+	tsp = &telnyx.TriggerSmsParams{}
+	triggerSmsCmd.Flags().StringVarP(&tsp.PhoneNumber, "phone-number", "p", "", "+E164 formatted phone number.")
+	triggerSmsCmd.Flags().StringVarP(&tsp.VerifyProfileId, "verify-profile-id", "V", "", "The identifier of the associated Verify profile.")
 
 	triggerSmsCmd.MarkFlagRequired("phone-number")
 	triggerSmsCmd.MarkFlagRequired("verify-profile-id")

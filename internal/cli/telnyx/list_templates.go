@@ -3,10 +3,8 @@ package telnyx
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"os"
 
-	"github.com/rykroon/verify/internal/utils"
 	"github.com/rykroon/verify/pkg/telnyx"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
@@ -20,13 +18,8 @@ var listTemplatesCmd = &cobra.Command{
 }
 
 func runListTemplates(cmd *cobra.Command, args []string) error {
-	client := telnyx.NewClient(os.Getenv("TELNYX_API_KEY"))
-	req, err := client.NewListMessageTemplatesRequest()
-	if err != nil {
-		return err
-	}
-
-	resp, err := utils.DoAndReadAll(http.DefaultClient, req)
+	client := telnyx.NewClient(nil, os.Getenv("TELNYX_API_KEY"))
+	resp, err := client.ListMessageTemplates()
 	if err != nil {
 		return err
 	}

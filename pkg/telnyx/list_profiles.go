@@ -2,34 +2,32 @@ package telnyx
 
 import (
 	"fmt"
-	"net/http"
-	"net/url"
-	"strconv"
+
+	"github.com/google/go-querystring/query"
+	"github.com/rykroon/verify/internal/utils"
 )
 
-type listVerifyProfilesParams struct {
-	url.Values
+type ListVerifyProfilesParams struct {
+	PageSize   int `json:"page_size,omitempty" url:"page[size],omitempty"`
+	PageNumber int `json:"page_number,omitempty" url:"page[number],omitempty"`
 }
 
-func NewListVerifyProfilesParams() *listVerifyProfilesParams {
-	return &listVerifyProfilesParams{url.Values{}}
-}
-
-func (p *listVerifyProfilesParams) SetPageSize(pageSize int) {
-	p.Set("page[size]", strconv.Itoa(pageSize))
-}
-
-func (p *listVerifyProfilesParams) SetPageNumber(pageNumber int) {
-	p.Set("page[number]", strconv.Itoa(pageNumber))
-}
-
-func (c *Client) NewListVerifyProfilesRequest(params *listVerifyProfilesParams) (*http.Request, error) {
+func (c *Client) ListVerifyProfiles(params *ListVerifyProfilesParams) (*utils.CachedResponse, error) {
 	req, err := c.NewRequest("GET", "verify_profiles", nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request with params: %w", err)
 	}
-	if params != nil {
-		req.URL.RawQuery = params.Encode()
+
+	queryParams, err := query.Values(params)
+	if err != nil {
+		return nil, err
 	}
-	return req, nil
+
+	req.URL.RawQuery = queryParams.Encode()
+
+	resp, err := utils.DoAndReadAll(c.httpClient, req)
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
 }

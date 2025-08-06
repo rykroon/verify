@@ -1,20 +1,21 @@
 package telnyx
 
 import (
-	"fmt"
 	"io"
 	"net/http"
 	"net/url"
-
-	"github.com/rykroon/verify/internal/utils"
 )
 
 type Client struct {
-	apiToken string
+	httpClient *http.Client
+	apiToken   string
 }
 
-func NewClient(apiToken string) *Client {
-	return &Client{apiToken}
+func NewClient(httpClient *http.Client, apiToken string) *Client {
+	if httpClient == nil {
+		httpClient = http.DefaultClient
+	}
+	return &Client{httpClient, apiToken}
 }
 
 func (c *Client) NewRequest(method, path string, body io.Reader) (*http.Request, error) {
@@ -34,13 +35,4 @@ func (c *Client) NewRequest(method, path string, body io.Reader) (*http.Request,
 
 	req.Header.Set("Authorization", "Bearer "+c.apiToken)
 	return req, nil
-}
-
-func checkResponse(cr *utils.CachedResponse) error {
-	if cr.IsError() {
-		return fmt.Errorf("Telnyx error: %d, %s", cr.StatusCode, string(cr.Body))
-	} else if !cr.IsSuccess() {
-		return fmt.Errorf("unexpected status code: %d", cr.StatusCode)
-	}
-	return nil
 }

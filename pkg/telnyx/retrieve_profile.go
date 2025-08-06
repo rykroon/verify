@@ -2,13 +2,25 @@ package telnyx
 
 import (
 	"fmt"
-	"net/http"
+
+	"github.com/rykroon/verify/internal/utils"
 )
 
-func (c *Client) NewRetrieveVerifyProfileRequest(verifyProfileId string) (*http.Request, error) {
-	req, err := c.NewRequest("GET", "verify_profiles/"+verifyProfileId, nil)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create request: %w", err)
+type RetrieveProfileParams struct {
+	VerifyProfileId string `json:"verify_profile_id"`
+}
+
+func (c *Client) RetrieveVerifyProfile(params *RetrieveProfileParams) (*utils.CachedResponse, error) {
+	if params == nil {
+		return nil, fmt.Errorf("params are required")
 	}
-	return req, err
+	req, err := c.NewRequest("GET", "verify_profiles/"+params.VerifyProfileId, nil)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := utils.DoAndReadAll(c.httpClient, req)
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
 }

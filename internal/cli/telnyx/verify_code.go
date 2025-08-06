@@ -3,10 +3,8 @@ package telnyx
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"os"
 
-	"github.com/rykroon/verify/internal/utils"
 	"github.com/rykroon/verify/pkg/telnyx"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
@@ -23,14 +21,9 @@ var verificationId string
 var code string
 
 func runVerifyCode(cmd *cobra.Command, args []string) error {
-	client := telnyx.NewClient(os.Getenv("TELNYX_API_KEY"))
+	client := telnyx.NewClient(nil, os.Getenv("TELNYX_API_KEY"))
 
-	req, err := client.NewVerifyCodeRequest(verificationId, code)
-	if err != nil {
-		return err
-	}
-
-	resp, err := utils.DoAndReadAll(http.DefaultClient, req)
+	resp, err := client.VerifyCode(verificationId, code)
 	if err != nil {
 		return err
 	}

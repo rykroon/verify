@@ -11,19 +11,19 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var listProfilesCmd = &cobra.Command{
-	Use:   "list-profiles",
-	Short: "List verification profiles.",
+var retrieveProfileCmd = &cobra.Command{
+	Use:   "retrieve-profile",
+	Short: "Retrieve Verification Profiles",
 	Long:  ``,
-	RunE:  runListProfiles,
+	RunE:  runRetrieveProfile,
 }
 
-var lpp *telnyx.ListVerifyProfilesParams
+var rpp *telnyx.RetrieveProfileParams
 
-func runListProfiles(cmd *cobra.Command, args []string) error {
+func runRetrieveProfile(cmd *cobra.Command, args []string) error {
 	client := telnyx.NewClient(nil, os.Getenv("TELNYX_API_KEY"))
 
-	resp, err := client.ListVerifyProfiles(lpp)
+	resp, err := client.RetrieveVerifyProfile(rpp)
 	if err != nil {
 		return err
 	}
@@ -43,7 +43,7 @@ func runListProfiles(cmd *cobra.Command, args []string) error {
 }
 
 func init() {
-	lpp = &telnyx.ListVerifyProfilesParams{}
-	listProfilesCmd.Flags().IntVar(&lpp.PageNumber, "page-number", 0, "The page number")
-	listProfilesCmd.Flags().IntVar(&lpp.PageSize, "page-size", 0, "The page size")
+	rpp = &telnyx.RetrieveProfileParams{}
+	retrieveProfileCmd.Flags().StringVar(&rpp.VerifyProfileId, "id", "", "The verification profile id")
+	retrieveProfileCmd.MarkFlagRequired("id")
 }
