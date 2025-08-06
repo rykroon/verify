@@ -37,9 +37,9 @@ func (c *Client) NewRequest(method, path string, body io.Reader) (*http.Request,
 }
 
 func checkResponse(cr *utils.CachedResponse) error {
-	if utils.IsError(cr.StatusCode) {
+	if cr.IsError() {
 		return fmt.Errorf("Telnyx error: %d, %s", cr.StatusCode, string(cr.Body))
-	} else if !utils.IsSuccess(cr.StatusCode) {
+	} else if !cr.IsSuccess() {
 		return fmt.Errorf("unexpected status code: %d", cr.StatusCode)
 	}
 	return nil

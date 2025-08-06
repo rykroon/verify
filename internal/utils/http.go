@@ -10,6 +10,38 @@ type CachedResponse struct {
 	Body []byte
 }
 
+func (cr *CachedResponse) IsInformational() bool {
+	return cr.StatusCode >= 100 && cr.StatusCode < 200
+}
+
+func (cr *CachedResponse) IsSuccess() bool {
+	return cr.StatusCode >= 200 && cr.StatusCode < 300
+}
+
+func (cr *CachedResponse) IsRedirect() bool {
+	return cr.StatusCode >= 300 && cr.StatusCode < 400
+}
+
+func (cr *CachedResponse) IsError() bool {
+	return cr.StatusCode >= 400
+}
+
+func (cr *CachedResponse) IsClientError() bool {
+	return cr.StatusCode >= 400 && cr.StatusCode < 500
+}
+
+func (cr *CachedResponse) IsServerError() bool {
+	return cr.StatusCode >= 500
+}
+
+func (cr *CachedResponse) ContentType() string {
+	return cr.Header.Get("Content-Type")
+}
+
+func (cr *CachedResponse) IsJson() bool {
+	return cr.ContentType() == "application/json"
+}
+
 func DoAndReadAll(client *http.Client, req *http.Request) (*CachedResponse, error) {
 	resp, err := client.Do(req)
 
@@ -25,34 +57,4 @@ func DoAndReadAll(client *http.Client, req *http.Request) (*CachedResponse, erro
 	}
 
 	return &CachedResponse{resp, data}, nil
-}
-
-type HttpError struct {
-	StatusCode  int
-	ContentType string
-	Body        []byte
-}
-
-func IsInformational(resp *http.Response) bool {
-	return resp.StatusCode >= 100 && resp.StatusCode < 200
-}
-
-func IsSuccess(resp *http.Response) bool {
-	return resp.StatusCode >= 200 && resp.StatusCode < 300
-}
-
-func IsRedirect(resp *http.Response) bool {
-	return resp.StatusCode >= 300 && resp.StatusCode < 400
-}
-
-func IsClientError(resp *http.Response) bool {
-	return resp.StatusCode >= 400 && resp.StatusCode < 500
-}
-
-func IsServerError(resp *http.Response) bool {
-	return resp.StatusCode >= 500
-}
-
-func IsError(resp *http.Response) bool {
-	return resp.StatusCode >= 400
 }
