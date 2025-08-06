@@ -1,13 +1,10 @@
 package telnyx
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
 	"strconv"
-
-	"github.com/rykroon/verify/internal/utils"
 )
 
 type listVerifyProfilesParams struct {
@@ -35,27 +32,4 @@ func (c *Client) NewListVerifyProfilesRequest(params *listVerifyProfilesParams) 
 		req.URL.RawQuery = params.Encode()
 	}
 	return req, nil
-}
-
-func (c *Client) ListVerifyProfiles(params *listVerifyProfilesParams) (json.RawMessage, error) {
-	req, err := c.NewListVerifyProfilesRequest(params)
-	if err != nil {
-		return nil, err
-	}
-	resp, err := utils.DoAndReadAll(http.DefaultClient, req)
-	if err != nil {
-		return nil, err
-	}
-
-	err = checkResponse(resp)
-	if err != nil {
-		return nil, err
-	}
-
-	var result json.RawMessage
-	if err := json.Unmarshal(resp.Body, &result); err != nil {
-		return nil, fmt.Errorf("failed to decode json body as json: %w", err)
-	}
-
-	return result, nil
 }
