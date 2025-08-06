@@ -3,8 +3,10 @@ package telnyx
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"os"
 
+	"github.com/rykroon/verify/internal/utils"
 	"github.com/rykroon/verify/pkg/telnyx"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
@@ -29,13 +31,21 @@ func runTriggerSms(cmd *cobra.Command, args []string) error {
 	params := telnyx.NewTriggerSmsVerificationParams()
 	params.SetPhoneNumber(tsp.phoneNumber)
 	params.SetVerifyProfileId(tsp.verifyProfileId)
-	jsonBytes, err := client.TriggerSmsVerification(params)
+
+	req, err := client.NewTriggerSmsVerificationRequest(params)
 	if err != nil {
 		return err
 	}
 
+	resp, err := utils.DoAndReadAll(http.DefaultClient, req)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(resp.Status)
+
 	var m map[string]any
-	if err := json.Unmarshal(jsonBytes, &m); err != nil {
+	if err := json.Unmarshal(resp.Body, &m); err != nil {
 		return err
 	}
 

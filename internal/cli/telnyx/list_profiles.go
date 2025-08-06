@@ -3,10 +3,12 @@ package telnyx
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"os"
 
 	"gopkg.in/yaml.v3"
 
+	"github.com/rykroon/verify/internal/utils"
 	"github.com/rykroon/verify/pkg/telnyx"
 	"github.com/spf13/cobra"
 )
@@ -34,12 +36,20 @@ func runListProfiles(cmd *cobra.Command, args []string) error {
 	if lpp.pageSize != 0 {
 		params.SetPageSize(lpp.pageSize)
 	}
-	jsonBytes, err := client.ListVerifyProfiles(params)
+	req, err := client.NewListVerifyProfilesRequest(params)
 	if err != nil {
 		return err
 	}
+
+	resp, err := utils.DoAndReadAll(http.DefaultClient, req)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(resp.Status)
+
 	var m map[string]any
-	if err := json.Unmarshal(jsonBytes, &m); err != nil {
+	if err := json.Unmarshal(resp.Body, &m); err != nil {
 		return err
 	}
 	yamlBytes, err := yaml.Marshal(m)
