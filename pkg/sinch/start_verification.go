@@ -29,7 +29,7 @@ func (p startVerificationParams) SetMethod(method string) {
 	p.Set("method", method)
 }
 
-func (c *client) StartVerification(params *startVerificationParams) (json.RawMessage, error) {
+func (c *client) NewStartVerificationRequest(params *startVerificationParams) (*http.Request, error) {
 	data, err := json.Marshal(params)
 	if err != nil {
 		return nil, fmt.Errorf("failed to encode params to json: %w", err)
@@ -38,16 +38,5 @@ func (c *client) StartVerification(params *startVerificationParams) (json.RawMes
 	if err != nil {
 		return nil, fmt.Errorf("failed to create new request: %w", err)
 	}
-
-	resp, err := utils.DoAndReadAll(http.DefaultClient, req)
-	if err != nil {
-		return nil, err
-	}
-
-	rawJson, err := c.handleResponse(resp)
-	if err != nil {
-		return nil, err
-	}
-
-	return rawJson, nil
+	return req, nil
 }
