@@ -39,6 +39,11 @@ func (s *JsonRpcServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if req.Id == nil {
+		//w.WriteHeader(http.StatusNoContent) // 204
+		//go processNotification(req)
+	}
+
 	if req.JsonRpc != "2.0" {
 		s.writeError(w, req.Id, -32600, "Invalid Request", "jsonrpc must be '2.0'")
 		return
@@ -63,7 +68,7 @@ func (s *JsonRpcServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(resp)
 }
 
-func (s *JsonRpcServer) writeError(w http.ResponseWriter, id json.RawMessage, code int, message string, data any) {
+func (s *JsonRpcServer) writeError(w http.ResponseWriter, id *json.RawMessage, code int, message string, data any) {
 	resp := NewJsonRpcErrorResponse(id, &JsonRpcError{
 		Code:    code,
 		Message: message,
