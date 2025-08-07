@@ -1,13 +1,11 @@
 package twilio
 
 import (
-	"encoding/json"
-	"fmt"
 	"os"
 
+	"github.com/rykroon/verify/internal/utils"
 	"github.com/rykroon/verify/pkg/twilio"
 	"github.com/spf13/cobra"
-	"gopkg.in/yaml.v3"
 )
 
 var createServiceCmd = &cobra.Command{
@@ -27,19 +25,7 @@ func runCreateServiceCmd(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	fmt.Println(resp.Status)
-
-	var m map[string]any
-	if err := json.Unmarshal(resp.Body, &m); err != nil {
-		return err
-	}
-
-	rawYaml, err := yaml.Marshal(m)
-	if err != nil {
-		return nil
-	}
-
-	fmt.Println(string(rawYaml))
+	utils.PrintResponse(resp)
 	return nil
 }
 
