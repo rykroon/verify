@@ -33,21 +33,15 @@ func (c *Client) NewRequest(method, path string, body io.Reader) (*http.Request,
 		return nil, fmt.Errorf("failed to join path: %w", err)
 	}
 
-	var copy1 io.Reader
-	var copy2 io.Reader
-
+	var buf bytes.Buffer
 	if body != nil {
-		var buf bytes.Buffer
 		_, err = io.Copy(&buf, body)
 		if err != nil {
 			return nil, err
 		}
-
-		copy1 = bytes.NewReader(buf.Bytes())
-		copy2 = bytes.NewReader(buf.Bytes())
 	}
 
-	req, err := http.NewRequest(method, u, copy1)
+	req, err := http.NewRequest(method, u, bytes.NewReader(buf.Bytes()))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
@@ -56,20 +50,16 @@ func (c *Client) NewRequest(method, path string, body io.Reader) (*http.Request,
 		req.Header.Set("Content-Type", "application/json")
 	}
 
-	c.signRequest(req, copy2)
+	c.signRequest(req, buf.Bytes())
 	return req, nil
 
 }
 
-func (c *Client) signRequest(req *http.Request, body io.Reader) error {
+func (c *Client) signRequest(req *http.Request, body []byte) error {
 	contentMD5 := ""
 	contentType := req.Header.Get("Content-Type")
 	if body != nil {
-		data, err := io.ReadAll(body)
-		if err != nil {
-			return fmt.Errorf("failed to read body: %w", err)
-		}
-		sum := md5.Sum(data)
+		sum := md5.Sum(body)
 		contentMD5 = base64.StdEncoding.EncodeToString(sum[:])
 	}
 
