@@ -3,10 +3,8 @@ package twilio
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"os"
 
-	"github.com/rykroon/verify/internal/utils"
 	"github.com/rykroon/verify/pkg/twilio"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
@@ -20,14 +18,9 @@ var listServicesCmd = &cobra.Command{
 }
 
 func runListServicesCmd(cmd *cobra.Command, args []string) error {
-	client := twilio.NewClient(os.Getenv("TWILIO_API_KEY_SID"), os.Getenv("TWILIO_API_KEY_SECRET"))
+	client := twilio.NewClient(nil, os.Getenv("TWILIO_API_KEY_SID"), os.Getenv("TWILIO_API_KEY_SECRET"))
 
-	req, err := client.NewListServicesRequest()
-	if err != nil {
-		return err
-	}
-
-	resp, err := utils.DoAndReadAll(http.DefaultClient, req)
+	resp, err := client.ListServices()
 	if err != nil {
 		return err
 	}

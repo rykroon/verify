@@ -3,10 +3,8 @@ package twilio
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"os"
 
-	"github.com/rykroon/verify/internal/utils"
 	"github.com/rykroon/verify/pkg/twilio"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
@@ -20,31 +18,16 @@ var checkVerificationCmd = &cobra.Command{
 }
 
 type checkVerificationParams struct {
-	serviceSid      string
-	to              string
-	verificationSid string
-	code            string
+	serviceSid string
+	*twilio.CheckVerificationParams
 }
 
-var cvp checkVerificationParams
+var cvp *checkVerificationParams
 
 func runCheckVerificationCmd(cmd *cobra.Command, args []string) error {
-	client := twilio.NewClient(os.Getenv("TWILIO_API_KEY_SID"), os.Getenv("TWILIO_API_KEY_SECRET"))
-	params := twilio.NewCheckVerificationParams()
+	client := twilio.NewClient(nil, os.Getenv("TWILIO_API_KEY_SID"), os.Getenv("TWILIO_API_KEY_SECRET"))
 
-	if cvp.to != "" {
-		params.SetTo(cvp.to)
-	} else if cvp.verificationSid != "" {
-		params.SetVerificationSid(cvp.verificationSid)
-	}
-	params.SetCode(cvp.code)
-
-	req, err := client.NewCheckVerificationRequest(cvp.serviceSid, params)
-	if err != nil {
-		return err
-	}
-
-	resp, err := utils.DoAndReadAll(http.DefaultClient, req)
+	resp, err := client.CheckVerification(cvp.serviceSid, cvp.CheckVerificationParams)
 	if err != nil {
 		return err
 	}
@@ -67,10 +50,11 @@ func runCheckVerificationCmd(cmd *cobra.Command, args []string) error {
 }
 
 func init() {
+	cvp = &checkVerificationParams{"", &twilio.CheckVerificationParams{}}
 	checkVerificationCmd.Flags().StringVarP(&cvp.serviceSid, "service-sid", "s", "", "The SID of the verification Service.")
-	checkVerificationCmd.Flags().StringVarP(&cvp.to, "to", "t", "", "The phone number or email to verify.")
-	checkVerificationCmd.Flags().StringVarP(&cvp.verificationSid, "verification-sid", "V", "", "A SID that uniquely identifies the Verification Check.")
-	checkVerificationCmd.Flags().StringVarP(&cvp.code, "code", "c", "", "The 4-10 character string being verified.")
+	checkVerificationCmd.Flags().StringVarP(&cvp.To, "to", "t", "", "The phone number or email to verify.")
+	checkVerificationCmd.Flags().StringVarP(&cvp.VerificationSid, "verification-sid", "V", "", "A SID that uniquely identifies the Verification Check.")
+	checkVerificationCmd.Flags().StringVarP(&cvp.Code, "code", "c", "", "The 4-10 character string being verified.")
 	checkVerificationCmd.MarkFlagRequired("service-sid")
 	checkVerificationCmd.MarkFlagsOneRequired("to", "verification-sid")
 	checkVerificationCmd.MarkFlagRequired("code")

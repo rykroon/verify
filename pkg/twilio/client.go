@@ -1,22 +1,22 @@
 package twilio
 
 import (
-	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"net/url"
-
-	"github.com/rykroon/verify/internal/utils"
 )
 
 type Client struct {
+	httpClient   *http.Client
 	apiKeySid    string
 	apiKeySecret string
 }
 
-func NewClient(apiKeySid, apiKeySecret string) *Client {
-	return &Client{apiKeySid, apiKeySecret}
+func NewClient(client *http.Client, apiKeySid, apiKeySecret string) *Client {
+	if client == nil {
+		client = http.DefaultClient
+	}
+	return &Client{client, apiKeySid, apiKeySecret}
 }
 
 func (c *Client) NewRequest(method, path string, body io.Reader) (*http.Request, error) {
@@ -35,16 +35,16 @@ func (c *Client) NewRequest(method, path string, body io.Reader) (*http.Request,
 	return req, nil
 }
 
-func (c *Client) handleResponse(resp *utils.CachedResponse) (json.RawMessage, error) {
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return nil, fmt.Errorf("unexpected status code: %d, body: %s", resp.StatusCode, string(resp.Body))
-	}
+// func (c *Client) handleResponse(resp *utils.CachedResponse) (json.RawMessage, error) {
+// 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+// 		return nil, fmt.Errorf("unexpected status code: %d, body: %s", resp.StatusCode, string(resp.Body))
+// 	}
 
-	var result json.RawMessage
+// 	var result json.RawMessage
 
-	if err := json.Unmarshal(resp.Body, &result); err != nil {
-		return nil, fmt.Errorf("failed to decode json body as json: %w", err)
-	}
+// 	if err := json.Unmarshal(resp.Body, &result); err != nil {
+// 		return nil, fmt.Errorf("failed to decode json body as json: %w", err)
+// 	}
 
-	return result, nil
-}
+// 	return result, nil
+// }

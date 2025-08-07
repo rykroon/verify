@@ -3,10 +3,8 @@ package twilio
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"os"
 
-	"github.com/rykroon/verify/internal/utils"
 	"github.com/rykroon/verify/pkg/twilio"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
@@ -21,22 +19,15 @@ var sendVerificationCmd = &cobra.Command{
 
 type sendVerificationParams struct {
 	serviceSid string
-	to         string
-	channel    string
+	*twilio.SendVerificationParams
 }
 
-var svp sendVerificationParams
+var svp *sendVerificationParams
 
 func runSendVerificationCmd(cmd *cobra.Command, args []string) error {
-	client := twilio.NewClient(os.Getenv("TWILIO_API_KEY_SID"), os.Getenv("TWILIO_API_KEY_SECRET"))
-	params := twilio.NewSendVerificationParams(svp.to, svp.channel)
+	client := twilio.NewClient(nil, os.Getenv("TWILIO_API_KEY_SID"), os.Getenv("TWILIO_API_KEY_SECRET"))
 
-	req, err := client.NewSendVerificationRequest(svp.serviceSid, params)
-	if err != nil {
-		return err
-	}
-
-	resp, err := utils.DoAndReadAll(http.DefaultClient, req)
+	resp, err := client.SendVerification(svp.serviceSid, svp.SendVerificationParams)
 	if err != nil {
 		return err
 	}
@@ -59,9 +50,10 @@ func runSendVerificationCmd(cmd *cobra.Command, args []string) error {
 }
 
 func init() {
-	sendVerificationCmd.Flags().StringVarP(&svp.serviceSid, "service-sid", "s", "", "The SID of the verification Service.")
-	sendVerificationCmd.Flags().StringVarP(&svp.to, "to", "t", "", "The phone number or email to verify.")
-	sendVerificationCmd.Flags().StringVarP(&svp.channel, "channel", "c", "", "The verification method to use.")
+	svp = &sendVerificationParams{"", &twilio.SendVerificationParams{}}
+	sendVerificationCmd.Flags().StringVar(&svp.serviceSid, "service-sid", "", "The SID of the verification Service.")
+	sendVerificationCmd.Flags().StringVar(&svp.To, "to", "", "The phone number or email to verify.")
+	sendVerificationCmd.Flags().StringVar(&svp.Channel, "channel", "", "The verification method to use.")
 	sendVerificationCmd.MarkFlagRequired("service-sid")
 	sendVerificationCmd.MarkFlagRequired("to")
 	sendVerificationCmd.MarkFlagRequired("channel")

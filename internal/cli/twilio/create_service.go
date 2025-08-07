@@ -3,10 +3,8 @@ package twilio
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"os"
 
-	"github.com/rykroon/verify/internal/utils"
 	"github.com/rykroon/verify/pkg/twilio"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
@@ -19,24 +17,12 @@ var createServiceCmd = &cobra.Command{
 	RunE:  runCreateServiceCmd,
 }
 
-type createServiceParams struct {
-	friendlyName string
-}
-
-var csp createServiceParams
+var csp *twilio.CreateServiceParams
 
 func runCreateServiceCmd(cmd *cobra.Command, args []string) error {
-	client := twilio.NewClient(os.Getenv("TWILIO_API_KEY_SID"), os.Getenv("TWILIO_API_KEY_SECRET"))
+	client := twilio.NewClient(nil, os.Getenv("TWILIO_API_KEY_SID"), os.Getenv("TWILIO_API_KEY_SECRET"))
 
-	params := twilio.NewCreateServiceParams()
-	params.SetFriendlyName(csp.friendlyName)
-
-	req, err := client.NewCreateServiceRequest(params)
-	if err != nil {
-		return err
-	}
-
-	resp, err := utils.DoAndReadAll(http.DefaultClient, req)
+	resp, err := client.CreateService(csp)
 	if err != nil {
 		return err
 	}
@@ -58,6 +44,6 @@ func runCreateServiceCmd(cmd *cobra.Command, args []string) error {
 }
 
 func init() {
-	createServiceCmd.Flags().StringVarP(&csp.friendlyName, "friendly-name", "n", "", "A descriptive name for the service")
+	createServiceCmd.Flags().StringVarP(&csp.FriendlyName, "friendly-name", "n", "", "A descriptive name for the service")
 	createServiceCmd.MarkFlagRequired("friendly-name")
 }
