@@ -19,10 +19,10 @@ var checkVerificationCmd = &cobra.Command{
 
 type checkVerificationParams struct {
 	serviceSid string
-	*twilio.CheckVerificationParams
+	twilio.CheckVerificationParams
 }
 
-var cvp *checkVerificationParams
+var cvp checkVerificationParams
 
 func runCheckVerificationCmd(cmd *cobra.Command, args []string) error {
 	client := twilio.NewClient(nil, os.Getenv("TWILIO_API_KEY_SID"), os.Getenv("TWILIO_API_KEY_SECRET"))
@@ -50,7 +50,6 @@ func runCheckVerificationCmd(cmd *cobra.Command, args []string) error {
 }
 
 func init() {
-	cvp = &checkVerificationParams{"", &twilio.CheckVerificationParams{}}
 	checkVerificationCmd.Flags().StringVarP(&cvp.serviceSid, "service-sid", "s", "", "The SID of the verification Service.")
 	checkVerificationCmd.Flags().StringVarP(&cvp.To, "to", "t", "", "The phone number or email to verify.")
 	checkVerificationCmd.Flags().StringVarP(&cvp.VerificationSid, "verification-sid", "V", "", "A SID that uniquely identifies the Verification Check.")

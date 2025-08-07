@@ -13,7 +13,7 @@ type SendVerificationParams struct {
 	Channel string `url:"Channel"`
 }
 
-func (c *Client) SendVerification(serviceSid string, params *SendVerificationParams) (*utils.CachedResponse, error) {
+func (c *Client) SendVerification(serviceSid string, params SendVerificationParams) (*utils.CachedResponse, error) {
 	path := "Services/" + serviceSid + "/Verifications"
 	values, err := query.Values(params)
 	if err != nil {
@@ -36,7 +36,7 @@ type CheckVerificationParams struct {
 	Code            string `url:"Code"`
 }
 
-func (c *Client) CheckVerification(serviceSid string, params *CheckVerificationParams) (*utils.CachedResponse, error) {
+func (c *Client) CheckVerification(serviceSid string, params CheckVerificationParams) (*utils.CachedResponse, error) {
 	path := fmt.Sprintf("Services/%s/VerificationCheck", serviceSid)
 	values, err := query.Values(params)
 	if err != nil {

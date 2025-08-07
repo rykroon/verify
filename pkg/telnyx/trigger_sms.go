@@ -12,7 +12,7 @@ type TriggerSmsParams struct {
 	VerifyProfileId string `json:"verify_profile_id"`
 }
 
-func (c *Client) TriggerSmsVerification(params *TriggerSmsParams) (*utils.CachedResponse, error) {
+func (c *Client) TriggerSmsVerification(params TriggerSmsParams) (*utils.CachedResponse, error) {
 	jsonData, err := json.Marshal(params)
 	if err != nil {
 		return nil, err

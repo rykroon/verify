@@ -19,10 +19,10 @@ var verifyCodeCmd = &cobra.Command{
 
 type VerifyCodeParams struct {
 	VerificationId string
-	*telnyx.VerifyCodeParams
+	telnyx.VerifyCodeParams
 }
 
-var vcp *VerifyCodeParams
+var vcp VerifyCodeParams
 
 func runVerifyCode(cmd *cobra.Command, args []string) error {
 	client := telnyx.NewClient(nil, os.Getenv("TELNYX_API_KEY"))
@@ -49,7 +49,6 @@ func runVerifyCode(cmd *cobra.Command, args []string) error {
 }
 
 func init() {
-	vcp = &VerifyCodeParams{"", &telnyx.VerifyCodeParams{}}
 	verifyCodeCmd.Flags().StringVar(&vcp.VerificationId, "id", "", "The verification id")
 	verifyCodeCmd.Flags().StringVarP(&vcp.Code, "code", "c", "", "The code")
 

@@ -10,6 +10,8 @@ var SinchCmd = &cobra.Command{
 	Long:  ``,
 }
 
+var verificationId string
+
 func init() {
 	SinchCmd.AddCommand(startVerificationCmd)
 	SinchCmd.AddCommand(reportVerificationCmd)

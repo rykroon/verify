@@ -22,15 +22,38 @@ type UpdateVerifyProfileParams struct {
 /*
 https://developers.telnyx.com/api/verify/update-verify-profile
 */
-func (c *Client) UpdateVerifyProfile(verifyProfileId string, params *UpdateVerifyProfileParams) (*utils.CachedResponse, error) {
+func (c *Client) UpdateVerifyProfile(verifyProfileId string, params UpdateVerifyProfileParams) (*utils.CachedResponse, error) {
 	jsonData, err := json.Marshal(params)
 	if err != nil {
 		return nil, fmt.Errorf("failed to encode params as json: %w", err)
 	}
-	fmt.Println(string(jsonData))
 	req, err := c.NewRequest("PATCH", "/verify_profiles/"+verifyProfileId, bytes.NewReader(jsonData))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create http request %w", err)
+	}
+	resp, err := utils.DoAndReadAll(c.httpClient, req)
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+func (c *Client) RetrieveVerifyProfile(verifyProfileId string) (*utils.CachedResponse, error) {
+	req, err := c.NewRequest("GET", "verify_profiles/"+verifyProfileId, nil)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := utils.DoAndReadAll(c.httpClient, req)
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+func (c *Client) DeleteVerifyProfile(verifyProfileId string) (*utils.CachedResponse, error) {
+	req, err := c.NewRequest("DELETE", "verify_profiles/"+verifyProfileId, nil)
+	if err != nil {
+		return nil, err
 	}
 	resp, err := utils.DoAndReadAll(c.httpClient, req)
 	if err != nil {

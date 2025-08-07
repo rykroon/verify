@@ -17,7 +17,7 @@ var createProfileCmd = &cobra.Command{
 	RunE:  runCreateProfiles,
 }
 
-var cvpp *telnyx.CreateVerifyProfileParams
+var cvpp telnyx.CreateVerifyProfileParams
 
 func runCreateProfiles(cmd *cobra.Command, args []string) error {
 	client := telnyx.NewClient(nil, os.Getenv("TELNYX_API_KEY"))
@@ -42,7 +42,6 @@ func runCreateProfiles(cmd *cobra.Command, args []string) error {
 }
 
 func init() {
-	cvpp = telnyx.NewCreateVerifyProfileParams()
 	createProfileCmd.Flags().StringVarP(&cvpp.Name, "name", "n", "", "The name of the profile")
 	// createProfileCmd.Flags().StringVarP(&cvpp.Sms.AppName, "app-name", "a", "", "The Nname of the application")
 	createProfileCmd.MarkFlagRequired("name")

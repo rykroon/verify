@@ -3,10 +3,8 @@ package sinch
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"os"
 
-	"github.com/rykroon/verify/internal/utils"
 	"github.com/rykroon/verify/pkg/sinch"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
@@ -20,26 +18,16 @@ var reportVerificationCmd = &cobra.Command{
 }
 
 type reportVerificationParams struct {
-	id     string
-	method string
-	code   string
+	id string
+	sinch.ReportVerificationParams
 }
 
 var rvp reportVerificationParams
 
 func runReportVerification(cmd *cobra.Command, args []string) error {
-	client := sinch.NewClient(os.Getenv("SINCH_APP_KEY"), os.Getenv("SINCH_APP_SECRET"))
-	params := sinch.NewReportVerificationParams()
+	client := sinch.NewClient(nil, os.Getenv("SINCH_APP_KEY"), os.Getenv("SINCH_APP_SECRET"))
 
-	params.SetCode(rvp.code)
-	params.SetMethod(rvp.method)
-
-	req, err := client.NewReportVerificationByIdRequest(rvp.id, params)
-	if err != nil {
-		return err
-	}
-
-	resp, err := utils.DoAndReadAll(http.DefaultClient, req)
+	resp, err := client.ReportVerificationById(rvp.id, rvp.ReportVerificationParams)
 	if err != nil {
 		return err
 	}
@@ -62,8 +50,8 @@ func runReportVerification(cmd *cobra.Command, args []string) error {
 
 func init() {
 	reportVerificationCmd.Flags().StringVarP(&rvp.id, "id", "i", "", "Verification ID of the verification request")
-	reportVerificationCmd.Flags().StringVarP(&rvp.method, "method", "m", "", "The type of the verification")
-	reportVerificationCmd.Flags().StringVarP(&rvp.code, "code", "c", "", "The code which was received by the user submitting the SMS verification")
+	reportVerificationCmd.Flags().StringVarP(&rvp.Method, "method", "m", "", "The type of the verification")
+	reportVerificationCmd.Flags().StringVarP(&rvp.Code, "code", "c", "", "The code which was received by the user submitting the SMS verification")
 	reportVerificationCmd.MarkFlagRequired("id")
 	reportVerificationCmd.MarkFlagRequired("method")
 	reportVerificationCmd.MarkFlagRequired("code")

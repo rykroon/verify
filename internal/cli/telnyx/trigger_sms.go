@@ -17,7 +17,7 @@ var triggerSmsCmd = &cobra.Command{
 	RunE:  runTriggerSms,
 }
 
-var tsp *telnyx.TriggerSmsParams
+var tsp telnyx.TriggerSmsParams
 
 func runTriggerSms(cmd *cobra.Command, args []string) error {
 	client := telnyx.NewClient(nil, os.Getenv("TELNYX_API_KEY"))
@@ -44,7 +44,6 @@ func runTriggerSms(cmd *cobra.Command, args []string) error {
 }
 
 func init() {
-	tsp = &telnyx.TriggerSmsParams{}
 	triggerSmsCmd.Flags().StringVarP(&tsp.PhoneNumber, "phone-number", "p", "", "+E164 formatted phone number.")
 	triggerSmsCmd.Flags().StringVarP(&tsp.VerifyProfileId, "verify-profile-id", "V", "", "The identifier of the associated Verify profile.")
 

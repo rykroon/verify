@@ -19,10 +19,10 @@ var updateProfileCmd = &cobra.Command{
 
 type UpdateVerifyProfileParams struct {
 	VerifyProfileId string
-	*telnyx.UpdateVerifyProfileParams
+	telnyx.UpdateVerifyProfileParams
 }
 
-var upp *UpdateVerifyProfileParams
+var upp UpdateVerifyProfileParams
 
 func runUpdateProfiles(cmd *cobra.Command, args []string) error {
 	client := telnyx.NewClient(nil, os.Getenv("TELNYX_API_KEY"))
@@ -47,7 +47,6 @@ func runUpdateProfiles(cmd *cobra.Command, args []string) error {
 }
 
 func init() {
-	upp = &UpdateVerifyProfileParams{"", &telnyx.UpdateVerifyProfileParams{}}
 	updateProfileCmd.Flags().StringVar(&upp.VerifyProfileId, "id", "", "The id of the verification profile.")
 	updateProfileCmd.Flags().StringVar(&upp.Name, "name", "", "The name of the profile")
 	//updateProfileCmd.Flags().StringVar(&upp.Sms.AppName, "app-name", "", "The Name of the application")

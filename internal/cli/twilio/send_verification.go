@@ -19,10 +19,10 @@ var sendVerificationCmd = &cobra.Command{
 
 type sendVerificationParams struct {
 	serviceSid string
-	*twilio.SendVerificationParams
+	twilio.SendVerificationParams
 }
 
-var svp *sendVerificationParams
+var svp sendVerificationParams
 
 func runSendVerificationCmd(cmd *cobra.Command, args []string) error {
 	client := twilio.NewClient(nil, os.Getenv("TWILIO_API_KEY_SID"), os.Getenv("TWILIO_API_KEY_SECRET"))
@@ -50,7 +50,6 @@ func runSendVerificationCmd(cmd *cobra.Command, args []string) error {
 }
 
 func init() {
-	svp = &sendVerificationParams{"", &twilio.SendVerificationParams{}}
 	sendVerificationCmd.Flags().StringVar(&svp.serviceSid, "service-sid", "", "The SID of the verification Service.")
 	sendVerificationCmd.Flags().StringVar(&svp.To, "to", "", "The phone number or email to verify.")
 	sendVerificationCmd.Flags().StringVar(&svp.Channel, "channel", "", "The verification method to use.")

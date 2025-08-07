@@ -12,7 +12,7 @@ type CreateServiceParams struct {
 	FriendlyName string `url:"FriendlyName"`
 }
 
-func (c *Client) CreateService(params *CreateServiceParams) (*utils.CachedResponse, error) {
+func (c *Client) CreateService(params CreateServiceParams) (*utils.CachedResponse, error) {
 	values, err := query.Values(params)
 	if err != nil {
 		return nil, err

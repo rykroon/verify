@@ -3,26 +3,26 @@ package telnyx
 import (
 	"context"
 	"encoding/json"
-	"net/http"
 	"os"
 
 	"github.com/rykroon/verify/internal/jsonrpc"
-	"github.com/rykroon/verify/internal/utils"
 	"github.com/rykroon/verify/pkg/telnyx"
 )
 
-func VerifyCode(ctx context.Context, params json.RawMessage) (any, *jsonrpc.JsonRpcError) {
-	client := telnyx.NewClient(os.Getenv("TELNYX_API_KEY"))
+type VerifyCodeParams struct {
+	VerificationId string `json:"verification_id"`
+	telnyx.VerifyCodeParams
+}
 
-	verificationId := ""
-	code := ""
-	req, err := client.NewVerifyCodeRequest(verificationId, code)
+func VerifyCode(ctx context.Context, rawParams json.RawMessage) (any, *jsonrpc.JsonRpcError) {
+	client := telnyx.NewClient(nil, os.Getenv("TELNYX_API_KEY"))
 
-	if err != nil {
-		return nil, jsonrpc.NewJsonRpcError(0, err.Error(), nil)
+	var params VerifyCodeParams
+	if err := json.Unmarshal(rawParams, &params); err != nil {
+		return nil, jsonrpc.NewJsonRpcError(0, "invalid params", nil)
 	}
 
-	resp, err := utils.DoAndReadAll(http.DefaultClient, req)
+	resp, err := client.VerifyCode(params.VerificationId, params.VerifyCodeParams)
 	if err != nil {
 		return nil, jsonrpc.NewJsonRpcError(0, err.Error(), nil)
 	}

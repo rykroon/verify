@@ -12,7 +12,7 @@ type VerifyCodeParams struct {
 	Code string `json:"code"`
 }
 
-func (c *Client) VerifyCode(verificationId string, params *VerifyCodeParams) (*utils.CachedResponse, error) {
+func (c *Client) VerifyCode(verificationId string, params VerifyCodeParams) (*utils.CachedResponse, error) {
 	jsonData, err := json.Marshal(params)
 	if err != nil {
 		return nil, fmt.Errorf("failed to serialize json %w", err)

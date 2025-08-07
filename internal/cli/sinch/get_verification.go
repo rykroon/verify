@@ -3,10 +3,8 @@ package sinch
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"os"
 
-	"github.com/rykroon/verify/internal/utils"
 	"github.com/rykroon/verify/pkg/sinch"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
@@ -19,21 +17,10 @@ var getVerificationCmd = &cobra.Command{
 	RunE:  runGetVerification,
 }
 
-type getVerificationParams struct {
-	id string
-}
-
-var gvp reportVerificationParams
-
 func runGetVerification(cmd *cobra.Command, args []string) error {
-	client := sinch.NewClient(os.Getenv("SINCH_APP_KEY"), os.Getenv("SINCH_APP_SECRET"))
+	client := sinch.NewClient(nil, os.Getenv("SINCH_APP_KEY"), os.Getenv("SINCH_APP_SECRET"))
 
-	req, err := client.NewGetVerificationByIdRequest(rvp.id)
-	if err != nil {
-		return err
-	}
-
-	resp, err := utils.DoAndReadAll(http.DefaultClient, req)
+	resp, err := client.GetVerificationById(rvp.id)
 	if err != nil {
 		return err
 	}

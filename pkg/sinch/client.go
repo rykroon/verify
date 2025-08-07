@@ -7,26 +7,27 @@ import (
 	"crypto/sha256"
 
 	"encoding/base64"
-	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"net/url"
 	"time"
-
-	"github.com/rykroon/verify/internal/utils"
 )
 
-type client struct {
+type Client struct {
+	httpClient        *http.Client
 	applicationKey    string
 	applicationSecret string
 }
 
-func NewClient(applicationKey, applicationSecret string) *client {
-	return &client{applicationKey, applicationSecret}
+func NewClient(httpClient *http.Client, applicationKey, applicationSecret string) *Client {
+	if httpClient == nil {
+		httpClient = http.DefaultClient
+	}
+	return &Client{httpClient, applicationKey, applicationSecret}
 }
 
-func (c *client) NewRequest(method, path string, body io.Reader) (*http.Request, error) {
+func (c *Client) NewRequest(method, path string, body io.Reader) (*http.Request, error) {
 	u, err := url.JoinPath("https://verification.api.sinch.com/verification/v1", path)
 	if err != nil {
 		return nil, fmt.Errorf("failed to join path: %w", err)
@@ -60,20 +61,7 @@ func (c *client) NewRequest(method, path string, body io.Reader) (*http.Request,
 
 }
 
-func (c *client) handleResponse(resp *utils.CachedResponse) (json.RawMessage, error) {
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return nil, fmt.Errorf("http error: code: %d, body: %s", resp.StatusCode, string(resp.Body))
-	}
-
-	var result json.RawMessage
-	if err := json.Unmarshal(resp.Body, &result); err != nil {
-		return nil, fmt.Errorf("failed to decode resposne body as json: %w", err)
-	}
-
-	return result, nil
-}
-
-func (c *client) signRequest(req *http.Request, body io.Reader) error {
+func (c *Client) signRequest(req *http.Request, body io.Reader) error {
 	contentMD5 := ""
 	contentType := req.Header.Get("Content-Type")
 	if body != nil {

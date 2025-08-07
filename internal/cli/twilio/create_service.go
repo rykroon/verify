@@ -17,7 +17,7 @@ var createServiceCmd = &cobra.Command{
 	RunE:  runCreateServiceCmd,
 }
 
-var csp *twilio.CreateServiceParams
+var csp twilio.CreateServiceParams
 
 func runCreateServiceCmd(cmd *cobra.Command, args []string) error {
 	client := twilio.NewClient(nil, os.Getenv("TWILIO_API_KEY_SID"), os.Getenv("TWILIO_API_KEY_SECRET"))
