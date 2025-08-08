@@ -13,7 +13,6 @@ func ListProfiles(ctx context.Context, rawParams json.RawMessage) (any, *jsonrpc
 	client := telnyx.NewClient(nil, os.Getenv("TELNYX_API_KEY"))
 
 	var params *telnyx.ListVerifyProfilesParams
-
 	if rawParams != nil {
 		if err := json.Unmarshal(rawParams, &params); err != nil {
 			return nil, jsonrpc.NewJsonRpcError(0, err.Error(), nil)

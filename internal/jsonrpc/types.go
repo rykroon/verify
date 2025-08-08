@@ -3,25 +3,40 @@ package jsonrpc
 import "encoding/json"
 
 type JsonRpcRequest struct {
-	JsonRpc string           `json:"jsonrpc"`
-	Method  string           `json:"method"`
-	Params  json.RawMessage  `json:"params,omitempty"`
-	Id      *json.RawMessage `json:"id,omitempty"`
+	JsonRpc string          `json:"jsonrpc"`
+	Method  string          `json:"method"`
+	Params  json.RawMessage `json:"params,omitempty"`
+	Id      json.RawMessage `json:"id,omitempty"`
+}
+
+func (r JsonRpcRequest) IsNotification() bool {
+	return len(r.Id) == 0
 }
 
 type JsonRpcResponse struct {
-	JsonRpc string           `json:"jsonrpc"`
-	Result  any              `json:"result,omitempty"`
-	Error   *JsonRpcError    `json:"error,omitempty"`
-	Id      *json.RawMessage `json:"id"`
+	JsonRpc string          `json:"jsonrpc"`
+	Id      json.RawMessage `json:"id"`
 }
 
-func NewJsonRpcSuccessResponse(id *json.RawMessage, result any) *JsonRpcResponse {
-	return &JsonRpcResponse{"2.0", result, nil, id}
+type JsonRpcSuccessResponse struct {
+	JsonRpcResponse
+	Result any `json:"result"`
 }
 
-func NewJsonRpcErrorResponse(id *json.RawMessage, err *JsonRpcError) *JsonRpcResponse {
-	return &JsonRpcResponse{"2.0", nil, err, id}
+type JsonRpcErrorResponse struct {
+	JsonRpcResponse
+	Error JsonRpcError `json:"error"`
+}
+
+func NewJsonRpcSuccessResponse(id json.RawMessage, result any) JsonRpcSuccessResponse {
+	return JsonRpcSuccessResponse{JsonRpcResponse{"2.0", id}, result}
+}
+
+func NewJsonRpcErrorResponse(id json.RawMessage, err JsonRpcError) JsonRpcErrorResponse {
+	if len(id) == 0 {
+		id = json.RawMessage([]byte("null"))
+	}
+	return JsonRpcErrorResponse{JsonRpcResponse{"2.0", id}, err}
 }
 
 type JsonRpcError struct {
