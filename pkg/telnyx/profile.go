@@ -9,14 +9,14 @@ import (
 )
 
 type UpdateVerifyProfileParams struct {
-	Name string `json:"name,omitempty"`
-	Sms  *struct {
-		MessagingTemplateId            string   `json:"messaging_template_id,omitempty"`
-		AppName                        string   `json:"app_name,omitempty"`
-		CodeLength                     int      `json:"code_length,omitempty"`
-		WhitelistedDestinations        []string `json:"whitelisted_destinations,omitempty"`
-		DefaultVerificationTimeoutSecs int      `json:"default_verification_timeout_secs,omitempty"`
-	} `json:"sms,omitempty"`
+	Name string `json:"name,omitzero"`
+	Sms  struct {
+		MessagingTemplateId            string   `json:"messaging_template_id,omitzero"`
+		AppName                        string   `json:"app_name,omitzero"`
+		CodeLength                     int      `json:"code_length,omitzero"`
+		WhitelistedDestinations        []string `json:"whitelisted_destinations,omitzero"`
+		DefaultVerificationTimeoutSecs int      `json:"default_verification_timeout_secs,omitzero"`
+	} `json:"sms,omitzero"`
 }
 
 /*

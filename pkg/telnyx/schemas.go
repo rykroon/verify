@@ -3,16 +3,16 @@ package telnyx
 import "fmt"
 
 type Verification struct {
-	Id              string  `json:"id"`
-	Type            string  `json:"type"`
-	RecordType      string  `json:"record_type"`
-	PhoneNumber     string  `json:"phone_number"`
-	VerifyProfileId string  `json:"verify_profile_id"`
-	CustomCode      *string `json:"custom_code"`
-	TimeoutSecs     int     `json:"timeout_secs"`
-	Status          string  `json:"status"`
-	CreatedAt       string  `json:"created_at"`
-	UpdatedAt       string  `json:"updated_at"`
+	Id              string `json:"id"`
+	Type            string `json:"type"`
+	RecordType      string `json:"record_type"`
+	PhoneNumber     string `json:"phone_number"`
+	VerifyProfileId string `json:"verify_profile_id"`
+	CustomCode      string `json:"custom_code"`
+	TimeoutSecs     int    `json:"timeout_secs"`
+	Status          string `json:"status"`
+	CreatedAt       string `json:"created_at"`
+	UpdatedAt       string `json:"updated_at"`
 }
 
 type VerificationProfile struct {

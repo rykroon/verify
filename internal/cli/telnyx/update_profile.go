@@ -34,8 +34,24 @@ func runUpdateProfiles(cmd *cobra.Command, args []string) error {
 }
 
 func init() {
-	updateProfileCmd.Flags().StringVar(&upp.VerifyProfileId, "id", "", "The id of the verification profile.")
-	updateProfileCmd.Flags().StringVar(&upp.Name, "name", "", "The name of the profile")
-	//updateProfileCmd.Flags().StringVar(&upp.Sms.AppName, "app-name", "", "The Name of the application")
+	updateProfileCmd.Flags().StringVar(
+		&upp.VerifyProfileId, "id", "", "The verify profile id.",
+	)
+	updateProfileCmd.Flags().StringVar(&upp.Name, "name", "", "Profile name")
+	updateProfileCmd.Flags().StringVar(
+		&upp.Sms.AppName, "app-name", "", "Application name",
+	)
+	updateProfileCmd.Flags().StringVar(
+		&upp.Sms.MessagingTemplateId, "template-id", "", "Messaging template id",
+	)
+	updateProfileCmd.Flags().StringArrayVar(
+		&upp.Sms.WhitelistedDestinations,
+		"whitelisted-destinations",
+		nil,
+		"List of whitelisted destinations",
+	)
+	updateProfileCmd.Flags().IntVar(
+		&upp.Sms.CodeLength, "code-length", 0, "Code length",
+	)
 	updateProfileCmd.MarkFlagRequired("id")
 }
