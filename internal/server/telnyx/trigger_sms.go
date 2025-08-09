@@ -9,15 +9,15 @@ import (
 	"github.com/rykroon/verify/pkg/telnyx"
 )
 
-func TriggerSmsVerification(ctx context.Context, rawParams json.RawMessage) (any, *jsonrpc.JsonRpcError) {
+func TriggerSmsVerification(ctx context.Context, params json.RawMessage) (any, *jsonrpc.JsonRpcError) {
 	client := telnyx.NewClient(nil, os.Getenv("TELNYX_API_KEY"))
 
-	var params telnyx.TriggerSmsParams
-	if err := json.Unmarshal(rawParams, &params); err != nil {
+	var p telnyx.TriggerSmsParams
+	if err := json.Unmarshal(params, &p); err != nil {
 		return nil, jsonrpc.NewJsonRpcError(0, "invalid params", nil)
 	}
 
-	resp, err := client.TriggerSmsVerification(params)
+	resp, err := client.TriggerSmsVerification(p)
 	if err != nil {
 		return nil, jsonrpc.NewJsonRpcError(0, err.Error(), nil)
 	}

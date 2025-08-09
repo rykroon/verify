@@ -34,17 +34,3 @@ func (c *Client) NewRequest(method, path string, body io.Reader) (*http.Request,
 	req.SetBasicAuth(c.apiKeySid, c.apiKeySecret)
 	return req, nil
 }
-
-// func (c *Client) handleResponse(resp *utils.CachedResponse) (json.RawMessage, error) {
-// 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-// 		return nil, fmt.Errorf("unexpected status code: %d, body: %s", resp.StatusCode, string(resp.Body))
-// 	}
-
-// 	var result json.RawMessage
-
-// 	if err := json.Unmarshal(resp.Body, &result); err != nil {
-// 		return nil, fmt.Errorf("failed to decode json body as json: %w", err)
-// 	}
-
-// 	return result, nil
-// }
