@@ -1,42 +1,11 @@
 package jsonrpc
 
-import "encoding/json"
-
-type JsonRpcRequest struct {
-	JsonRpc string          `json:"jsonrpc"`
-	Method  string          `json:"method"`
-	Params  json.RawMessage `json:"params,omitempty"`
-	Id      json.RawMessage `json:"id,omitempty"`
+func NewJsonRpcSuccessResponse(id any, result any) map[string]any {
+	return map[string]any{"jsonrpc": "2.0", "id": id, "result": result}
 }
 
-func (r JsonRpcRequest) IsNotification() bool {
-	return len(r.Id) == 0
-}
-
-type JsonRpcResponse struct {
-	JsonRpc string          `json:"jsonrpc"`
-	Id      json.RawMessage `json:"id"`
-}
-
-type JsonRpcSuccessResponse struct {
-	JsonRpcResponse
-	Result any `json:"result"`
-}
-
-type JsonRpcErrorResponse struct {
-	JsonRpcResponse
-	Error JsonRpcError `json:"error"`
-}
-
-func NewJsonRpcSuccessResponse(id json.RawMessage, result any) JsonRpcSuccessResponse {
-	return JsonRpcSuccessResponse{JsonRpcResponse{"2.0", id}, result}
-}
-
-func NewJsonRpcErrorResponse(id json.RawMessage, err JsonRpcError) JsonRpcErrorResponse {
-	if len(id) == 0 {
-		id = json.RawMessage([]byte("null"))
-	}
-	return JsonRpcErrorResponse{JsonRpcResponse{"2.0", id}, err}
+func NewJsonRpcErrorResponse(id any, err JsonRpcError) map[string]any {
+	return map[string]any{"jsonrpc": "2.0", "id": id, "error": err}
 }
 
 type JsonRpcError struct {
