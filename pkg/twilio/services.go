@@ -9,7 +9,8 @@ import (
 )
 
 type CreateServiceParams struct {
-	FriendlyName string `url:"FriendlyName"`
+	FriendlyName string `url:"FriendlyName" json:"friendly_name"`
+	CodeLength   int    `url:"CodeLength" json:"code_length,omitzero"`
 }
 
 func (c *Client) CreateService(params CreateServiceParams) (*utils.CachedResponse, error) {

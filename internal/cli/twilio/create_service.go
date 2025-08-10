@@ -31,5 +31,6 @@ func runCreateServiceCmd(cmd *cobra.Command, args []string) error {
 
 func init() {
 	createServiceCmd.Flags().StringVarP(&csp.FriendlyName, "friendly-name", "n", "", "A descriptive name for the service")
+	createServiceCmd.Flags().IntVar(&csp.CodeLength, "code-length", 0, "The length of the code")
 	createServiceCmd.MarkFlagRequired("friendly-name")
 }

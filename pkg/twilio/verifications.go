@@ -9,13 +9,19 @@ import (
 )
 
 type SendVerificationParams struct {
-	To      string `url:"To"`
-	Channel string `url:"Channel"`
+	ServiceSid string `json:"service_sid"`
+	SendVerificationForm
 }
 
-func (c *Client) SendVerification(serviceSid string, params SendVerificationParams) (*utils.CachedResponse, error) {
+type SendVerificationForm struct {
+	To      string `url:"To" json:"to"`
+	Channel string `url:"Channel" json:"channel"`
+}
+
+// https://www.twilio.com/docs/verify/api/verification#start-new-verification
+func (c *Client) SendVerification(serviceSid string, form SendVerificationForm) (*utils.CachedResponse, error) {
 	path := "Services/" + serviceSid + "/Verifications"
-	values, err := query.Values(params)
+	values, err := query.Values(form)
 	if err != nil {
 		return nil, err
 	}
@@ -31,14 +37,19 @@ func (c *Client) SendVerification(serviceSid string, params SendVerificationPara
 }
 
 type CheckVerificationParams struct {
-	To              string `url:"To"`
-	VerificationSid string `url:"VerificationSid"`
-	Code            string `url:"Code"`
+	ServiceSid string `json:"service_sid"`
+	CheckVerificationForm
 }
 
-func (c *Client) CheckVerification(serviceSid string, params CheckVerificationParams) (*utils.CachedResponse, error) {
+type CheckVerificationForm struct {
+	To              string `url:"To" json:"to"`
+	VerificationSid string `url:"VerificationSid" json:"verification_sid"`
+	Code            string `url:"Code" json:"code"`
+}
+
+func (c *Client) CheckVerification(serviceSid string, form CheckVerificationForm) (*utils.CachedResponse, error) {
 	path := fmt.Sprintf("Services/%s/VerificationCheck", serviceSid)
-	values, err := query.Values(params)
+	values, err := query.Values(form)
 	if err != nil {
 		return nil, err
 	}
