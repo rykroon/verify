@@ -9,17 +9,15 @@ import (
 	"github.com/rykroon/verify/pkg/telnyx"
 )
 
-func ListProfiles(ctx context.Context, rawParams json.RawMessage) (any, *jsonrpc.JsonRpcError) {
+func ListProfiles(ctx context.Context, params jsonrpc.Params) (any, *jsonrpc.Error) {
 	client := telnyx.NewClient(nil, os.Getenv("TELNYX_API_KEY"))
 
-	var params *telnyx.ListVerifyProfilesParams
-	if rawParams != nil {
-		if err := json.Unmarshal(rawParams, &params); err != nil {
-			return nil, jsonrpc.NewJsonRpcError(0, err.Error(), nil)
-		}
+	var p *telnyx.ListVerifyProfilesParams
+	if err := params.Unmarshal(&p); err != nil {
+		return nil, jsonrpc.InvalidParams(err.Error())
 	}
 
-	resp, err := client.ListVerifyProfiles(params)
+	resp, err := client.ListVerifyProfiles(p)
 	if err != nil {
 		return nil, jsonrpc.NewJsonRpcError(0, err.Error(), nil) // internal server error
 	}

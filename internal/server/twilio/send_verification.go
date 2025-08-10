@@ -8,7 +8,7 @@ import (
 	"github.com/rykroon/verify/pkg/twilio"
 )
 
-func SendVerification(ctx context.Context, params jsonrpc.JsonRpcParams) (any, *jsonrpc.JsonRpcError) {
+func SendVerification(ctx context.Context, params jsonrpc.Params) (any, *jsonrpc.Error) {
 	var p twilio.SendVerificationParams
 	if err := params.Unmarshal(&p); err != nil {
 		return nil, jsonrpc.InvalidParams(err.Error())

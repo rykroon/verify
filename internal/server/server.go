@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"time"
 
@@ -19,19 +18,19 @@ func GetJsonRpcServer() *jsonrpc.JsonRpcServer {
 	return server
 }
 
-func Echo(ctx context.Context, params json.RawMessage) (any, *jsonrpc.JsonRpcError) {
+func Echo(ctx context.Context, params jsonrpc.Params) (any, *jsonrpc.Error) {
 	type Params struct {
 		Text string `json:"text"`
 	}
-	var p *Params
-	if err := json.Unmarshal(params, &p); err != nil {
+	var p Params
+	if err := params.Unmarshal(&p); err != nil {
 		return nil, jsonrpc.NewJsonRpcError(-32602, "Invalid params", err.Error())
 	}
 
 	return p.Text, nil
 }
 
-func Sleep(ctx context.Context, params json.RawMessage) (any, *jsonrpc.JsonRpcError) {
+func Sleep(ctx context.Context, params jsonrpc.Params) (any, *jsonrpc.Error) {
 	fmt.Println("Before Sleep")
 	time.Sleep(3 * time.Second)
 	fmt.Println("After Sleep")

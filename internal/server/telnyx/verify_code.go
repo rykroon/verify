@@ -14,15 +14,15 @@ type VerifyCodeParams struct {
 	telnyx.VerifyCodeParams
 }
 
-func VerifyCode(ctx context.Context, rawParams json.RawMessage) (any, *jsonrpc.JsonRpcError) {
+func VerifyCode(ctx context.Context, params jsonrpc.Params) (any, *jsonrpc.Error) {
 	client := telnyx.NewClient(nil, os.Getenv("TELNYX_API_KEY"))
 
-	var params VerifyCodeParams
-	if err := json.Unmarshal(rawParams, &params); err != nil {
+	var p VerifyCodeParams
+	if err := params.Unmarshal(&p); err != nil {
 		return nil, jsonrpc.NewJsonRpcError(0, "invalid params", nil)
 	}
 
-	resp, err := client.VerifyCode(params.VerificationId, params.VerifyCodeParams)
+	resp, err := client.VerifyCode(p.VerificationId, p.VerifyCodeParams)
 	if err != nil {
 		return nil, jsonrpc.NewJsonRpcError(0, err.Error(), nil)
 	}

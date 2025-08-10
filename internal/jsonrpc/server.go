@@ -3,24 +3,23 @@ package jsonrpc
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 )
 
 type JsonRpcHandler interface {
-	ServerJsonRpc(ctx context.Context, req *JsonRpcRequest) *JsonRpcResponse
+	ServerJsonRpc(ctx context.Context, req *Request) *Response
 }
 
-type HandlerFunc func(ctx context.Context, params JsonRpcParams) (any, *JsonRpcError)
+type HandlerFunc func(ctx context.Context, params Params) (any, *Error)
 
 type JsonRpcServer struct {
 	methods map[string]HandlerFunc
-	parser  JsonRpcRequestParser
 }
 
 func NewJsonRpcServer() *JsonRpcServer {
 	return &JsonRpcServer{
 		methods: make(map[string]HandlerFunc),
-		parser:  SimpleParser{},
 	}
 }
 
@@ -41,18 +40,29 @@ func (s *JsonRpcServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	req, err := s.parser.ParseRequest(r.Body)
-	if err != nil {
-		s.writeError(w, nil, err)
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields()
+	var req Request
+
+	if err := decoder.Decode(&req); err != nil {
+		s.writeError(w, NullId(), ParseError(err.Error()))
 		return
 	}
 
-	if req == nil {
-		s.writeError(w, nil, InvalidRequest(nil))
+	fmt.Println(req.Jsonrpc, req.Method, req.Id, req.Params)
+
+	if !req.Id.IsValidForRequest() {
+		s.writeError(w, NullId(), InvalidRequest("invalid id"))
 		return
 	}
 
-	resp := s.ServeJsonRpc(r.Context(), *req)
+	// validate Request
+	if req.Jsonrpc != "2.0" {
+		s.writeError(w, req.Id, InvalidRequest("jsonrpc must be 2.0"))
+		return
+	}
+
+	resp := s.ServeJsonRpc(r.Context(), req)
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(resp); err != nil {
@@ -60,13 +70,13 @@ func (s *JsonRpcServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (s *JsonRpcServer) ServeJsonRpc(ctx context.Context, req JsonRpcRequest) *JsonRpcResponse {
+func (s *JsonRpcServer) ServeJsonRpc(ctx context.Context, req Request) *Response {
 	handler, exists := s.methods[req.Method]
 	if !exists {
 		return NewJsonRpcErrorResp(req.Id, MethodNotFound(req.Method))
 	}
 
-	if req.Id.IsMissing() {
+	if req.IsNotification() {
 		go handler(ctx, req.Params)
 		return nil
 	}
@@ -80,7 +90,7 @@ func (s *JsonRpcServer) ServeJsonRpc(ctx context.Context, req JsonRpcRequest) *J
 	}
 }
 
-func (s *JsonRpcServer) writeError(w http.ResponseWriter, id any, jsonRpcErr *JsonRpcError) {
+func (s *JsonRpcServer) writeError(w http.ResponseWriter, id Id, jsonRpcErr *Error) {
 	resp := NewJsonRpcErrorResp(id, jsonRpcErr)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(resp)

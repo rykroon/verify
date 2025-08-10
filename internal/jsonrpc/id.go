@@ -2,50 +2,57 @@ package jsonrpc
 
 import (
 	"encoding/json"
+	"errors"
 	"strconv"
 )
 
-type JsonRpcId struct {
-	json.RawMessage
+type Id struct {
+	raw json.RawMessage
 }
 
-// func (i JsonRpcId) UnmarshalJSON(data []byte) error {
-// 	err := json.Unmarshal(data, &i)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	if len(i) == 0 {
-// 		return nil
-// 	}
-// 	if i[0] == '"' {
-// 		return nil
-// 	}
-// 	_, err = strconv.ParseInt(string(i), 10, 64)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	return errors.New("Invalid jsonrpc id")
-// }
-
-func (i JsonRpcId) IsMissing() bool {
-	return len(i.RawMessage) == 0
+func NullId() Id {
+	return Id{json.RawMessage(`null`)}
 }
 
-func (i JsonRpcId) IsString() bool {
-	if i.IsMissing() {
-		return false
+func (i Id) String() string {
+	return string(i.raw)
+}
+
+func (i Id) MarshalJSON() ([]byte, error) {
+	return json.Marshal(i.raw)
+}
+
+func (i *Id) UnmarshalJSON(data []byte) error {
+	if err := json.Unmarshal(data, &i.raw); err != nil {
+		return err
 	}
-	return i.RawMessage[0] == '"'
+	if !i.IsValidForRequest() && !i.IsValidForResponse() {
+		return errors.New("Invalid jsonrpc id")
+	}
+	return nil
 }
 
-func (i JsonRpcId) IsInt() bool {
-	if i.IsMissing() {
-		return false
-	}
-	_, err := strconv.ParseInt(string(i.RawMessage), 10, 64)
+func (i Id) IsNull() bool {
+	return string(i.raw) == "null"
+}
+
+func (i Id) IsEmpty() bool {
+	return len(i.raw) == 0
+}
+
+func (i Id) IsString() bool {
+	return len(i.raw) != 0 && i.raw[0] == '"'
+}
+
+func (i Id) IsInt() bool {
+	_, err := strconv.ParseInt(string(i.raw), 10, 64)
 	return err == nil
 }
 
-func (i JsonRpcId) IsValid() bool {
-	return i.IsMissing() || i.IsString() || i.IsInt()
+func (i Id) IsValidForResponse() bool {
+	return i.IsNull() || i.IsString() || i.IsInt()
+}
+
+func (i Id) IsValidForRequest() bool {
+	return i.IsEmpty() || i.IsString() || i.IsInt()
 }
