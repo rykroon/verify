@@ -6,46 +6,43 @@ import (
 	"strconv"
 )
 
-type Id struct {
-	raw json.RawMessage
-}
+type Id json.RawMessage
 
 func NullId() Id {
-	return Id{json.RawMessage(`null`)}
+	return Id("null")
 }
 
 func (i Id) String() string {
-	return string(i.raw)
+	return string(i)
 }
 
-func (i Id) MarshalJSON() ([]byte, error) {
-	return json.Marshal(i.raw)
+func (id Id) MarshalJSON() ([]byte, error) {
+	// overrides default behavior of base64 encoded bytes.
+	return id, nil
 }
 
 func (i *Id) UnmarshalJSON(data []byte) error {
-	if err := json.Unmarshal(data, &i.raw); err != nil {
-		return err
+	*i = append((*i)[:0], data...)
+	if i.IsEmpty() || i.IsNull() || i.IsString() || i.IsInt() {
+		return nil
 	}
-	if !i.IsValidForRequest() && !i.IsValidForResponse() {
-		return errors.New("Invalid jsonrpc id")
-	}
-	return nil
+	return errors.New("Invalid jsonrpc id")
 }
 
 func (i Id) IsNull() bool {
-	return string(i.raw) == "null"
+	return string(i) == "null"
 }
 
 func (i Id) IsEmpty() bool {
-	return len(i.raw) == 0
+	return len(i) == 0
 }
 
 func (i Id) IsString() bool {
-	return len(i.raw) != 0 && i.raw[0] == '"'
+	return len(i) != 0 && i[0] == '"'
 }
 
 func (i Id) IsInt() bool {
-	_, err := strconv.ParseInt(string(i.raw), 10, 64)
+	_, err := strconv.ParseInt(string(i), 10, 64)
 	return err == nil
 }
 
