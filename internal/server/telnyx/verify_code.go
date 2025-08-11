@@ -18,7 +18,7 @@ func VerifyCode(ctx context.Context, params jsonrpc.Params) (any, *jsonrpc.Error
 	client := telnyx.NewClient(nil, os.Getenv("TELNYX_API_KEY"))
 
 	var p VerifyCodeParams
-	if err := params.Unmarshal(&p); err != nil {
+	if err := params.UnmarshalTo(&p); err != nil {
 		return nil, jsonrpc.NewJsonRpcError(0, "invalid params", nil)
 	}
 

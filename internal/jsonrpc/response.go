@@ -1,6 +1,8 @@
 package jsonrpc
 
-import "encoding/json"
+import (
+	"encoding/json"
+)
 
 type Response struct {
 	JsonRpc string `json:"jsonrpc"`

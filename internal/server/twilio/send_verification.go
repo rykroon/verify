@@ -10,7 +10,7 @@ import (
 
 func SendVerification(ctx context.Context, params jsonrpc.Params) (any, *jsonrpc.Error) {
 	var p twilio.SendVerificationParams
-	if err := params.Unmarshal(&p); err != nil {
+	if err := params.UnmarshalTo(&p); err != nil {
 		return nil, jsonrpc.InvalidParams(err.Error())
 	}
 

@@ -23,7 +23,7 @@ func Echo(ctx context.Context, params jsonrpc.Params) (any, *jsonrpc.Error) {
 		Text string `json:"text"`
 	}
 	var p Params
-	if err := params.Unmarshal(&p); err != nil {
+	if err := params.UnmarshalTo(&p); err != nil {
 		return nil, jsonrpc.NewJsonRpcError(-32602, "Invalid params", err.Error())
 	}
 

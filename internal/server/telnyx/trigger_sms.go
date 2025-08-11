@@ -13,7 +13,7 @@ func TriggerSmsVerification(ctx context.Context, params jsonrpc.Params) (any, *j
 	client := telnyx.NewClient(nil, os.Getenv("TELNYX_API_KEY"))
 
 	var p telnyx.TriggerSmsParams
-	if err := params.Unmarshal(&p); err != nil {
+	if err := params.UnmarshalTo(&p); err != nil {
 		return nil, jsonrpc.InvalidParams(err.Error())
 	}
 

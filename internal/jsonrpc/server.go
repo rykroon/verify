@@ -43,26 +43,35 @@ func (s *JsonRpcServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	decoder.DisallowUnknownFields()
 	var req Request
-
 	if err := decoder.Decode(&req); err != nil {
-		s.writeError(w, NullId(), ParseError(err.Error()))
+		switch err.(type) {
+		case *json.SyntaxError:
+			s.writeError(w, NullId(), ParseError(err.Error()))
+		default:
+			s.writeError(w, NullId(), InvalidRequest(err.Error()))
+		}
 		return
 	}
 
-	fmt.Println(req.Jsonrpc, req.Method, req.Id, req.Params)
-
-	if !req.Id.IsValidForRequest() {
-		s.writeError(w, NullId(), InvalidRequest("invalid id"))
-		return
-	}
+	fmt.Println("request: ", req.Jsonrpc, req.Method, req.Id, req.Params)
 
 	// validate Request
 	if req.Jsonrpc != "2.0" {
-		s.writeError(w, req.Id, InvalidRequest("jsonrpc must be 2.0"))
+		s.writeError(w, req.IdForResponse(), InvalidRequest("jsonrpc must be 2.0"))
+		return
+	}
+
+	if !req.Id.IsValidForRequest() {
+		s.writeError(w, req.IdForResponse(), InvalidRequest("invalid id"))
 		return
 	}
 
 	resp := s.ServeJsonRpc(r.Context(), req)
+	if resp == nil {
+		// a notification
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(resp); err != nil {
@@ -73,7 +82,7 @@ func (s *JsonRpcServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func (s *JsonRpcServer) ServeJsonRpc(ctx context.Context, req Request) *Response {
 	handler, exists := s.methods[req.Method]
 	if !exists {
-		return NewJsonRpcErrorResp(req.Id, MethodNotFound(req.Method))
+		return NewJsonRpcErrorResp(req.IdForResponse(), MethodNotFound(req.Method))
 	}
 
 	if req.IsNotification() {
@@ -82,11 +91,11 @@ func (s *JsonRpcServer) ServeJsonRpc(ctx context.Context, req Request) *Response
 	}
 
 	result, rpcErr := handler(ctx, req.Params)
-	if rpcErr != nil {
-		return NewJsonRpcSuccessResp(req.Id, result)
+	if rpcErr == nil {
+		return NewJsonRpcSuccessResp(req.IdForResponse(), result)
 
 	} else {
-		return NewJsonRpcErrorResp(req.Id, rpcErr)
+		return NewJsonRpcErrorResp(req.IdForResponse(), rpcErr)
 	}
 }
 

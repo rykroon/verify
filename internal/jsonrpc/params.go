@@ -16,7 +16,7 @@ func (p *Params) UnmarshalJSON(data []byte) error {
 	if p.IsEmpty() || p.IsObject() || p.IsArray() {
 		return nil
 	}
-	return errors.New("Invalid params")
+	return errors.New("Invalid params type")
 }
 
 func (p Params) IsEmpty() bool {
