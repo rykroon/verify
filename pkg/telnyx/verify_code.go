@@ -9,10 +9,21 @@ import (
 )
 
 type VerifyCodeParams struct {
-	Code string `json:"code"`
+	VerificationId string `json:"verification_id"`
+	VerifyCodePayload
 }
 
-func (c *Client) VerifyCode(verificationId string, params VerifyCodeParams) (*utils.CachedResponse, error) {
+func (p *VerifyCodeParams) GetParamPointers() []any {
+	return []any{&p.VerificationId, &p.VerifyCodePayload.Code}
+}
+
+type VerifyCodePayload struct {
+	Code   string `json:"code"`
+	Status string `json:"status,omitzero"`
+}
+
+// https://developers.telnyx.com/api/verify/verify-verification-code-by-id
+func (c *Client) VerifyCode(verificationId string, params VerifyCodePayload) (*utils.CachedResponse, error) {
 	jsonData, err := json.Marshal(params)
 	if err != nil {
 		return nil, fmt.Errorf("failed to serialize json %w", err)

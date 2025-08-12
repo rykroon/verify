@@ -9,6 +9,15 @@ import (
 )
 
 type UpdateVerifyProfileParams struct {
+	VerifyProfileId string `json:"verify_profile_id"`
+	UpdateVerifyProfilePayload
+}
+
+func (p *UpdateVerifyProfileParams) GetParamPointers() []any {
+	return []any{&p.VerifyProfileId, &p.UpdateVerifyProfilePayload}
+}
+
+type UpdateVerifyProfilePayload struct {
 	Name string `json:"name,omitzero"`
 	Sms  struct {
 		MessagingTemplateId            string   `json:"messaging_template_id,omitzero"`
@@ -22,7 +31,7 @@ type UpdateVerifyProfileParams struct {
 /*
 https://developers.telnyx.com/api/verify/update-verify-profile
 */
-func (c *Client) UpdateVerifyProfile(verifyProfileId string, params UpdateVerifyProfileParams) (*utils.CachedResponse, error) {
+func (c *Client) UpdateVerifyProfile(verifyProfileId string, params UpdateVerifyProfilePayload) (*utils.CachedResponse, error) {
 	jsonData, err := json.Marshal(params)
 	if err != nil {
 		return nil, fmt.Errorf("failed to encode params as json: %w", err)
@@ -36,6 +45,14 @@ func (c *Client) UpdateVerifyProfile(verifyProfileId string, params UpdateVerify
 		return nil, err
 	}
 	return resp, nil
+}
+
+type RetrieveVerifyProfileParams struct {
+	VerifyProfileId string `json:"verify_profile_id"`
+}
+
+func (p *RetrieveVerifyProfileParams) GetParamPointers() []any {
+	return []any{&p.VerifyProfileId}
 }
 
 func (c *Client) RetrieveVerifyProfile(verifyProfileId string) (*utils.CachedResponse, error) {
