@@ -25,6 +25,6 @@ func NewJsonRpcSuccessResp(id Id, result any) *Response {
 	return &Response{"2.0", id, result, nil}
 }
 
-func NewJsonRpcErrorResp(id Id, err *Error) *Response {
-	return &Response{"2.0", id, nil, err}
+func NewJsonRpcErrorResp(id Id, err Error) *Response {
+	return &Response{"2.0", id, nil, &err}
 }

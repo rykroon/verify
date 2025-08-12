@@ -18,19 +18,20 @@ func GetJsonRpcServer() *jsonrpc.JsonRpcServer {
 	return server
 }
 
-func Echo(ctx context.Context, params jsonrpc.Params) (any, *jsonrpc.Error) {
+func Echo(ctx context.Context, params jsonrpc.Params) (any, error) {
 	type Params struct {
 		Text string `json:"text"`
 	}
 	var p Params
-	if err := params.UnmarshalTo(&p); err != nil {
-		return nil, jsonrpc.NewJsonRpcError(-32602, "Invalid params", err.Error())
+	if err := params.DecodeInto(&p); err != nil {
+		return nil, jsonrpc.InvalidParams(err.Error())
 	}
 
 	return p.Text, nil
 }
 
-func Sleep(ctx context.Context, params jsonrpc.Params) (any, *jsonrpc.Error) {
+func Sleep(ctx context.Context, params jsonrpc.Params) (any, error) {
+
 	fmt.Println("Before Sleep")
 	time.Sleep(3 * time.Second)
 	fmt.Println("After Sleep")

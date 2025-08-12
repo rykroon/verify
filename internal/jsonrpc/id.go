@@ -12,8 +12,8 @@ func NullId() Id {
 	return Id("null")
 }
 
-func (i Id) String() string {
-	return string(i)
+func (id Id) String() string {
+	return string(id)
 }
 
 func (id Id) MarshalJSON() ([]byte, error) {

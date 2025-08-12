@@ -59,15 +59,15 @@ func (c *Client) CreateVerifyProfile(params CreateVerifyProfileParams) (*utils.C
 }
 
 type ListVerifyProfilesParams struct {
-	PageSize   int `json:"page_size" url:"page[size],omitzero"`
-	PageNumber int `json:"page_number" url:"page[number],omitzero"`
+	PageSize   int `json:"page_size" url:"page[size],omitempty"`
+	PageNumber int `json:"page_number" url:"page[number],omitempty"`
 }
 
 func (p *ListVerifyProfilesParams) GetParamPointers() []any {
 	return []any{&p.PageSize, &p.PageNumber}
 }
 
-func (c *Client) ListVerifyProfiles(params *ListVerifyProfilesParams) (*utils.CachedResponse, error) {
+func (c *Client) ListVerifyProfiles(params ListVerifyProfilesParams) (*utils.CachedResponse, error) {
 	req, err := c.NewRequest("GET", "verify_profiles", nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request with params: %w", err)

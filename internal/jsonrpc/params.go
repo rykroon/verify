@@ -3,6 +3,7 @@ package jsonrpc
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 )
 
 type Params json.RawMessage
@@ -31,13 +32,16 @@ func (p Params) IsNamed() bool {
 	return len(p) != 0 && p[0] == '{'
 }
 
-func (p Params) UnmarshalTo(v any) error {
+func (p Params) DecodeInto(v any) error {
 	if p.IsEmpty() {
-		return errors.New("params is nil")
+		return nil
 	}
-	if positional, ok := v.(Positional); ok && p.IsPositional() {
-		pointers := positional.GetParamPointers()
-		return json.Unmarshal(p, &pointers)
+	if p.IsPositional() {
+		if positional, ok := v.(Positional); ok {
+			pointers := positional.GetParamPointers()
+			return json.Unmarshal(p, &pointers)
+		}
+		return fmt.Errorf("type %T does not support positional params", v)
 	}
 	return json.Unmarshal(p, v)
 }

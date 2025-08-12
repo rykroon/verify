@@ -9,24 +9,24 @@ import (
 	"github.com/rykroon/verify/pkg/telnyx"
 )
 
-func TriggerSmsVerification(ctx context.Context, params jsonrpc.Params) (any, *jsonrpc.Error) {
+func TriggerSmsVerification(ctx context.Context, params jsonrpc.Params) (any, error) {
 	client := telnyx.NewClient(nil, os.Getenv("TELNYX_API_KEY"))
 
 	var p telnyx.TriggerSmsParams
-	if err := params.UnmarshalTo(&p); err != nil {
+	if err := params.DecodeInto(&p); err != nil {
 		return nil, jsonrpc.InvalidParams(err.Error())
 	}
 
 	resp, err := client.TriggerSmsVerification(p)
 	if err != nil {
-		return nil, jsonrpc.NewJsonRpcError(0, err.Error(), nil)
+		return nil, err
 	}
 
 	//if resp.StatusCode >= 400 ...
 
 	var result map[string]any
 	if err := json.Unmarshal(resp.Body, &result); err != nil {
-		return nil, jsonrpc.NewJsonRpcError(0, err.Error(), nil)
+		return nil, err
 	}
 
 	return result, nil

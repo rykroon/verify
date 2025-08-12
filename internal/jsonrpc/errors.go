@@ -17,29 +17,29 @@ type Error struct {
 }
 
 func (e Error) Error() string {
-	return fmt.Sprintf("jsonrpc.JsonRpcError(Code=%d, Message=%s, Data=%v)", e.Code, e.Message, e.Data)
+	return fmt.Sprintf("jsonrpc.Error(Code=%d, Message=%s, Data=%v)", e.Code, e.Message, e.Data)
 }
 
-func NewJsonRpcError(code int, msg string, data any) *Error {
-	return &Error{code, msg, data}
+func NewJsonRpcError(code int, msg string, data any) Error {
+	return Error{code, msg, data}
 }
 
-func ParseError(data any) *Error {
+func ParseError(data any) Error {
 	return NewJsonRpcError(ErrorCodeParseError, "Parse Error", data)
 }
 
-func InvalidRequest(data any) *Error {
+func InvalidRequest(data any) Error {
 	return NewJsonRpcError(ErrorCodeInvalidRequest, "Invalid Request", data)
 }
 
-func MethodNotFound(data any) *Error {
+func MethodNotFound(data any) Error {
 	return NewJsonRpcError(ErrorCodeMethodNotFound, "Method Not Found", data)
 }
 
-func InvalidParams(data any) *Error {
+func InvalidParams(data any) Error {
 	return NewJsonRpcError(ErrorCodeInvalidParams, "Invalid Params", data)
 }
 
-func InternalError(data any) *Error {
+func InternalError(data any) Error {
 	return NewJsonRpcError(ErrorCodeInternalError, "InternalError", data)
 }

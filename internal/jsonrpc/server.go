@@ -11,7 +11,7 @@ type JsonRpcHandler interface {
 	ServerJsonRpc(ctx context.Context, req *Request) *Response
 }
 
-type HandlerFunc func(ctx context.Context, params Params) (any, *Error)
+type HandlerFunc func(ctx context.Context, params Params) (any, error)
 
 type JsonRpcServer struct {
 	methods map[string]HandlerFunc
@@ -94,12 +94,17 @@ func (s *JsonRpcServer) ServeJsonRpc(ctx context.Context, req Request) *Response
 
 	result, err := handler(ctx, req.Params)
 	if err != nil {
-		return NewJsonRpcErrorResp(req.IdForResponse(), err)
+		switch e := err.(type) {
+		case Error:
+			return NewJsonRpcErrorResp(req.IdForResponse(), e)
+		default:
+			return NewJsonRpcErrorResp(req.IdForResponse(), InternalError(e.Error()))
+		}
 	}
 	return NewJsonRpcSuccessResp(req.IdForResponse(), result)
 }
 
-func (s *JsonRpcServer) writeError(w http.ResponseWriter, id Id, jsonRpcErr *Error) {
+func (s *JsonRpcServer) writeError(w http.ResponseWriter, id Id, jsonRpcErr Error) {
 	resp := NewJsonRpcErrorResp(id, jsonRpcErr)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(resp)

@@ -9,9 +9,9 @@ import (
 	"github.com/rykroon/verify/pkg/twilio"
 )
 
-func SendVerification(ctx context.Context, params jsonrpc.Params) (any, *jsonrpc.Error) {
+func SendVerification(ctx context.Context, params jsonrpc.Params) (any, error) {
 	var p twilio.SendVerificationParams
-	if err := params.UnmarshalTo(&p); err != nil {
+	if err := params.DecodeInto(&p); err != nil {
 		return nil, jsonrpc.InvalidParams(err.Error())
 	}
 
@@ -19,7 +19,7 @@ func SendVerification(ctx context.Context, params jsonrpc.Params) (any, *jsonrpc
 
 	resp, err := client.SendVerification(p.ServiceSid, p.SendVerificationForm)
 	if err != nil {
-		return nil, jsonrpc.NewJsonRpcError(0, err.Error(), nil)
+		return nil, err
 	}
 
 	//if resp.StatusCode >= 400 ...
@@ -27,7 +27,7 @@ func SendVerification(ctx context.Context, params jsonrpc.Params) (any, *jsonrpc
 	// return result
 	var result map[string]any
 	if err := json.Unmarshal(resp.Body, &result); err != nil {
-		return nil, jsonrpc.InternalError(err.Error())
+		return nil, err
 	}
 	return result, nil
 }

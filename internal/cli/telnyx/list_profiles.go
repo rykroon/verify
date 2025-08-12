@@ -15,7 +15,7 @@ var listProfilesCmd = &cobra.Command{
 	RunE:  runListProfiles,
 }
 
-var lpp *telnyx.ListVerifyProfilesParams
+var lpp telnyx.ListVerifyProfilesParams
 
 func runListProfiles(cmd *cobra.Command, args []string) error {
 	client := telnyx.NewClient(nil, os.Getenv("TELNYX_API_KEY"))
@@ -30,7 +30,6 @@ func runListProfiles(cmd *cobra.Command, args []string) error {
 }
 
 func init() {
-	lpp = &telnyx.ListVerifyProfilesParams{}
 	listProfilesCmd.Flags().IntVar(&lpp.PageNumber, "page-number", 0, "The page number")
 	listProfilesCmd.Flags().IntVar(&lpp.PageSize, "page-size", 0, "The page size")
 }
