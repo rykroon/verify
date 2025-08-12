@@ -75,7 +75,9 @@ func (s *JsonRpcServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(resp); err != nil {
-		s.writeError(w, req.Id, nil) // check later
+		s.writeError(w, req.Id, InternalError(
+			fmt.Errorf("failed to encode jsonrpc response as json: %w", err),
+		))
 	}
 }
 
@@ -90,13 +92,11 @@ func (s *JsonRpcServer) ServeJsonRpc(ctx context.Context, req Request) *Response
 		return nil
 	}
 
-	result, rpcErr := handler(ctx, req.Params)
-	if rpcErr == nil {
-		return NewJsonRpcSuccessResp(req.IdForResponse(), result)
-
-	} else {
-		return NewJsonRpcErrorResp(req.IdForResponse(), rpcErr)
+	result, err := handler(ctx, req.Params)
+	if err != nil {
+		return NewJsonRpcErrorResp(req.IdForResponse(), err)
 	}
+	return NewJsonRpcSuccessResp(req.IdForResponse(), result)
 }
 
 func (s *JsonRpcServer) writeError(w http.ResponseWriter, id Id, jsonRpcErr *Error) {

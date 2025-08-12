@@ -2,6 +2,14 @@ package jsonrpc
 
 import "fmt"
 
+const (
+	ErrorCodeParseError     = -32700
+	ErrorCodeInvalidRequest = -32600
+	ErrorCodeMethodNotFound = -32601
+	ErrorCodeInvalidParams  = -32602
+	ErrorCodeInternalError  = -32603
+)
+
 type Error struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
@@ -17,17 +25,21 @@ func NewJsonRpcError(code int, msg string, data any) *Error {
 }
 
 func ParseError(data any) *Error {
-	return NewJsonRpcError(-32700, "Parse Error", data)
+	return NewJsonRpcError(ErrorCodeParseError, "Parse Error", data)
 }
 
 func InvalidRequest(data any) *Error {
-	return NewJsonRpcError(-32600, "Invalid Request", data)
+	return NewJsonRpcError(ErrorCodeInvalidRequest, "Invalid Request", data)
 }
 
 func MethodNotFound(data any) *Error {
-	return NewJsonRpcError(-32601, "Method Not Found", data)
+	return NewJsonRpcError(ErrorCodeMethodNotFound, "Method Not Found", data)
 }
 
 func InvalidParams(data any) *Error {
-	return NewJsonRpcError(-32602, "Invalid Params", data)
+	return NewJsonRpcError(ErrorCodeInvalidParams, "Invalid Params", data)
+}
+
+func InternalError(data any) *Error {
+	return NewJsonRpcError(ErrorCodeInternalError, "InternalError", data)
 }
