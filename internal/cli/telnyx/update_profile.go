@@ -15,16 +15,11 @@ var updateProfileCmd = &cobra.Command{
 	RunE:  runUpdateProfiles,
 }
 
-type UpdateVerifyProfileParams struct {
-	VerifyProfileId string
-	telnyx.UpdateVerifyProfileParams
-}
-
-var upp UpdateVerifyProfileParams
+var upp telnyx.UpdateVerifyProfileParams
 
 func runUpdateProfiles(cmd *cobra.Command, args []string) error {
 	client := telnyx.NewClient(nil, os.Getenv("TELNYX_API_KEY"))
-	resp, err := client.UpdateVerifyProfile(upp.VerifyProfileId, upp.UpdateVerifyProfileParams)
+	resp, err := client.UpdateVerifyProfile(upp.VerifyProfileId, upp.UpdateVerifyProfilePayload)
 	if err != nil {
 		return err
 	}

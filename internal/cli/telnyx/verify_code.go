@@ -15,17 +15,12 @@ var verifyCodeCmd = &cobra.Command{
 	RunE:  runVerifyCode,
 }
 
-type VerifyCodeParams struct {
-	VerificationId string
-	telnyx.VerifyCodeParams
-}
-
-var vcp VerifyCodeParams
+var vcp telnyx.VerifyCodeParams
 
 func runVerifyCode(cmd *cobra.Command, args []string) error {
 	client := telnyx.NewClient(nil, os.Getenv("TELNYX_API_KEY"))
 
-	resp, err := client.VerifyCode(vcp.VerificationId, vcp.VerifyCodeParams)
+	resp, err := client.VerifyCode(vcp.VerificationId, vcp.VerifyCodePayload)
 	if err != nil {
 		return err
 	}
