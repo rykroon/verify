@@ -22,6 +22,8 @@ func ListProfiles(ctx context.Context, params jsonrpc.Params) (any, *jsonrpc.Err
 		return nil, jsonrpc.NewJsonRpcError(0, err.Error(), nil) // internal server error
 	}
 
+	//if resp.StatusCode >= 400 ...
+
 	var result map[string]any
 	if err := json.Unmarshal(resp.Body, &result); err != nil {
 		return nil, jsonrpc.NewJsonRpcError(0, err.Error(), nil)

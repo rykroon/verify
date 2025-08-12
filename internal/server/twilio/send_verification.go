@@ -2,6 +2,7 @@ package twilio
 
 import (
 	"context"
+	"encoding/json"
 	"os"
 
 	"github.com/rykroon/verify/internal/jsonrpc"
@@ -16,12 +17,17 @@ func SendVerification(ctx context.Context, params jsonrpc.Params) (any, *jsonrpc
 
 	client := twilio.NewClient(nil, os.Getenv("TWILIO_API_KEY_SID"), os.Getenv("TWILIO_API_KEY_SECRET"))
 
-	_, err := client.SendVerification(p.ServiceSid, p.SendVerificationForm)
+	resp, err := client.SendVerification(p.ServiceSid, p.SendVerificationForm)
 	if err != nil {
-		return nil, nil // come back to this
+		return nil, jsonrpc.NewJsonRpcError(0, err.Error(), nil)
 	}
 
-	// return result
+	//if resp.StatusCode >= 400 ...
 
-	return nil, nil
+	// return result
+	var result map[string]any
+	if err := json.Unmarshal(resp.Body, &result); err != nil {
+		return nil, jsonrpc.InternalError(err.Error())
+	}
+	return result, nil
 }

@@ -22,6 +22,8 @@ func TriggerSmsVerification(ctx context.Context, params jsonrpc.Params) (any, *j
 		return nil, jsonrpc.NewJsonRpcError(0, err.Error(), nil)
 	}
 
+	//if resp.StatusCode >= 400 ...
+
 	var result map[string]any
 	if err := json.Unmarshal(resp.Body, &result); err != nil {
 		return nil, jsonrpc.NewJsonRpcError(0, err.Error(), nil)
