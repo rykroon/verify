@@ -8,31 +8,32 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var triggerSmsCmd = &cobra.Command{
-	Use:   "trigger-sms",
-	Short: "Trigger SMS Verification",
-	Long:  ``,
-	RunE:  runTriggerSms,
-}
+func newTriggerSmsCmd() *cobra.Command {
+	var params telnyx.TriggerSmsParams
 
-var tsp telnyx.TriggerSmsParams
+	var cmd = &cobra.Command{
+		Use:   "trigger-sms",
+		Short: "Trigger SMS Verification",
+		Long:  ``,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			client := telnyx.NewClient(nil, os.Getenv("TELNYX_API_KEY"))
 
-func runTriggerSms(cmd *cobra.Command, args []string) error {
-	client := telnyx.NewClient(nil, os.Getenv("TELNYX_API_KEY"))
+			resp, err := client.TriggerSmsVerification(params)
+			if err != nil {
+				return err
+			}
 
-	resp, err := client.TriggerSmsVerification(tsp)
-	if err != nil {
-		return err
+			utils.PrintResponse(resp)
+			return nil
+		},
 	}
 
-	utils.PrintResponse(resp)
-	return nil
-}
+	cmd.Flags().StringVarP(&params.PhoneNumber, "phone-number", "p", "", "+E164 formatted phone number.")
+	cmd.Flags().StringVarP(&params.VerifyProfileId, "verify-profile-id", "V", "", "The identifier of the associated Verify profile.")
 
-func init() {
-	triggerSmsCmd.Flags().StringVarP(&tsp.PhoneNumber, "phone-number", "p", "", "+E164 formatted phone number.")
-	triggerSmsCmd.Flags().StringVarP(&tsp.VerifyProfileId, "verify-profile-id", "V", "", "The identifier of the associated Verify profile.")
+	cmd.MarkFlagRequired("phone-number")
+	cmd.MarkFlagRequired("verify-profile-id")
 
-	triggerSmsCmd.MarkFlagRequired("phone-number")
-	triggerSmsCmd.MarkFlagRequired("verify-profile-id")
+	return cmd
+
 }

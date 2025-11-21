@@ -8,31 +8,32 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var verifyCodeCmd = &cobra.Command{
-	Use:   "verify-code",
-	Short: "Verify SMS Verification",
-	Long:  ``,
-	RunE:  runVerifyCode,
-}
+func newVerifyCodeCmd() *cobra.Command {
+	var params telnyx.VerifyCodeParams
 
-var vcp telnyx.VerifyCodeParams
+	var cmd = &cobra.Command{
+		Use:   "verify-code",
+		Short: "Verify SMS Verification",
+		Long:  ``,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			client := telnyx.NewClient(nil, os.Getenv("TELNYX_API_KEY"))
 
-func runVerifyCode(cmd *cobra.Command, args []string) error {
-	client := telnyx.NewClient(nil, os.Getenv("TELNYX_API_KEY"))
+			resp, err := client.VerifyCode(params.VerificationId, params.VerifyCodePayload)
+			if err != nil {
+				return err
+			}
 
-	resp, err := client.VerifyCode(vcp.VerificationId, vcp.VerifyCodePayload)
-	if err != nil {
-		return err
+			utils.PrintResponse(resp)
+			return nil
+		},
 	}
 
-	utils.PrintResponse(resp)
-	return nil
-}
+	cmd.Flags().StringVar(&params.VerificationId, "id", "", "The verification id")
+	cmd.Flags().StringVarP(&params.Code, "code", "c", "", "The code")
 
-func init() {
-	verifyCodeCmd.Flags().StringVar(&vcp.VerificationId, "id", "", "The verification id")
-	verifyCodeCmd.Flags().StringVarP(&vcp.Code, "code", "c", "", "The code")
+	cmd.MarkFlagRequired("id")
+	cmd.MarkFlagRequired("code")
 
-	verifyCodeCmd.MarkFlagRequired("id")
-	verifyCodeCmd.MarkFlagRequired("code")
+	return cmd
+
 }

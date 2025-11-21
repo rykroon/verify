@@ -13,11 +13,11 @@ var TelnyxCmd = &cobra.Command{
 var verifyProfileId string
 
 func init() {
-	TelnyxCmd.AddCommand(listProfilesCmd)
-	TelnyxCmd.AddCommand(retrieveProfileCmd)
-	TelnyxCmd.AddCommand(createProfileCmd)
-	TelnyxCmd.AddCommand(updateProfileCmd)
-	TelnyxCmd.AddCommand(triggerSmsCmd)
-	TelnyxCmd.AddCommand(verifyCodeCmd)
-	TelnyxCmd.AddCommand(listTemplatesCmd)
+	TelnyxCmd.AddCommand(newListProfilesCmd())
+	TelnyxCmd.AddCommand(newRetrieveProfileCmd())
+	TelnyxCmd.AddCommand(newCreateProfileCmd())
+	TelnyxCmd.AddCommand(newUpdateProfileCmd())
+	TelnyxCmd.AddCommand(newTriggerSmsCmd())
+	TelnyxCmd.AddCommand(newVerifyCodeCmd())
+	TelnyxCmd.AddCommand(newListTempaltesCmd())
 }

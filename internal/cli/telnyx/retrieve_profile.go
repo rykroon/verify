@@ -8,26 +8,25 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var retrieveProfileCmd = &cobra.Command{
-	Use:   "retrieve-profile",
-	Short: "Retrieve Verification Profiles",
-	Long:  ``,
-	RunE:  runRetrieveProfile,
-}
+func newRetrieveProfileCmd() *cobra.Command {
+	var cmd = &cobra.Command{
+		Use:   "retrieve-profile",
+		Short: "Retrieve Verification Profiles",
+		Long:  ``,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			client := telnyx.NewClient(nil, os.Getenv("TELNYX_API_KEY"))
 
-func runRetrieveProfile(cmd *cobra.Command, args []string) error {
-	client := telnyx.NewClient(nil, os.Getenv("TELNYX_API_KEY"))
+			resp, err := client.RetrieveVerifyProfile(verifyProfileId)
+			if err != nil {
+				return err
+			}
 
-	resp, err := client.RetrieveVerifyProfile(verifyProfileId)
-	if err != nil {
-		return err
+			utils.PrintResponse(resp)
+			return nil
+		},
 	}
 
-	utils.PrintResponse(resp)
-	return nil
-}
-
-func init() {
-	retrieveProfileCmd.Flags().StringVar(&verifyProfileId, "id", "", "The verification profile id")
-	retrieveProfileCmd.MarkFlagRequired("id")
+	cmd.Flags().StringVar(&verifyProfileId, "id", "", "The verification profile id")
+	cmd.MarkFlagRequired("id")
+	return cmd
 }

@@ -8,28 +8,27 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var listProfilesCmd = &cobra.Command{
-	Use:   "list-profiles",
-	Short: "List verification profiles.",
-	Long:  ``,
-	RunE:  runListProfiles,
-}
+func newListProfilesCmd() *cobra.Command {
+	var params telnyx.ListVerifyProfilesParams
 
-var lpp telnyx.ListVerifyProfilesParams
+	var cmd = &cobra.Command{
+		Use:   "list-profiles",
+		Short: "List verification profiles.",
+		Long:  ``,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			client := telnyx.NewClient(nil, os.Getenv("TELNYX_API_KEY"))
 
-func runListProfiles(cmd *cobra.Command, args []string) error {
-	client := telnyx.NewClient(nil, os.Getenv("TELNYX_API_KEY"))
+			resp, err := client.ListVerifyProfiles(params)
+			if err != nil {
+				return err
+			}
 
-	resp, err := client.ListVerifyProfiles(lpp)
-	if err != nil {
-		return err
+			utils.PrintResponse(resp)
+			return nil
+		},
 	}
 
-	utils.PrintResponse(resp)
-	return nil
-}
-
-func init() {
-	listProfilesCmd.Flags().IntVar(&lpp.PageNumber, "page-number", 0, "The page number")
-	listProfilesCmd.Flags().IntVar(&lpp.PageSize, "page-size", 0, "The page size")
+	cmd.Flags().IntVar(&params.PageNumber, "page-number", 0, "The page number")
+	cmd.Flags().IntVar(&params.PageSize, "page-size", 0, "The page size")
+	return cmd
 }
