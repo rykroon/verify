@@ -8,25 +8,23 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var listServicesCmd = &cobra.Command{
-	Use:   "list-services",
-	Short: "List Services",
-	Long:  ``,
-	RunE:  runListServicesCmd,
-}
+func newListServicesCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "list-services",
+		Short: "List Services",
+		Long:  ``,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			client := twilio.NewClient(nil, os.Getenv("TWILIO_API_KEY_SID"), os.Getenv("TWILIO_API_KEY_SECRET"))
 
-func runListServicesCmd(cmd *cobra.Command, args []string) error {
-	client := twilio.NewClient(nil, os.Getenv("TWILIO_API_KEY_SID"), os.Getenv("TWILIO_API_KEY_SECRET"))
+			resp, err := client.ListServices()
+			if err != nil {
+				return err
+			}
 
-	resp, err := client.ListServices()
-	if err != nil {
-		return err
+			utils.PrintResponse(resp)
+			return nil
+		},
 	}
 
-	utils.PrintResponse(resp)
-	return nil
-}
-
-func init() {
-
+	return cmd
 }

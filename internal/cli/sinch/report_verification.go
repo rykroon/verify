@@ -8,37 +8,37 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var reportVerificationCmd = &cobra.Command{
-	Use:   "report-verification",
-	Short: "Report Verification",
-	Long:  `See API documentation: https://developers.sinch.com/docs/verification/api-reference/verification/tag/Verifications-report/`,
-	RunE:  runReportVerification,
+func newReportVerificationCmd() *cobra.Command {
+	var params reportVerificationParams
+
+	cmd := &cobra.Command{
+		Use:   "report-verification",
+		Short: "Report Verification",
+		Long:  `See API documentation: https://developers.sinch.com/docs/verification/api-reference/verification/tag/Verifications-report/`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			client := sinch.NewClient(nil, os.Getenv("SINCH_APP_KEY"), os.Getenv("SINCH_APP_SECRET"))
+
+			resp, err := client.ReportVerificationById(params.id, params.ReportVerificationParams)
+			if err != nil {
+				return err
+			}
+
+			utils.PrintResponse(resp)
+			return nil
+		},
+	}
+
+	cmd.Flags().StringVarP(&params.id, "id", "i", "", "Verification ID of the verification request")
+	cmd.Flags().StringVarP(&params.Method, "method", "m", "", "The type of the verification")
+	cmd.Flags().StringVarP(&params.Code, "code", "c", "", "The code which was received by the user submitting the SMS verification")
+	cmd.MarkFlagRequired("id")
+	cmd.MarkFlagRequired("method")
+	cmd.MarkFlagRequired("code")
+
+	return cmd
 }
 
 type reportVerificationParams struct {
 	id string
 	sinch.ReportVerificationParams
-}
-
-var rvp reportVerificationParams
-
-func runReportVerification(cmd *cobra.Command, args []string) error {
-	client := sinch.NewClient(nil, os.Getenv("SINCH_APP_KEY"), os.Getenv("SINCH_APP_SECRET"))
-
-	resp, err := client.ReportVerificationById(rvp.id, rvp.ReportVerificationParams)
-	if err != nil {
-		return err
-	}
-
-	utils.PrintResponse(resp)
-	return nil
-}
-
-func init() {
-	reportVerificationCmd.Flags().StringVarP(&rvp.id, "id", "i", "", "Verification ID of the verification request")
-	reportVerificationCmd.Flags().StringVarP(&rvp.Method, "method", "m", "", "The type of the verification")
-	reportVerificationCmd.Flags().StringVarP(&rvp.Code, "code", "c", "", "The code which was received by the user submitting the SMS verification")
-	reportVerificationCmd.MarkFlagRequired("id")
-	reportVerificationCmd.MarkFlagRequired("method")
-	reportVerificationCmd.MarkFlagRequired("code")
 }

@@ -8,34 +8,34 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var checkVerificationCmd = &cobra.Command{
-	Use:   "check-verification",
-	Short: "Check Verification",
-	Long:  ``,
-	RunE:  runCheckVerificationCmd,
-}
+func newCheckVerificationCmd() *cobra.Command {
+	var params twilio.CheckVerificationParams
 
-var cvp twilio.CheckVerificationParams
+	cmd := &cobra.Command{
+		Use:   "check-verification",
+		Short: "Check Verification",
+		Long:  ``,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			client := twilio.NewClient(nil, os.Getenv("TWILIO_API_KEY_SID"), os.Getenv("TWILIO_API_KEY_SECRET"))
 
-func runCheckVerificationCmd(cmd *cobra.Command, args []string) error {
-	client := twilio.NewClient(nil, os.Getenv("TWILIO_API_KEY_SID"), os.Getenv("TWILIO_API_KEY_SECRET"))
+			resp, err := client.CheckVerification(params.ServiceSid, params.CheckVerificationForm)
+			if err != nil {
+				return err
+			}
 
-	resp, err := client.CheckVerification(cvp.ServiceSid, cvp.CheckVerificationForm)
-	if err != nil {
-		return err
+			utils.PrintResponse(resp)
+
+			return nil
+		},
 	}
 
-	utils.PrintResponse(resp)
+	cmd.Flags().StringVarP(&params.ServiceSid, "service-sid", "s", "", "The SID of the verification Service.")
+	cmd.Flags().StringVarP(&params.To, "to", "t", "", "The phone number or email to verify.")
+	cmd.Flags().StringVarP(&params.VerificationSid, "verification-sid", "V", "", "A SID that uniquely identifies the Verification Check.")
+	cmd.Flags().StringVarP(&params.Code, "code", "c", "", "The 4-10 character string being verified.")
+	cmd.MarkFlagRequired("service-sid")
+	cmd.MarkFlagsOneRequired("to", "verification-sid")
+	cmd.MarkFlagRequired("code")
 
-	return nil
-}
-
-func init() {
-	checkVerificationCmd.Flags().StringVarP(&cvp.ServiceSid, "service-sid", "s", "", "The SID of the verification Service.")
-	checkVerificationCmd.Flags().StringVarP(&cvp.To, "to", "t", "", "The phone number or email to verify.")
-	checkVerificationCmd.Flags().StringVarP(&cvp.VerificationSid, "verification-sid", "V", "", "A SID that uniquely identifies the Verification Check.")
-	checkVerificationCmd.Flags().StringVarP(&cvp.Code, "code", "c", "", "The 4-10 character string being verified.")
-	checkVerificationCmd.MarkFlagRequired("service-sid")
-	checkVerificationCmd.MarkFlagsOneRequired("to", "verification-sid")
-	checkVerificationCmd.MarkFlagRequired("code")
+	return cmd
 }

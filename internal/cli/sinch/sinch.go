@@ -13,8 +13,8 @@ var SinchCmd = &cobra.Command{
 var verificationId string
 
 func init() {
-	SinchCmd.AddCommand(startVerificationCmd)
-	SinchCmd.AddCommand(reportVerificationCmd)
-	SinchCmd.AddCommand(getVerificationCmd)
+	SinchCmd.AddCommand(newStartVerificationCmd())
+	SinchCmd.AddCommand(newReportVerificationCmd())
+	SinchCmd.AddCommand(newGetVerificationCmd())
 
 }
