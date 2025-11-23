@@ -17,15 +17,13 @@ func VerifyCode(ctx context.Context, params jsonrpc.Params) (any, error) {
 		return nil, jsonrpc.NewJsonRpcError(0, "invalid params", nil)
 	}
 
-	resp, err := client.VerifyCode(p.VerificationId, p.VerifyCodePayload)
+	content, err := client.VerifyCode(p.VerificationId, p.VerifyCodePayload)
 	if err != nil {
 		return nil, err
 	}
 
-	//if resp.StatusCode >= 400 ...
-
 	var result map[string]any
-	if err := json.Unmarshal(resp.Body, &result); err != nil {
+	if err := json.Unmarshal(content.Data, &result); err != nil {
 		return nil, err
 	}
 

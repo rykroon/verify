@@ -19,7 +19,7 @@ type StartVerificationParams struct {
 }
 
 // https://developers.sinch.com/docs/verification/api-reference/verification/tag/Verifications-start/
-func (c *Client) StartVerification(params StartVerificationParams) (*utils.CachedResponse, error) {
+func (c *Client) StartVerification(params StartVerificationParams) (*utils.Content, error) {
 	data, err := json.Marshal(params)
 	if err != nil {
 		return nil, fmt.Errorf("failed to encode params to json: %w", err)
@@ -28,11 +28,11 @@ func (c *Client) StartVerification(params StartVerificationParams) (*utils.Cache
 	if err != nil {
 		return nil, fmt.Errorf("failed to create new request: %w", err)
 	}
-	resp, err := utils.DoAndReadAll(c.httpClient, req)
+	content, err := utils.SendRequest(c.httpClient, req)
 	if err != nil {
 		return nil, err
 	}
-	return resp, nil
+	return content, nil
 }
 
 type ReportVerificationParams struct {
@@ -41,7 +41,7 @@ type ReportVerificationParams struct {
 }
 
 // https://developers.sinch.com/docs/verification/api-reference/verification/tag/Verifications-report/#tag/Verifications-report/operation/ReportVerificationById
-func (c *Client) ReportVerificationById(verificationId string, params ReportVerificationParams) (*utils.CachedResponse, error) {
+func (c *Client) ReportVerificationById(verificationId string, params ReportVerificationParams) (*utils.Content, error) {
 	data, err := json.Marshal(params)
 	if err != nil {
 		return nil, fmt.Errorf("failed to encode params as json: %w", err)
@@ -52,7 +52,7 @@ func (c *Client) ReportVerificationById(verificationId string, params ReportVeri
 		return nil, fmt.Errorf("failed to create new request: %w", err)
 	}
 
-	resp, err := utils.DoAndReadAll(c.httpClient, req)
+	resp, err := utils.SendRequest(c.httpClient, req)
 	if err != nil {
 		return nil, err
 	}
@@ -60,13 +60,13 @@ func (c *Client) ReportVerificationById(verificationId string, params ReportVeri
 	return resp, nil
 }
 
-func (c *Client) GetVerificationById(verificationId string) (*utils.CachedResponse, error) {
+func (c *Client) GetVerificationById(verificationId string) (*utils.Content, error) {
 	req, err := c.NewRequest("GET", "verifications/id/"+verificationId, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := utils.DoAndReadAll(c.httpClient, req)
+	resp, err := utils.SendRequest(c.httpClient, req)
 	if err != nil {
 		return nil, err
 	}

@@ -17,12 +17,12 @@ func newCreateProfileCmd() *cobra.Command {
 		Long:  ``,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			client := telnyx.NewClient(nil, os.Getenv("TELNYX_API_KEY"))
-			resp, err := client.CreateVerifyProfile(params)
+			content, err := client.CreateVerifyProfile(params)
 			if err != nil {
 				return err
 			}
 
-			utils.PrintResponse(resp)
+			utils.PrintContent(content)
 			return nil
 		},
 	}

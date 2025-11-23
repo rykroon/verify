@@ -13,7 +13,7 @@ type CreateServiceParams struct {
 	CodeLength   int    `url:"CodeLength" json:"code_length,omitzero"`
 }
 
-func (c *Client) CreateService(params CreateServiceParams) (*utils.CachedResponse, error) {
+func (c *Client) CreateService(params CreateServiceParams) (*utils.Content, error) {
 	values, err := query.Values(params)
 	if err != nil {
 		return nil, err
@@ -22,34 +22,33 @@ func (c *Client) CreateService(params CreateServiceParams) (*utils.CachedRespons
 	if err != nil {
 		return nil, err
 	}
-	resp, err := utils.DoAndReadAll(c.httpClient, req)
+	content, err := utils.SendRequest(c.httpClient, req)
 	if err != nil {
 		return nil, err
 	}
-	return resp, err
+	return content, err
 }
 
-func (c *Client) ListServices() (*utils.CachedResponse, error) {
+func (c *Client) ListServices() (*utils.Content, error) {
 	req, err := c.NewRequest("GET", "/Services", nil)
 	if err != nil {
 		return nil, err
 	}
-	resp, err := utils.DoAndReadAll(c.httpClient, req)
+	content, err := utils.SendRequest(c.httpClient, req)
 	if err != nil {
 		return nil, err
 	}
-	return resp, nil
+	return content, nil
 }
 
-func (c *Client) FetchService(sid string) (*utils.CachedResponse, error) {
+func (c *Client) FetchService(sid string) (*utils.Content, error) {
 	req, err := c.NewRequest("GET", "/Services/"+sid, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
-	resp, err := utils.DoAndReadAll(c.httpClient, req)
+	content, err := utils.SendRequest(c.httpClient, req)
 	if err != nil {
 		return nil, err
 	}
-	return resp, nil
-
+	return content, nil
 }

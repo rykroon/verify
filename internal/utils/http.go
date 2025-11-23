@@ -1,60 +1,32 @@
 package utils
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 )
 
-type CachedResponse struct {
-	*http.Response
-	Body []byte
+type Content struct {
+	Data []byte
+	Type string
 }
 
-func (cr *CachedResponse) IsInformational() bool {
-	return cr.StatusCode >= 100 && cr.StatusCode < 200
-}
-
-func (cr *CachedResponse) IsSuccess() bool {
-	return cr.StatusCode >= 200 && cr.StatusCode < 300
-}
-
-func (cr *CachedResponse) IsRedirect() bool {
-	return cr.StatusCode >= 300 && cr.StatusCode < 400
-}
-
-func (cr *CachedResponse) IsError() bool {
-	return cr.StatusCode >= 400
-}
-
-func (cr *CachedResponse) IsClientError() bool {
-	return cr.StatusCode >= 400 && cr.StatusCode < 500
-}
-
-func (cr *CachedResponse) IsServerError() bool {
-	return cr.StatusCode >= 500
-}
-
-func (cr *CachedResponse) ContentType() string {
-	return cr.Header.Get("Content-Type")
-}
-
-func (cr *CachedResponse) IsJson() bool {
-	return cr.ContentType() == "application/json"
-}
-
-func DoAndReadAll(client *http.Client, req *http.Request) (*CachedResponse, error) {
+func SendRequest(client *http.Client, req *http.Request) (*Content, error) {
 	resp, err := client.Do(req)
-
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to send request: %w", err)
 	}
 
 	defer resp.Body.Close()
 
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to read response body: %w", err)
 	}
 
-	return &CachedResponse{resp, data}, nil
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return nil, fmt.Errorf("http error: status code: %d, response body: %s", resp.StatusCode, string(data))
+	}
+
+	return &Content{Data: data, Type: resp.Header.Get("Content-Type")}, nil
 }

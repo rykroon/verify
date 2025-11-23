@@ -31,7 +31,7 @@ type UpdateVerifyProfilePayload struct {
 /*
 https://developers.telnyx.com/api/verify/update-verify-profile
 */
-func (c *Client) UpdateVerifyProfile(verifyProfileId string, params UpdateVerifyProfilePayload) (*utils.CachedResponse, error) {
+func (c *Client) UpdateVerifyProfile(verifyProfileId string, params UpdateVerifyProfilePayload) (*utils.Content, error) {
 	jsonData, err := json.Marshal(params)
 	if err != nil {
 		return nil, fmt.Errorf("failed to encode params as json: %w", err)
@@ -40,11 +40,11 @@ func (c *Client) UpdateVerifyProfile(verifyProfileId string, params UpdateVerify
 	if err != nil {
 		return nil, fmt.Errorf("failed to create http request %w", err)
 	}
-	resp, err := utils.DoAndReadAll(c.httpClient, req)
+	content, err := utils.SendRequest(c.httpClient, req)
 	if err != nil {
 		return nil, err
 	}
-	return resp, nil
+	return content, nil
 }
 
 type RetrieveVerifyProfileParams struct {
@@ -55,26 +55,26 @@ func (p *RetrieveVerifyProfileParams) GetParamPointers() []any {
 	return []any{&p.VerifyProfileId}
 }
 
-func (c *Client) RetrieveVerifyProfile(verifyProfileId string) (*utils.CachedResponse, error) {
+func (c *Client) RetrieveVerifyProfile(verifyProfileId string) (*utils.Content, error) {
 	req, err := c.NewRequest("GET", "verify_profiles/"+verifyProfileId, nil)
 	if err != nil {
 		return nil, err
 	}
-	resp, err := utils.DoAndReadAll(c.httpClient, req)
+	content, err := utils.SendRequest(c.httpClient, req)
 	if err != nil {
 		return nil, err
 	}
-	return resp, nil
+	return content, nil
 }
 
-func (c *Client) DeleteVerifyProfile(verifyProfileId string) (*utils.CachedResponse, error) {
+func (c *Client) DeleteVerifyProfile(verifyProfileId string) (*utils.Content, error) {
 	req, err := c.NewRequest("DELETE", "verify_profiles/"+verifyProfileId, nil)
 	if err != nil {
 		return nil, err
 	}
-	resp, err := utils.DoAndReadAll(c.httpClient, req)
+	content, err := utils.SendRequest(c.httpClient, req)
 	if err != nil {
 		return nil, err
 	}
-	return resp, nil
+	return content, nil
 }

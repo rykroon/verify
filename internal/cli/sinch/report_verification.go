@@ -18,12 +18,12 @@ func newReportVerificationCmd() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			client := sinch.NewClient(nil, os.Getenv("SINCH_APP_KEY"), os.Getenv("SINCH_APP_SECRET"))
 
-			resp, err := client.ReportVerificationById(params.id, params.ReportVerificationParams)
+			content, err := client.ReportVerificationById(params.id, params.ReportVerificationParams)
 			if err != nil {
 				return err
 			}
 
-			utils.PrintResponse(resp)
+			utils.PrintContent(content)
 			return nil
 		},
 	}

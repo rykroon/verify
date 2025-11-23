@@ -19,7 +19,7 @@ func (p *TriggerSmsParams) GetParamPointers() []any {
 }
 
 // https://developers.telnyx.com/api/verify/create-verification-sms
-func (c *Client) TriggerSmsVerification(params TriggerSmsParams) (*utils.CachedResponse, error) {
+func (c *Client) TriggerSmsVerification(params TriggerSmsParams) (*utils.Content, error) {
 	jsonData, err := json.Marshal(params)
 	if err != nil {
 		return nil, err
@@ -28,9 +28,9 @@ func (c *Client) TriggerSmsVerification(params TriggerSmsParams) (*utils.CachedR
 	if err != nil {
 		return nil, err
 	}
-	resp, err := utils.DoAndReadAll(c.httpClient, req)
+	content, err := utils.SendRequest(c.httpClient, req)
 	if err != nil {
 		return nil, err
 	}
-	return resp, nil
+	return content, nil
 }

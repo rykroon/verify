@@ -15,12 +15,12 @@ func newListTempaltesCmd() *cobra.Command {
 		Long:  ``,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			client := telnyx.NewClient(nil, os.Getenv("TELNYX_API_KEY"))
-			resp, err := client.ListMessageTemplates()
+			content, err := client.ListMessageTemplates()
 			if err != nil {
 				return err
 			}
 
-			utils.PrintResponse(resp)
+			utils.PrintContent(content)
 			return nil
 		},
 	}

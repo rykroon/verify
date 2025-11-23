@@ -19,7 +19,7 @@ type SendVerificationForm struct {
 }
 
 // https://www.twilio.com/docs/verify/api/verification#start-new-verification
-func (c *Client) SendVerification(serviceSid string, form SendVerificationForm) (*utils.CachedResponse, error) {
+func (c *Client) SendVerification(serviceSid string, form SendVerificationForm) (*utils.Content, error) {
 	path := "Services/" + serviceSid + "/Verifications"
 	values, err := query.Values(form)
 	if err != nil {
@@ -29,7 +29,7 @@ func (c *Client) SendVerification(serviceSid string, form SendVerificationForm) 
 	if err != nil {
 		return nil, err
 	}
-	resp, err := utils.DoAndReadAll(c.httpClient, req)
+	resp, err := utils.SendRequest(c.httpClient, req)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +47,7 @@ type CheckVerificationForm struct {
 	Code            string `url:"Code" json:"code"`
 }
 
-func (c *Client) CheckVerification(serviceSid string, form CheckVerificationForm) (*utils.CachedResponse, error) {
+func (c *Client) CheckVerification(serviceSid string, form CheckVerificationForm) (*utils.Content, error) {
 	path := fmt.Sprintf("Services/%s/VerificationCheck", serviceSid)
 	values, err := query.Values(form)
 	if err != nil {
@@ -57,7 +57,7 @@ func (c *Client) CheckVerification(serviceSid string, form CheckVerificationForm
 	if err != nil {
 		return nil, err
 	}
-	resp, err := utils.DoAndReadAll(c.httpClient, req)
+	resp, err := utils.SendRequest(c.httpClient, req)
 	if err != nil {
 		return nil, err
 	}

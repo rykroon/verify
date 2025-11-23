@@ -33,6 +33,7 @@ func (c *Client) NewRequest(method, path string, body io.Reader) (*http.Request,
 		return nil, fmt.Errorf("failed to join path: %w", err)
 	}
 
+	// copy the body so that it can be used for signing and sending the request.
 	var buf bytes.Buffer
 	if body != nil {
 		_, err = io.Copy(&buf, body)

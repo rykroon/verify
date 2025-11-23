@@ -17,15 +17,13 @@ func ListProfiles(ctx context.Context, params jsonrpc.Params) (any, error) {
 		return nil, jsonrpc.InvalidParams(err.Error())
 	}
 
-	resp, err := client.ListVerifyProfiles(p)
+	content, err := client.ListVerifyProfiles(p)
 	if err != nil {
 		return nil, err
 	}
 
-	//if resp.StatusCode >= 400 ...
-
 	var result map[string]any
-	if err := json.Unmarshal(resp.Body, &result); err != nil {
+	if err := json.Unmarshal(content.Data, &result); err != nil {
 		return nil, err
 	}
 

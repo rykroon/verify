@@ -18,12 +18,12 @@ func newSendVerificationCmd() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			client := twilio.NewClient(nil, os.Getenv("TWILIO_API_KEY_SID"), os.Getenv("TWILIO_API_KEY_SECRET"))
 
-			resp, err := client.SendVerification(params.ServiceSid, params.SendVerificationForm)
+			content, err := client.SendVerification(params.ServiceSid, params.SendVerificationForm)
 			if err != nil {
 				return err
 			}
 
-			utils.PrintResponse(resp)
+			utils.PrintContent(content)
 			return nil
 		},
 	}

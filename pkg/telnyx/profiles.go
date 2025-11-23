@@ -42,7 +42,7 @@ func (p *CreateVerifyProfileParams) GetParamPointers() []any {
 /*
 https://developers.telnyx.com/api/verify/create-verify-profile
 */
-func (c *Client) CreateVerifyProfile(params CreateVerifyProfileParams) (*utils.CachedResponse, error) {
+func (c *Client) CreateVerifyProfile(params CreateVerifyProfileParams) (*utils.Content, error) {
 	jsonData, err := json.Marshal(params)
 	if err != nil {
 		return nil, fmt.Errorf("failed to encode params as json: %w", err)
@@ -51,11 +51,11 @@ func (c *Client) CreateVerifyProfile(params CreateVerifyProfileParams) (*utils.C
 	if err != nil {
 		return nil, fmt.Errorf("failed to create http request %w", err)
 	}
-	resp, err := utils.DoAndReadAll(c.httpClient, req)
+	content, err := utils.SendRequest(c.httpClient, req)
 	if err != nil {
 		return nil, err
 	}
-	return resp, nil
+	return content, nil
 }
 
 type ListVerifyProfilesParams struct {
@@ -67,7 +67,7 @@ func (p *ListVerifyProfilesParams) GetParamPointers() []any {
 	return []any{&p.PageSize, &p.PageNumber}
 }
 
-func (c *Client) ListVerifyProfiles(params ListVerifyProfilesParams) (*utils.CachedResponse, error) {
+func (c *Client) ListVerifyProfiles(params ListVerifyProfilesParams) (*utils.Content, error) {
 	req, err := c.NewRequest("GET", "verify_profiles", nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request with params: %w", err)
@@ -80,9 +80,9 @@ func (c *Client) ListVerifyProfiles(params ListVerifyProfilesParams) (*utils.Cac
 
 	req.URL.RawQuery = queryParams.Encode()
 
-	resp, err := utils.DoAndReadAll(c.httpClient, req)
+	content, err := utils.SendRequest(c.httpClient, req)
 	if err != nil {
 		return nil, err
 	}
-	return resp, nil
+	return content, nil
 }

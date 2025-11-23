@@ -17,15 +17,13 @@ func TriggerSmsVerification(ctx context.Context, params jsonrpc.Params) (any, er
 		return nil, jsonrpc.InvalidParams(err.Error())
 	}
 
-	resp, err := client.TriggerSmsVerification(p)
+	content, err := client.TriggerSmsVerification(p)
 	if err != nil {
 		return nil, err
 	}
 
-	//if resp.StatusCode >= 400 ...
-
 	var result map[string]any
-	if err := json.Unmarshal(resp.Body, &result); err != nil {
+	if err := json.Unmarshal(content.Data, &result); err != nil {
 		return nil, err
 	}
 
