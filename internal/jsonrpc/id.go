@@ -26,7 +26,7 @@ func (i *Id) UnmarshalJSON(data []byte) error {
 	if i.IsEmpty() || i.IsNull() || i.IsString() || i.IsInt() {
 		return nil
 	}
-	return errors.New("Invalid jsonrpc id")
+	return errors.New("not a valid jsonrpc id")
 }
 
 func (i Id) IsNull() bool {

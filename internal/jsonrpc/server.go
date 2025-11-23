@@ -8,7 +8,7 @@ import (
 )
 
 type JsonRpcHandler interface {
-	ServerJsonRpc(ctx context.Context, req *Request) *Response
+	ServeJsonRpc(ctx context.Context, req *Request) *Response
 }
 
 type HandlerFunc func(ctx context.Context, params Params) (any, error)
