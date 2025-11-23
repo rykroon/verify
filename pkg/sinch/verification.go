@@ -13,14 +13,14 @@ type Identity struct {
 	Endpoint string `json:"endpoint"`
 }
 
-type StartVerificationParams struct {
+type StartVerificationPayload struct {
 	Identity Identity `json:"identity"`
 	Method   string   `json:"method"`
 }
 
 // https://developers.sinch.com/docs/verification/api-reference/verification/tag/Verifications-start/
-func (c *Client) StartVerification(params StartVerificationParams) (map[string]any, error) {
-	data, err := json.Marshal(params)
+func (c *Client) StartVerification(payload StartVerificationPayload) (map[string]any, error) {
+	data, err := json.Marshal(payload)
 	if err != nil {
 		return nil, fmt.Errorf("failed to encode params to json: %w", err)
 	}
@@ -43,19 +43,19 @@ func (c *Client) StartVerification(params StartVerificationParams) (map[string]a
 	return result, nil
 }
 
-type ReportVerificationParams struct {
+type ReportVerificationPayload struct {
 	Code   string `json:"code"`
 	Method string `json:"method"`
 }
 
 // https://developers.sinch.com/docs/verification/api-reference/verification/tag/Verifications-report/#tag/Verifications-report/operation/ReportVerificationById
-func (c *Client) ReportVerificationById(verificationId string, params ReportVerificationParams) (map[string]any, error) {
+func (c *Client) ReportVerificationById(id string, params ReportVerificationPayload) (map[string]any, error) {
 	data, err := json.Marshal(params)
 	if err != nil {
 		return nil, fmt.Errorf("failed to encode params as json: %w", err)
 	}
 
-	req, err := c.NewRequest("PUT", fmt.Sprintf("/verifications/id/%s", verificationId), bytes.NewReader(data))
+	req, err := c.NewRequest("PUT", fmt.Sprintf("/verifications/id/%s", id), bytes.NewReader(data))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create new request: %w", err)
 	}

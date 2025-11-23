@@ -10,7 +10,7 @@ import (
 )
 
 func newTriggerSmsCmd() *cobra.Command {
-	var params telnyx.TriggerSmsParams
+	var payload telnyx.TriggerSmsPayload
 
 	var cmd = &cobra.Command{
 		Use:   "trigger-sms",
@@ -19,7 +19,7 @@ func newTriggerSmsCmd() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			client := telnyx.NewClient(nil, os.Getenv("TELNYX_API_KEY"))
 
-			result, err := client.TriggerSmsVerification(params)
+			result, err := client.TriggerSmsVerification(payload)
 			if err != nil {
 				return err
 			}
@@ -33,8 +33,8 @@ func newTriggerSmsCmd() *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVarP(&params.PhoneNumber, "phone-number", "p", "", "+E164 formatted phone number.")
-	cmd.Flags().StringVarP(&params.VerifyProfileId, "verify-profile-id", "V", "", "The identifier of the associated Verify profile.")
+	cmd.Flags().StringVarP(&payload.PhoneNumber, "phone-number", "p", "", "+E164 formatted phone number.")
+	cmd.Flags().StringVarP(&payload.VerifyProfileId, "verify-profile-id", "V", "", "The identifier of the associated Verify profile.")
 
 	cmd.MarkFlagRequired("phone-number")
 	cmd.MarkFlagRequired("verify-profile-id")

@@ -9,7 +9,7 @@ import (
 	"github.com/rykroon/verify/internal/utils"
 )
 
-type CreateVerifyProfileParams struct {
+type CreateVerifyProfilePayload struct {
 	Name               string `json:"name"`
 	WebhookUrl         string `json:"webhook_url,omitzero"`
 	WebhookFailoverUrl string `json:"webhook_failover_url,omitzero"`
@@ -35,15 +35,11 @@ type CreateVerifyProfileParams struct {
 	Language string `json:"language,omitzero"`
 }
 
-func (p *CreateVerifyProfileParams) GetParamPointers() []any {
-	return []any{&p.Name, &p.WebhookUrl, &p.WebhookFailoverUrl, &p.Sms, &p.Call, &p.FlashCall, &p.Language}
-}
-
 /*
 https://developers.telnyx.com/api/verify/create-verify-profile
 */
-func (c *Client) CreateVerifyProfile(params CreateVerifyProfileParams) (map[string]any, error) {
-	jsonData, err := json.Marshal(params)
+func (c *Client) CreateVerifyProfile(payload CreateVerifyProfilePayload) (map[string]any, error) {
+	jsonData, err := json.Marshal(payload)
 	if err != nil {
 		return nil, fmt.Errorf("failed to encode params as json: %w", err)
 	}
@@ -69,10 +65,6 @@ func (c *Client) CreateVerifyProfile(params CreateVerifyProfileParams) (map[stri
 type ListVerifyProfilesParams struct {
 	PageSize   int `json:"page_size" url:"page[size],omitempty"`
 	PageNumber int `json:"page_number" url:"page[number],omitempty"`
-}
-
-func (p *ListVerifyProfilesParams) GetParamPointers() []any {
-	return []any{&p.PageSize, &p.PageNumber}
 }
 
 func (c *Client) ListVerifyProfiles(params ListVerifyProfilesParams) (map[string]any, error) {

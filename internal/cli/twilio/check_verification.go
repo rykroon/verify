@@ -10,7 +10,8 @@ import (
 )
 
 func newCheckVerificationCmd() *cobra.Command {
-	var params twilio.CheckVerificationParams
+	var serviceSid string
+	var form twilio.CheckVerificationForm
 
 	cmd := &cobra.Command{
 		Use:   "check-verification",
@@ -21,7 +22,7 @@ func newCheckVerificationCmd() *cobra.Command {
 				os.Getenv("TWILIO_API_KEY_SID"), os.Getenv("TWILIO_API_KEY_SECRET"), nil,
 			)
 
-			result, err := client.CheckVerification(params.ServiceSid, params.CheckVerificationForm)
+			result, err := client.CheckVerification(serviceSid, form)
 			if err != nil {
 				return err
 			}
@@ -36,10 +37,10 @@ func newCheckVerificationCmd() *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVarP(&params.ServiceSid, "service-sid", "s", "", "The SID of the verification Service.")
-	cmd.Flags().StringVarP(&params.To, "to", "t", "", "The phone number or email to verify.")
-	cmd.Flags().StringVarP(&params.VerificationSid, "verification-sid", "V", "", "A SID that uniquely identifies the Verification Check.")
-	cmd.Flags().StringVarP(&params.Code, "code", "c", "", "The 4-10 character string being verified.")
+	cmd.Flags().StringVarP(&serviceSid, "service-sid", "s", "", "The SID of the verification Service.")
+	cmd.Flags().StringVarP(&form.To, "to", "t", "", "The phone number or email to verify.")
+	cmd.Flags().StringVarP(&form.VerificationSid, "verification-sid", "V", "", "A SID that uniquely identifies the Verification Check.")
+	cmd.Flags().StringVarP(&form.Code, "code", "c", "", "The 4-10 character string being verified.")
 	cmd.MarkFlagRequired("service-sid")
 	cmd.MarkFlagsOneRequired("to", "verification-sid")
 	cmd.MarkFlagRequired("code")

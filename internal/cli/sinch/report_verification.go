@@ -10,7 +10,8 @@ import (
 )
 
 func newReportVerificationCmd() *cobra.Command {
-	var params reportVerificationParams
+	var id string
+	var payload sinch.ReportVerificationPayload
 
 	cmd := &cobra.Command{
 		Use:   "report-verification",
@@ -19,7 +20,7 @@ func newReportVerificationCmd() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			client := sinch.NewClient(nil, os.Getenv("SINCH_APP_KEY"), os.Getenv("SINCH_APP_SECRET"))
 
-			result, err := client.ReportVerificationById(params.id, params.ReportVerificationParams)
+			result, err := client.ReportVerificationById(id, payload)
 			if err != nil {
 				return err
 			}
@@ -33,17 +34,12 @@ func newReportVerificationCmd() *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVarP(&params.id, "id", "i", "", "Verification ID of the verification request")
-	cmd.Flags().StringVarP(&params.Method, "method", "m", "", "The type of the verification")
-	cmd.Flags().StringVarP(&params.Code, "code", "c", "", "The code which was received by the user submitting the SMS verification")
+	cmd.Flags().StringVarP(&id, "id", "i", "", "Verification ID of the verification request")
+	cmd.Flags().StringVarP(&payload.Method, "method", "m", "", "The type of the verification")
+	cmd.Flags().StringVarP(&payload.Code, "code", "c", "", "The code which was received by the user submitting the SMS verification")
 	cmd.MarkFlagRequired("id")
 	cmd.MarkFlagRequired("method")
 	cmd.MarkFlagRequired("code")
 
 	return cmd
-}
-
-type reportVerificationParams struct {
-	id string
-	sinch.ReportVerificationParams
 }

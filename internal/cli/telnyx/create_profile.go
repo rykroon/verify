@@ -10,7 +10,7 @@ import (
 )
 
 func newCreateProfileCmd() *cobra.Command {
-	var params telnyx.CreateVerifyProfileParams
+	var payload telnyx.CreateVerifyProfilePayload
 
 	var cmd = &cobra.Command{
 		Use:   "create-profile",
@@ -18,7 +18,7 @@ func newCreateProfileCmd() *cobra.Command {
 		Long:  ``,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			client := telnyx.NewClient(nil, os.Getenv("TELNYX_API_KEY"))
-			result, err := client.CreateVerifyProfile(params)
+			result, err := client.CreateVerifyProfile(payload)
 			if err != nil {
 				return err
 			}
@@ -32,7 +32,7 @@ func newCreateProfileCmd() *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVarP(&params.Name, "name", "n", "", "The name of the profile")
+	cmd.Flags().StringVarP(&payload.Name, "name", "n", "", "The name of the profile")
 	// createProfileCmd.Flags().StringVarP(&cvpp.Sms.AppName, "app-name", "a", "", "The Nname of the application")
 	cmd.MarkFlagRequired("name")
 

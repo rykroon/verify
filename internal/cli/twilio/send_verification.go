@@ -10,7 +10,8 @@ import (
 )
 
 func newSendVerificationCmd() *cobra.Command {
-	var params twilio.SendVerificationParams
+	var serviceSid string
+	var form twilio.SendVerificationForm
 
 	cmd := &cobra.Command{
 		Use:   "send-verification",
@@ -21,7 +22,7 @@ func newSendVerificationCmd() *cobra.Command {
 				os.Getenv("TWILIO_API_KEY_SID"), os.Getenv("TWILIO_API_KEY_SECRET"), nil,
 			)
 
-			result, err := client.SendVerification(params.ServiceSid, params.SendVerificationForm)
+			result, err := client.SendVerification(serviceSid, form)
 			if err != nil {
 				return err
 			}
@@ -35,9 +36,9 @@ func newSendVerificationCmd() *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVar(&params.ServiceSid, "service-sid", "", "The SID of the verification Service.")
-	cmd.Flags().StringVar(&params.To, "to", "", "The phone number or email to verify.")
-	cmd.Flags().StringVar(&params.Channel, "channel", "", "The verification method to use.")
+	cmd.Flags().StringVar(&serviceSid, "service-sid", "", "The SID of the verification Service.")
+	cmd.Flags().StringVar(&form.To, "to", "", "The phone number or email to verify.")
+	cmd.Flags().StringVar(&form.Channel, "channel", "", "The verification method to use.")
 	cmd.MarkFlagRequired("service-sid")
 	cmd.MarkFlagRequired("to")
 	cmd.MarkFlagRequired("channel")

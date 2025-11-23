@@ -8,8 +8,13 @@ import (
 	"github.com/rykroon/verify/pkg/twilio"
 )
 
+type CheckVerificationParams struct {
+	ServiceSid string `json:"service_sid"`
+	twilio.CheckVerificationForm
+}
+
 func CheckVerification(ctx context.Context, params jsonrpc.Params) (any, error) {
-	var p twilio.CheckVerificationParams
+	var p CheckVerificationParams
 	if err := params.DecodeInto(&p); err != nil {
 		return nil, jsonrpc.InvalidParams(err.Error())
 	}

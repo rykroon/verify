@@ -8,23 +8,14 @@ import (
 	"github.com/rykroon/verify/internal/utils"
 )
 
-type VerifyCodeParams struct {
-	VerificationId string `json:"verification_id"`
-	VerifyCodePayload
-}
-
-func (p *VerifyCodeParams) GetParamPointers() []any {
-	return []any{&p.VerificationId, &p.VerifyCodePayload.Code}
-}
-
 type VerifyCodePayload struct {
 	Code   string `json:"code"`
 	Status string `json:"status,omitzero"`
 }
 
 // https://developers.telnyx.com/api/verify/verify-verification-code-by-id
-func (c *Client) VerifyCode(verificationId string, params VerifyCodePayload) (map[string]any, error) {
-	jsonData, err := json.Marshal(params)
+func (c *Client) VerifyCode(verificationId string, payload VerifyCodePayload) (map[string]any, error) {
+	jsonData, err := json.Marshal(payload)
 	if err != nil {
 		return nil, fmt.Errorf("failed to serialize json %w", err)
 	}

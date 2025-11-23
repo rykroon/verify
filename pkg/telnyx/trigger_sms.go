@@ -8,20 +8,16 @@ import (
 	"github.com/rykroon/verify/internal/utils"
 )
 
-type TriggerSmsParams struct {
+type TriggerSmsPayload struct {
 	PhoneNumber     string `json:"phone_number"`
 	VerifyProfileId string `json:"verify_profile_id"`
 	CustomCode      string `json:"custom_code,omitzero"`
 	TimeoutSecs     string `json:"timeout_secs,omitzero"`
 }
 
-func (p *TriggerSmsParams) GetParamPointers() []any {
-	return []any{&p.PhoneNumber, &p.VerifyProfileId}
-}
-
 // https://developers.telnyx.com/api/verify/create-verification-sms
-func (c *Client) TriggerSmsVerification(params TriggerSmsParams) (map[string]any, error) {
-	jsonData, err := json.Marshal(params)
+func (c *Client) TriggerSmsVerification(payload TriggerSmsPayload) (map[string]any, error) {
+	jsonData, err := json.Marshal(payload)
 	if err != nil {
 		return nil, err
 	}

@@ -8,15 +8,23 @@ import (
 	"github.com/rykroon/verify/pkg/telnyx"
 )
 
+type TriggerSmsParams struct {
+	telnyx.TriggerSmsPayload
+}
+
+func (p *TriggerSmsParams) GetParamPointers() []any {
+	return []any{&p.VerifyProfileId, &p.PhoneNumber}
+}
+
 func TriggerSmsVerification(ctx context.Context, params jsonrpc.Params) (any, error) {
 	client := telnyx.NewClient(nil, os.Getenv("TELNYX_API_KEY"))
 
-	var p telnyx.TriggerSmsParams
+	var p TriggerSmsParams
 	if err := params.DecodeInto(&p); err != nil {
 		return nil, jsonrpc.InvalidParams(err.Error())
 	}
 
-	result, err := client.TriggerSmsVerification(p)
+	result, err := client.TriggerSmsVerification(p.TriggerSmsPayload)
 	if err != nil {
 		return nil, err
 	}

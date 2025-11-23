@@ -8,11 +8,6 @@ import (
 	"github.com/rykroon/verify/internal/utils"
 )
 
-type SendVerificationParams struct {
-	ServiceSid string `json:"service_sid"`
-	SendVerificationForm
-}
-
 type SendVerificationForm struct {
 	To      string `url:"To" json:"to"`
 	Channel string `url:"Channel" json:"channel"`
@@ -42,11 +37,6 @@ func (c *Client) SendVerification(serviceSid string, form SendVerificationForm) 
 		return nil, fmt.Errorf("failed to decode json: %w", err)
 	}
 	return result, nil
-}
-
-type CheckVerificationParams struct {
-	ServiceSid string `json:"service_sid"`
-	CheckVerificationForm
 }
 
 type CheckVerificationForm struct {

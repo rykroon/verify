@@ -10,7 +10,8 @@ import (
 )
 
 func newUpdateProfileCmd() *cobra.Command {
-	var params telnyx.UpdateVerifyProfileParams
+	var verifyProfileId string
+	var payload telnyx.UpdateVerifyProfilePayload
 
 	var cmd = &cobra.Command{
 		Use:   "update-profile",
@@ -18,7 +19,7 @@ func newUpdateProfileCmd() *cobra.Command {
 		Long:  ``,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			client := telnyx.NewClient(nil, os.Getenv("TELNYX_API_KEY"))
-			result, err := client.UpdateVerifyProfile(params.VerifyProfileId, params.UpdateVerifyProfilePayload)
+			result, err := client.UpdateVerifyProfile(verifyProfileId, payload)
 			if err != nil {
 				return err
 			}
@@ -33,23 +34,23 @@ func newUpdateProfileCmd() *cobra.Command {
 	}
 
 	cmd.Flags().StringVar(
-		&params.VerifyProfileId, "id", "", "The verify profile id.",
+		&verifyProfileId, "id", "", "The verify profile id.",
 	)
-	cmd.Flags().StringVar(&params.Name, "name", "", "Profile name")
+	cmd.Flags().StringVar(&payload.Name, "name", "", "Profile name")
 	cmd.Flags().StringVar(
-		&params.Sms.AppName, "app-name", "", "Application name",
+		&payload.Sms.AppName, "app-name", "", "Application name",
 	)
 	cmd.Flags().StringVar(
-		&params.Sms.MessagingTemplateId, "template-id", "", "Messaging template id",
+		&payload.Sms.MessagingTemplateId, "template-id", "", "Messaging template id",
 	)
 	cmd.Flags().StringArrayVar(
-		&params.Sms.WhitelistedDestinations,
+		&payload.Sms.WhitelistedDestinations,
 		"whitelisted-destinations",
 		nil,
 		"List of whitelisted destinations",
 	)
 	cmd.Flags().IntVar(
-		&params.Sms.CodeLength, "code-length", 0, "Code length",
+		&payload.Sms.CodeLength, "code-length", 0, "Code length",
 	)
 	cmd.MarkFlagRequired("id")
 

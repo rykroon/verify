@@ -8,15 +8,6 @@ import (
 	"github.com/rykroon/verify/internal/utils"
 )
 
-type UpdateVerifyProfileParams struct {
-	VerifyProfileId string `json:"verify_profile_id"`
-	UpdateVerifyProfilePayload
-}
-
-func (p *UpdateVerifyProfileParams) GetParamPointers() []any {
-	return []any{&p.VerifyProfileId, &p.UpdateVerifyProfilePayload}
-}
-
 type UpdateVerifyProfilePayload struct {
 	Name string `json:"name,omitzero"`
 	Sms  struct {
@@ -31,8 +22,8 @@ type UpdateVerifyProfilePayload struct {
 /*
 https://developers.telnyx.com/api/verify/update-verify-profile
 */
-func (c *Client) UpdateVerifyProfile(verifyProfileId string, params UpdateVerifyProfilePayload) (map[string]any, error) {
-	jsonData, err := json.Marshal(params)
+func (c *Client) UpdateVerifyProfile(verifyProfileId string, payload UpdateVerifyProfilePayload) (map[string]any, error) {
+	jsonData, err := json.Marshal(payload)
 	if err != nil {
 		return nil, fmt.Errorf("failed to encode params as json: %w", err)
 	}
@@ -53,14 +44,6 @@ func (c *Client) UpdateVerifyProfile(verifyProfileId string, params UpdateVerify
 		return nil, fmt.Errorf("failed to decode json: %w", err)
 	}
 	return result, nil
-}
-
-type RetrieveVerifyProfileParams struct {
-	VerifyProfileId string `json:"verify_profile_id"`
-}
-
-func (p *RetrieveVerifyProfileParams) GetParamPointers() []any {
-	return []any{&p.VerifyProfileId}
 }
 
 func (c *Client) RetrieveVerifyProfile(verifyProfileId string) (map[string]any, error) {

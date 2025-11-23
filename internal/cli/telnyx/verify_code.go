@@ -10,7 +10,8 @@ import (
 )
 
 func newVerifyCodeCmd() *cobra.Command {
-	var params telnyx.VerifyCodeParams
+	var verificationId string
+	var payload telnyx.VerifyCodePayload
 
 	var cmd = &cobra.Command{
 		Use:   "verify-code",
@@ -19,7 +20,7 @@ func newVerifyCodeCmd() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			client := telnyx.NewClient(nil, os.Getenv("TELNYX_API_KEY"))
 
-			result, err := client.VerifyCode(params.VerificationId, params.VerifyCodePayload)
+			result, err := client.VerifyCode(verificationId, payload)
 			if err != nil {
 				return err
 			}
@@ -33,8 +34,8 @@ func newVerifyCodeCmd() *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVar(&params.VerificationId, "id", "", "The verification id")
-	cmd.Flags().StringVarP(&params.Code, "code", "c", "", "The code")
+	cmd.Flags().StringVar(&verificationId, "id", "", "The verification id")
+	cmd.Flags().StringVarP(&payload.Code, "code", "c", "", "The code")
 
 	cmd.MarkFlagRequired("id")
 	cmd.MarkFlagRequired("code")

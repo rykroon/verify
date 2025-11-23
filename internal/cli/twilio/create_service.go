@@ -10,7 +10,7 @@ import (
 )
 
 func newCreateServiceCmd() *cobra.Command {
-	var params twilio.CreateServiceParams
+	var form twilio.CreateServiceForm
 
 	var cmd = &cobra.Command{
 		Use:   "create-service",
@@ -21,7 +21,7 @@ func newCreateServiceCmd() *cobra.Command {
 				os.Getenv("TWILIO_API_KEY_SID"), os.Getenv("TWILIO_API_KEY_SECRET"), nil,
 			)
 
-			result, err := client.CreateService(params)
+			result, err := client.CreateService(form)
 			if err != nil {
 				return err
 			}
@@ -35,8 +35,8 @@ func newCreateServiceCmd() *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVarP(&params.FriendlyName, "friendly-name", "n", "", "A descriptive name for the service")
-	cmd.Flags().IntVar(&params.CodeLength, "code-length", 0, "The length of the code")
+	cmd.Flags().StringVarP(&form.FriendlyName, "friendly-name", "n", "", "A descriptive name for the service")
+	cmd.Flags().IntVar(&form.CodeLength, "code-length", 0, "The length of the code")
 	cmd.MarkFlagRequired("friendly-name")
 
 	return cmd

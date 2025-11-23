@@ -8,13 +8,13 @@ import (
 	"github.com/rykroon/verify/internal/utils"
 )
 
-type CreateServiceParams struct {
+type CreateServiceForm struct {
 	FriendlyName string `url:"FriendlyName" json:"friendly_name"`
 	CodeLength   int    `url:"CodeLength" json:"code_length,omitzero"`
 }
 
-func (c *Client) CreateService(params CreateServiceParams) (*utils.Content, error) {
-	values, err := query.Values(params)
+func (c *Client) CreateService(form CreateServiceForm) (*utils.Content, error) {
+	values, err := query.Values(form)
 	if err != nil {
 		return nil, err
 	}

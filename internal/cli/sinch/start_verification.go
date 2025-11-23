@@ -10,7 +10,7 @@ import (
 )
 
 func newStartVerificationCmd() *cobra.Command {
-	var params sinch.StartVerificationParams
+	var payload sinch.StartVerificationPayload
 
 	cmd := &cobra.Command{
 		Use:   "start-verification",
@@ -19,7 +19,7 @@ func newStartVerificationCmd() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			client := sinch.NewClient(nil, os.Getenv("SINCH_APP_KEY"), os.Getenv("SINCH_APP_SECRET"))
 
-			result, err := client.StartVerification(params)
+			result, err := client.StartVerification(payload)
 			if err != nil {
 				return err
 			}
@@ -33,9 +33,9 @@ func newStartVerificationCmd() *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVarP(&params.Identity.Type, "identity-type", "t", "number", "")
-	cmd.Flags().StringVarP(&params.Identity.Endpoint, "identity-endpoint", "e", "", "E.164 formatted phone number")
-	cmd.Flags().StringVarP(&params.Method, "method", "m", "sms", "The type of the verification request")
+	cmd.Flags().StringVarP(&payload.Identity.Type, "identity-type", "t", "number", "")
+	cmd.Flags().StringVarP(&payload.Identity.Endpoint, "identity-endpoint", "e", "", "E.164 formatted phone number")
+	cmd.Flags().StringVarP(&payload.Method, "method", "m", "sms", "The type of the verification request")
 	cmd.MarkFlagRequired("identity-endpoint")
 
 	return cmd

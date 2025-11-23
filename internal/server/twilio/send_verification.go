@@ -8,8 +8,13 @@ import (
 	"github.com/rykroon/verify/pkg/twilio"
 )
 
+type SendVerificationParams struct {
+	ServiceSid string `json:"service_sid"`
+	twilio.SendVerificationForm
+}
+
 func SendVerification(ctx context.Context, params jsonrpc.Params) (any, error) {
-	var p twilio.SendVerificationParams
+	var p SendVerificationParams
 	if err := params.DecodeInto(&p); err != nil {
 		return nil, jsonrpc.InvalidParams(err.Error())
 	}
