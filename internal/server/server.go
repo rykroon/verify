@@ -7,12 +7,16 @@ import (
 
 	"github.com/rykroon/verify/internal/jsonrpc"
 	"github.com/rykroon/verify/internal/server/telnyx"
+	"github.com/rykroon/verify/internal/server/twilio"
 )
 
 func GetJsonRpcServer() *jsonrpc.JsonRpcServer {
 	server := jsonrpc.NewJsonRpcServer()
 	server.Register("telnyx.list_profiles", telnyx.ListProfiles)
 	server.Register("telnyx.trigger_sms", telnyx.TriggerSmsVerification)
+	server.Register("telnyx.verify_code", telnyx.VerifyCode)
+	server.Register("twilio.send_verification", twilio.SendVerification)
+	server.Register("twilio.check_verification", twilio.CheckVerification)
 	server.Register("echo", Echo)
 	server.Register("sleep", Sleep)
 	return server

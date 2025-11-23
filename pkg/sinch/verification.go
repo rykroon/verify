@@ -19,7 +19,7 @@ type StartVerificationParams struct {
 }
 
 // https://developers.sinch.com/docs/verification/api-reference/verification/tag/Verifications-start/
-func (c *Client) StartVerification(params StartVerificationParams) (*utils.Content, error) {
+func (c *Client) StartVerification(params StartVerificationParams) (map[string]any, error) {
 	data, err := json.Marshal(params)
 	if err != nil {
 		return nil, fmt.Errorf("failed to encode params to json: %w", err)
@@ -32,7 +32,15 @@ func (c *Client) StartVerification(params StartVerificationParams) (*utils.Conte
 	if err != nil {
 		return nil, err
 	}
-	return content, nil
+	if !content.IsJson() {
+		return nil, fmt.Errorf("expected json but got %s", content.Type)
+	}
+	var result map[string]any
+	err = content.DecodeJsonInto(&result)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode json: %w", err)
+	}
+	return result, nil
 }
 
 type ReportVerificationParams struct {
@@ -41,7 +49,7 @@ type ReportVerificationParams struct {
 }
 
 // https://developers.sinch.com/docs/verification/api-reference/verification/tag/Verifications-report/#tag/Verifications-report/operation/ReportVerificationById
-func (c *Client) ReportVerificationById(verificationId string, params ReportVerificationParams) (*utils.Content, error) {
+func (c *Client) ReportVerificationById(verificationId string, params ReportVerificationParams) (map[string]any, error) {
 	data, err := json.Marshal(params)
 	if err != nil {
 		return nil, fmt.Errorf("failed to encode params as json: %w", err)
@@ -52,24 +60,37 @@ func (c *Client) ReportVerificationById(verificationId string, params ReportVeri
 		return nil, fmt.Errorf("failed to create new request: %w", err)
 	}
 
-	resp, err := utils.SendRequest(c.httpClient, req)
+	content, err := utils.SendRequest(c.httpClient, req)
 	if err != nil {
 		return nil, err
 	}
-
-	return resp, nil
+	if !content.IsJson() {
+		return nil, fmt.Errorf("expected json but got %s", content.Type)
+	}
+	var result map[string]any
+	err = content.DecodeJsonInto(&result)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode json: %w", err)
+	}
+	return result, nil
 }
 
-func (c *Client) GetVerificationById(verificationId string) (*utils.Content, error) {
+func (c *Client) GetVerificationById(verificationId string) (map[string]any, error) {
 	req, err := c.NewRequest("GET", "verifications/id/"+verificationId, nil)
 	if err != nil {
 		return nil, err
 	}
-
-	resp, err := utils.SendRequest(c.httpClient, req)
+	content, err := utils.SendRequest(c.httpClient, req)
 	if err != nil {
 		return nil, err
 	}
-
-	return resp, nil
+	if !content.IsJson() {
+		return nil, fmt.Errorf("expected json but got %s", content.Type)
+	}
+	var result map[string]any
+	err = content.DecodeJsonInto(&result)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode json: %w", err)
+	}
+	return result, nil
 }

@@ -12,7 +12,7 @@ import (
 
 var rootCmd = &cobra.Command{
 	Use:   "verify",
-	Short: "The Alpha and Omega of Phone Verification",
+	Short: "Aggregate Phone Verification service",
 	Long:  ``,
 }
 

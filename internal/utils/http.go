@@ -1,14 +1,26 @@
 package utils
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
+	"mime"
 	"net/http"
 )
 
 type Content struct {
-	Data []byte
-	Type string
+	Data    []byte
+	Type    string
+	Charset map[string]string
+}
+
+func (c Content) IsJson() bool {
+	return c.Type == "application/json"
+}
+
+func (c *Content) DecodeJsonInto(v any) error {
+	return json.NewDecoder(bytes.NewReader(c.Data)).Decode(v)
 }
 
 func SendRequest(client *http.Client, req *http.Request) (*Content, error) {
@@ -28,5 +40,10 @@ func SendRequest(client *http.Client, req *http.Request) (*Content, error) {
 		return nil, fmt.Errorf("http error: status code: %d, response body: %s", resp.StatusCode, string(data))
 	}
 
-	return &Content{Data: data, Type: resp.Header.Get("Content-Type")}, nil
+	mediatype, params, err := mime.ParseMediaType(resp.Header.Get("Content-Type"))
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse media type: %w", err)
+	}
+
+	return &Content{Data: data, Type: mediatype, Charset: params}, nil
 }

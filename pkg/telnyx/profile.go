@@ -31,7 +31,7 @@ type UpdateVerifyProfilePayload struct {
 /*
 https://developers.telnyx.com/api/verify/update-verify-profile
 */
-func (c *Client) UpdateVerifyProfile(verifyProfileId string, params UpdateVerifyProfilePayload) (*utils.Content, error) {
+func (c *Client) UpdateVerifyProfile(verifyProfileId string, params UpdateVerifyProfilePayload) (map[string]any, error) {
 	jsonData, err := json.Marshal(params)
 	if err != nil {
 		return nil, fmt.Errorf("failed to encode params as json: %w", err)
@@ -44,7 +44,15 @@ func (c *Client) UpdateVerifyProfile(verifyProfileId string, params UpdateVerify
 	if err != nil {
 		return nil, err
 	}
-	return content, nil
+	if !content.IsJson() {
+		return nil, fmt.Errorf("expected json but got %s", content.Type)
+	}
+	var result map[string]any
+	err = content.DecodeJsonInto(&result)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode json: %w", err)
+	}
+	return result, nil
 }
 
 type RetrieveVerifyProfileParams struct {
@@ -55,7 +63,7 @@ func (p *RetrieveVerifyProfileParams) GetParamPointers() []any {
 	return []any{&p.VerifyProfileId}
 }
 
-func (c *Client) RetrieveVerifyProfile(verifyProfileId string) (*utils.Content, error) {
+func (c *Client) RetrieveVerifyProfile(verifyProfileId string) (map[string]any, error) {
 	req, err := c.NewRequest("GET", "verify_profiles/"+verifyProfileId, nil)
 	if err != nil {
 		return nil, err
@@ -64,10 +72,18 @@ func (c *Client) RetrieveVerifyProfile(verifyProfileId string) (*utils.Content, 
 	if err != nil {
 		return nil, err
 	}
-	return content, nil
+	if !content.IsJson() {
+		return nil, fmt.Errorf("expected json but got %s", content.Type)
+	}
+	var result map[string]any
+	err = content.DecodeJsonInto(&result)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode json: %w", err)
+	}
+	return result, nil
 }
 
-func (c *Client) DeleteVerifyProfile(verifyProfileId string) (*utils.Content, error) {
+func (c *Client) DeleteVerifyProfile(verifyProfileId string) (map[string]any, error) {
 	req, err := c.NewRequest("DELETE", "verify_profiles/"+verifyProfileId, nil)
 	if err != nil {
 		return nil, err
@@ -76,5 +92,13 @@ func (c *Client) DeleteVerifyProfile(verifyProfileId string) (*utils.Content, er
 	if err != nil {
 		return nil, err
 	}
-	return content, nil
+	if !content.IsJson() {
+		return nil, fmt.Errorf("expected json but got %s", content.Type)
+	}
+	var result map[string]any
+	err = content.DecodeJsonInto(&result)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode json: %w", err)
+	}
+	return result, nil
 }

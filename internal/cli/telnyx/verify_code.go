@@ -1,11 +1,12 @@
 package telnyx
 
 import (
+	"fmt"
 	"os"
 
-	"github.com/rykroon/verify/internal/utils"
 	"github.com/rykroon/verify/pkg/telnyx"
 	"github.com/spf13/cobra"
+	"gopkg.in/yaml.v3"
 )
 
 func newVerifyCodeCmd() *cobra.Command {
@@ -18,12 +19,16 @@ func newVerifyCodeCmd() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			client := telnyx.NewClient(nil, os.Getenv("TELNYX_API_KEY"))
 
-			content, err := client.VerifyCode(params.VerificationId, params.VerifyCodePayload)
+			result, err := client.VerifyCode(params.VerificationId, params.VerifyCodePayload)
 			if err != nil {
 				return err
 			}
 
-			utils.PrintContent(content)
+			yamlBytes, err := yaml.Marshal(result)
+			if err != nil {
+				return fmt.Errorf("failed to encode as yaml: %w", err)
+			}
+			fmt.Println(string(yamlBytes))
 			return nil
 		},
 	}

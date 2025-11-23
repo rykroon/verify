@@ -2,7 +2,6 @@ package telnyx
 
 import (
 	"context"
-	"encoding/json"
 	"os"
 
 	"github.com/rykroon/verify/internal/jsonrpc"
@@ -17,13 +16,8 @@ func VerifyCode(ctx context.Context, params jsonrpc.Params) (any, error) {
 		return nil, jsonrpc.NewJsonRpcError(0, "invalid params", nil)
 	}
 
-	content, err := client.VerifyCode(p.VerificationId, p.VerifyCodePayload)
+	result, err := client.VerifyCode(p.VerificationId, p.VerifyCodePayload)
 	if err != nil {
-		return nil, err
-	}
-
-	var result map[string]any
-	if err := json.Unmarshal(content.Data, &result); err != nil {
 		return nil, err
 	}
 

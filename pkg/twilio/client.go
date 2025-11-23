@@ -7,16 +7,20 @@ import (
 )
 
 type Client struct {
-	httpClient   *http.Client
 	apiKeySid    string
 	apiKeySecret string
+	httpClient   *http.Client
 }
 
-func NewClient(client *http.Client, apiKeySid, apiKeySecret string) *Client {
-	if client == nil {
-		client = http.DefaultClient
+func NewClient(apiKeySid, apiKeySecret string, httpClient *http.Client) *Client {
+	if httpClient == nil {
+		httpClient = http.DefaultClient
 	}
-	return &Client{client, apiKeySid, apiKeySecret}
+	return &Client{apiKeySid, apiKeySecret, httpClient}
+}
+
+func (c *Client) SetHttpClient(httpClient *http.Client) {
+	c.httpClient = httpClient
 }
 
 func (c *Client) NewRequest(method, path string, body io.Reader) (*http.Request, error) {
@@ -29,7 +33,7 @@ func (c *Client) NewRequest(method, path string, body io.Reader) (*http.Request,
 		return nil, err
 	}
 	if body != nil {
-		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	}
 	req.SetBasicAuth(c.apiKeySid, c.apiKeySecret)
 	return req, nil

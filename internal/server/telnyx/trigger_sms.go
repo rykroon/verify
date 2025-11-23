@@ -2,7 +2,6 @@ package telnyx
 
 import (
 	"context"
-	"encoding/json"
 	"os"
 
 	"github.com/rykroon/verify/internal/jsonrpc"
@@ -17,13 +16,8 @@ func TriggerSmsVerification(ctx context.Context, params jsonrpc.Params) (any, er
 		return nil, jsonrpc.InvalidParams(err.Error())
 	}
 
-	content, err := client.TriggerSmsVerification(p)
+	result, err := client.TriggerSmsVerification(p)
 	if err != nil {
-		return nil, err
-	}
-
-	var result map[string]any
-	if err := json.Unmarshal(content.Data, &result); err != nil {
 		return nil, err
 	}
 

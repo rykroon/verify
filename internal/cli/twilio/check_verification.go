@@ -1,11 +1,12 @@
 package twilio
 
 import (
+	"fmt"
 	"os"
 
-	"github.com/rykroon/verify/internal/utils"
 	"github.com/rykroon/verify/pkg/twilio"
 	"github.com/spf13/cobra"
+	"gopkg.in/yaml.v3"
 )
 
 func newCheckVerificationCmd() *cobra.Command {
@@ -16,14 +17,20 @@ func newCheckVerificationCmd() *cobra.Command {
 		Short: "Check Verification",
 		Long:  ``,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			client := twilio.NewClient(nil, os.Getenv("TWILIO_API_KEY_SID"), os.Getenv("TWILIO_API_KEY_SECRET"))
+			client := twilio.NewClient(
+				os.Getenv("TWILIO_API_KEY_SID"), os.Getenv("TWILIO_API_KEY_SECRET"), nil,
+			)
 
-			content, err := client.CheckVerification(params.ServiceSid, params.CheckVerificationForm)
+			result, err := client.CheckVerification(params.ServiceSid, params.CheckVerificationForm)
 			if err != nil {
 				return err
 			}
 
-			utils.PrintContent(content)
+			yamlBytes, err := yaml.Marshal(result)
+			if err != nil {
+				return fmt.Errorf("failed to encode as yaml: %w", err)
+			}
+			fmt.Println(string(yamlBytes))
 
 			return nil
 		},

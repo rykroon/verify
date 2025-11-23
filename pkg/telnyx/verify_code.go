@@ -23,7 +23,7 @@ type VerifyCodePayload struct {
 }
 
 // https://developers.telnyx.com/api/verify/verify-verification-code-by-id
-func (c *Client) VerifyCode(verificationId string, params VerifyCodePayload) (*utils.Content, error) {
+func (c *Client) VerifyCode(verificationId string, params VerifyCodePayload) (map[string]any, error) {
 	jsonData, err := json.Marshal(params)
 	if err != nil {
 		return nil, fmt.Errorf("failed to serialize json %w", err)
@@ -37,5 +37,13 @@ func (c *Client) VerifyCode(verificationId string, params VerifyCodePayload) (*u
 	if err != nil {
 		return nil, err
 	}
-	return content, nil
+	if !content.IsJson() {
+		return nil, fmt.Errorf("expected json but got %s", content.Type)
+	}
+	var result map[string]any
+	err = content.DecodeJsonInto(&result)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode json: %w", err)
+	}
+	return result, nil
 }

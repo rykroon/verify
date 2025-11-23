@@ -19,7 +19,7 @@ type SendVerificationForm struct {
 }
 
 // https://www.twilio.com/docs/verify/api/verification#start-new-verification
-func (c *Client) SendVerification(serviceSid string, form SendVerificationForm) (*utils.Content, error) {
+func (c *Client) SendVerification(serviceSid string, form SendVerificationForm) (map[string]any, error) {
 	path := "Services/" + serviceSid + "/Verifications"
 	values, err := query.Values(form)
 	if err != nil {
@@ -29,11 +29,19 @@ func (c *Client) SendVerification(serviceSid string, form SendVerificationForm) 
 	if err != nil {
 		return nil, err
 	}
-	resp, err := utils.SendRequest(c.httpClient, req)
+	content, err := utils.SendRequest(c.httpClient, req)
 	if err != nil {
 		return nil, err
 	}
-	return resp, nil
+	if !content.IsJson() {
+		return nil, fmt.Errorf("expected json but got %s", content.Type)
+	}
+	var result map[string]any
+	err = content.DecodeJsonInto(&result)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode json: %w", err)
+	}
+	return result, nil
 }
 
 type CheckVerificationParams struct {
@@ -47,7 +55,7 @@ type CheckVerificationForm struct {
 	Code            string `url:"Code" json:"code"`
 }
 
-func (c *Client) CheckVerification(serviceSid string, form CheckVerificationForm) (*utils.Content, error) {
+func (c *Client) CheckVerification(serviceSid string, form CheckVerificationForm) (map[string]any, error) {
 	path := fmt.Sprintf("Services/%s/VerificationCheck", serviceSid)
 	values, err := query.Values(form)
 	if err != nil {
@@ -57,9 +65,17 @@ func (c *Client) CheckVerification(serviceSid string, form CheckVerificationForm
 	if err != nil {
 		return nil, err
 	}
-	resp, err := utils.SendRequest(c.httpClient, req)
+	content, err := utils.SendRequest(c.httpClient, req)
 	if err != nil {
 		return nil, err
 	}
-	return resp, nil
+	if !content.IsJson() {
+		return nil, fmt.Errorf("expected json but got %s", content.Type)
+	}
+	var result map[string]any
+	err = content.DecodeJsonInto(&result)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode json: %w", err)
+	}
+	return result, nil
 }

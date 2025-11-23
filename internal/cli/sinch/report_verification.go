@@ -1,11 +1,12 @@
 package sinch
 
 import (
+	"fmt"
 	"os"
 
-	"github.com/rykroon/verify/internal/utils"
 	"github.com/rykroon/verify/pkg/sinch"
 	"github.com/spf13/cobra"
+	"gopkg.in/yaml.v3"
 )
 
 func newReportVerificationCmd() *cobra.Command {
@@ -18,12 +19,16 @@ func newReportVerificationCmd() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			client := sinch.NewClient(nil, os.Getenv("SINCH_APP_KEY"), os.Getenv("SINCH_APP_SECRET"))
 
-			content, err := client.ReportVerificationById(params.id, params.ReportVerificationParams)
+			result, err := client.ReportVerificationById(params.id, params.ReportVerificationParams)
 			if err != nil {
 				return err
 			}
 
-			utils.PrintContent(content)
+			yamlBytes, err := yaml.Marshal(result)
+			if err != nil {
+				return fmt.Errorf("failed to encode as yaml: %w", err)
+			}
+			fmt.Println(string(yamlBytes))
 			return nil
 		},
 	}

@@ -3,6 +3,7 @@ package telnyx
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 
 	"github.com/rykroon/verify/internal/utils"
 )
@@ -19,7 +20,7 @@ func (p *TriggerSmsParams) GetParamPointers() []any {
 }
 
 // https://developers.telnyx.com/api/verify/create-verification-sms
-func (c *Client) TriggerSmsVerification(params TriggerSmsParams) (*utils.Content, error) {
+func (c *Client) TriggerSmsVerification(params TriggerSmsParams) (map[string]any, error) {
 	jsonData, err := json.Marshal(params)
 	if err != nil {
 		return nil, err
@@ -32,5 +33,13 @@ func (c *Client) TriggerSmsVerification(params TriggerSmsParams) (*utils.Content
 	if err != nil {
 		return nil, err
 	}
-	return content, nil
+	if !content.IsJson() {
+		return nil, fmt.Errorf("expected json but got %s", content.Type)
+	}
+	var result map[string]any
+	err = content.DecodeJsonInto(&result)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode json: %w", err)
+	}
+	return result, nil
 }

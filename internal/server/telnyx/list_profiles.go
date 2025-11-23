@@ -2,7 +2,6 @@ package telnyx
 
 import (
 	"context"
-	"encoding/json"
 	"os"
 
 	"github.com/rykroon/verify/internal/jsonrpc"
@@ -17,13 +16,8 @@ func ListProfiles(ctx context.Context, params jsonrpc.Params) (any, error) {
 		return nil, jsonrpc.InvalidParams(err.Error())
 	}
 
-	content, err := client.ListVerifyProfiles(p)
+	result, err := client.ListVerifyProfiles(p)
 	if err != nil {
-		return nil, err
-	}
-
-	var result map[string]any
-	if err := json.Unmarshal(content.Data, &result); err != nil {
 		return nil, err
 	}
 

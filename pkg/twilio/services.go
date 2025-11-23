@@ -29,7 +29,7 @@ func (c *Client) CreateService(params CreateServiceParams) (*utils.Content, erro
 	return content, err
 }
 
-func (c *Client) ListServices() (*utils.Content, error) {
+func (c *Client) ListServices() (map[string]any, error) {
 	req, err := c.NewRequest("GET", "/Services", nil)
 	if err != nil {
 		return nil, err
@@ -38,10 +38,18 @@ func (c *Client) ListServices() (*utils.Content, error) {
 	if err != nil {
 		return nil, err
 	}
-	return content, nil
+	if !content.IsJson() {
+		return nil, fmt.Errorf("expected json but got %s", content.Type)
+	}
+	var result map[string]any
+	err = content.DecodeJsonInto(&result)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode json: %w", err)
+	}
+	return result, nil
 }
 
-func (c *Client) FetchService(sid string) (*utils.Content, error) {
+func (c *Client) FetchService(sid string) (map[string]any, error) {
 	req, err := c.NewRequest("GET", "/Services/"+sid, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
@@ -50,5 +58,13 @@ func (c *Client) FetchService(sid string) (*utils.Content, error) {
 	if err != nil {
 		return nil, err
 	}
-	return content, nil
+	if !content.IsJson() {
+		return nil, fmt.Errorf("expected json but got %s", content.Type)
+	}
+	var result map[string]any
+	err = content.DecodeJsonInto(&result)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode json: %w", err)
+	}
+	return result, nil
 }

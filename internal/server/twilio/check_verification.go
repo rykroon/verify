@@ -8,8 +8,8 @@ import (
 	"github.com/rykroon/verify/pkg/twilio"
 )
 
-func SendVerification(ctx context.Context, params jsonrpc.Params) (any, error) {
-	var p twilio.SendVerificationParams
+func CheckVerification(ctx context.Context, params jsonrpc.Params) (any, error) {
+	var p twilio.CheckVerificationParams
 	if err := params.DecodeInto(&p); err != nil {
 		return nil, jsonrpc.InvalidParams(err.Error())
 	}
@@ -18,7 +18,7 @@ func SendVerification(ctx context.Context, params jsonrpc.Params) (any, error) {
 		os.Getenv("TWILIO_API_KEY_SID"), os.Getenv("TWILIO_API_KEY_SECRET"), nil,
 	)
 
-	result, err := client.SendVerification(p.ServiceSid, p.SendVerificationForm)
+	result, err := client.CheckVerification(p.ServiceSid, p.CheckVerificationForm)
 	if err != nil {
 		return nil, err
 	}
