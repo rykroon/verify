@@ -4,7 +4,7 @@ import (
 	"context"
 	"os"
 
-	"github.com/rykroon/verify/internal/jsonrpc"
+	"github.com/rykroon/jsonrpc"
 	"github.com/rykroon/verify/pkg/telnyx"
 )
 
@@ -17,12 +17,12 @@ func (p *VerifyCodeParams) GetParamPointers() []any {
 	return []any{&p.VerificationId, &p.VerifyCodePayload.Code}
 }
 
-func VerifyCode(ctx context.Context, params jsonrpc.Params) (any, error) {
+func VerifyCode(ctx context.Context, params *jsonrpc.Params) (any, error) {
 	client := telnyx.NewClient(nil, os.Getenv("TELNYX_API_KEY"))
 
 	var p VerifyCodeParams
 	if err := params.DecodeInto(&p); err != nil {
-		return nil, jsonrpc.NewJsonRpcError(0, "invalid params", nil)
+		return nil, jsonrpc.NewError(jsonrpc.ErrorCodeInvalidParams, err.Error(), nil)
 	}
 
 	result, err := client.VerifyCode(p.VerificationId, p.VerifyCodePayload)

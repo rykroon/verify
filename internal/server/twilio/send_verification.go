@@ -4,7 +4,7 @@ import (
 	"context"
 	"os"
 
-	"github.com/rykroon/verify/internal/jsonrpc"
+	"github.com/rykroon/jsonrpc"
 	"github.com/rykroon/verify/pkg/twilio"
 )
 
@@ -13,10 +13,10 @@ type SendVerificationParams struct {
 	twilio.SendVerificationForm
 }
 
-func SendVerification(ctx context.Context, params jsonrpc.Params) (any, error) {
+func SendVerification(ctx context.Context, params *jsonrpc.Params) (any, error) {
 	var p SendVerificationParams
 	if err := params.DecodeInto(&p); err != nil {
-		return nil, jsonrpc.InvalidParams(err.Error())
+		return nil, jsonrpc.NewError(jsonrpc.ErrorCodeInvalidParams, err.Error(), nil)
 	}
 
 	client := twilio.NewClient(

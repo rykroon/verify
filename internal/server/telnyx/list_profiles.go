@@ -4,16 +4,16 @@ import (
 	"context"
 	"os"
 
-	"github.com/rykroon/verify/internal/jsonrpc"
+	"github.com/rykroon/jsonrpc"
 	"github.com/rykroon/verify/pkg/telnyx"
 )
 
-func ListProfiles(ctx context.Context, params jsonrpc.Params) (any, error) {
+func ListProfiles(ctx context.Context, params *jsonrpc.Params) (any, error) {
 	client := telnyx.NewClient(nil, os.Getenv("TELNYX_API_KEY"))
 
 	var p telnyx.ListVerifyProfilesParams
 	if err := params.DecodeInto(&p); err != nil {
-		return nil, jsonrpc.InvalidParams(err.Error())
+		return nil, jsonrpc.NewError(jsonrpc.ErrorCodeInvalidParams, err.Error(), nil)
 	}
 
 	result, err := client.ListVerifyProfiles(p)
